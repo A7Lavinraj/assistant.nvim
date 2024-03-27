@@ -12,10 +12,10 @@ local get_sources = function()
 	}
 
 	for _, value in ipairs(options) do
-		local source = io.popen(value + " --version")
+		local source = io.popen(value .. " --version")
 
 		if source then
-			table.insert(sources, source)
+			table.insert(sources, value)
 		end
 	end
 
@@ -27,13 +27,15 @@ end
 local create_source = function(data, path)
 	local sources = get_sources()
 
-	vim.print("sources", sources)
-
 	vim.ui.select(sources, { prompt = "Select source language" }, function(choice)
 		if choice == "cpp" then
 			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".cpp | w")
-		elseif choice == "python" then
+		elseif choice == "c" then
+			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".c | w")
+		elseif choice == "python" or choice == "python3" then
 			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".py | w")
+		elseif choice == "rustc" then
+			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".rs | w")
 		else
 			vim.notify("Selection Aborted", 3) -- nothing get selected
 		end
@@ -84,24 +86,30 @@ local receive = function()
 	end
 
 	server:bind("127.0.0.1", 10043)
-	server:accept(client)
-	server:listen(128, function(listen_error)
-		assert(not listen_error, listen_error) -- handling listening error
-		client:read_start(function(read_error, chunk)
-			assert(not read_error, read_error) -- handling reading error
-			if chunk then
-				table.insert(data, chunk)
-			else
-				data = string.match(table.concat(data), "^.+\r\n(.+)$")
-				data = vim.json.decode(data) -- parsing stringify json
-				create_samples(data, path) -- creating sample files
-				stop_receiving() -- stoping server
+	server:listen(128, function(listen_err)
+		if not listen_err then -- handling listening error
+			server:accept(client)
+			client:read_start(function(read_err, chunk)
+				if not read_err then -- handling reading error
+					if chunk then
+						table.insert(data, chunk)
+					else
+						data = string.match(table.concat(data), "^.+\r\n(.+)$")
+						data = vim.json.decode(data) -- parsing stringify json
+						create_samples(data, path) -- creating sample files
+						stop_receiving() -- stoping server
 
-				vim.schedule(function()
-					create_source(data, path) -- scheduling the creation of source code file
-				end)
-			end
-		end)
+						vim.schedule(function()
+							create_source(data, path) -- scheduling the creation of source code file
+						end)
+					end
+				else
+					vim.notify("Something went wrong, try again", vim.log.levels.ERROR)
+				end
+			end)
+		else
+			vim.notify("Something went wrong, try again", vim.log.levels.ERROR)
+		end
 	end)
 
 	timer = vim.loop.new_timer() -- handling idealness
