@@ -30,7 +30,7 @@ local create_source = function(data, path)
 	vim.ui.select(sources, { prompt = "Select source language" }, function(choice)
 		if choice == "cpp" then
 			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".cpp | w")
-		elseif choice == "c" then
+		elseif choice == "gcc" then
 			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".c | w")
 		elseif choice == "python" or choice == "python3" then
 			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".py | w")
@@ -82,7 +82,6 @@ local receive = function()
 			timer:stop()
 			timer:close()
 		end
-		vim.notify("Server has stopped dur to idealness", vim.log.levels.INFO)
 	end
 
 	server:bind("127.0.0.1", 10043)
