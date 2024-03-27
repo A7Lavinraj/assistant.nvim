@@ -4,18 +4,17 @@ local M = {}
 local get_sources = function()
 	local sources = {}
 	local options = {
-		"gcc",
-		"g++",
-		"python",
-		"python3",
-		"rustc",
+		c = "gcc",
+		cpp = "g++",
+		python = "python3",
+		rust = "rustc",
 	}
 
-	for _, value in ipairs(options) do
+	for key, value in pairs(options) do
 		local source = io.popen(value .. " --version")
 
 		if source then
-			table.insert(sources, value)
+			table.insert(sources, key)
 		end
 	end
 
@@ -28,13 +27,13 @@ local create_source = function(data, path)
 	local sources = get_sources()
 
 	vim.ui.select(sources, { prompt = "Select source language" }, function(choice)
-		if choice == "cpp" then
-			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".cpp | w")
-		elseif choice == "gcc" then
+		if choice == "c" then
 			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".c | w")
-		elseif choice == "python" or choice == "python3" then
+		elseif choice == "cpp" then
+			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".cpp | w")
+		elseif choice == "python" then
 			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".py | w")
-		elseif choice == "rustc" then
+		elseif choice == "rust" then
 			vim.cmd("e " .. path .. string.gsub(data["name"], " ", "_") .. ".rs | w")
 		else
 			vim.notify("Selection Aborted", 3) -- nothing get selected
