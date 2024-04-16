@@ -25,7 +25,7 @@ return {
 		vim.api.nvim_create_autocmd({ "BufHidden", "BufDelete" }, {
 			pattern = "*",
 			group = vim.api.nvim_create_augroup("AssistantGroup", { clear = true }),
-			callback = ui:close(),
+			callback = ui.close,
 		})
 	end,
 }
