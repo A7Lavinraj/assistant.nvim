@@ -2,8 +2,9 @@ local utils = require("assistant.utils")
 local comparator = require("assistant.comparator")
 local ui = require("assistant.ui")
 
-local function runner()
-	local filename = vim.fn.expand("%:p:r")
+---@param filename string
+---@param filetype string
+local function runner(filename, filetype)
 	local problem = io.open(filename .. ".prob", "r")
 
 	if problem then
@@ -11,6 +12,7 @@ local function runner()
 		parsed_data = vim.json.decode(problem:read())
 		local testcases = parsed_data.tests
 		problem:close()
+		ui:open()
 
 		local execute_command = {
 			c = { "./a.out" },
@@ -21,7 +23,7 @@ local function runner()
 
 		local function callback()
 			for _, testcase in pairs(testcases) do
-				local job_id = vim.fn.jobstart(execute_command[vim.bo.filetype], {
+				local job_id = vim.fn.jobstart(execute_command[filetype], {
 					stdout_buffered = true,
 					on_stdout = function(_, stdout)
 						if comparator(table.concat(stdout, "\n"), testcase.output) then
@@ -36,7 +38,7 @@ local function runner()
 			end
 		end
 
-		utils.get_compiled(filename, callback)
+		utils.get_compiled(filename, filetype, callback)
 	end
 end
 

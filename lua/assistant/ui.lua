@@ -21,6 +21,11 @@ function SplitWindow:open()
 		self.buf_id = vim.api.nvim_get_current_buf()
 		self.win_id = vim.api.nvim_get_current_win()
 
+		-- setting keymap to exit the split with [Enter]
+		vim.keymap.set({ "i", "n" }, "<Enter>", function()
+			self:close()
+		end, { buffer = self.buf_id })
+
 		-- setting split window options
 		vim.api.nvim_set_option_value("number", false, { win = self.win_id })
 		vim.api.nvim_set_option_value("relativenumber", false, { win = self.win_id })
@@ -50,7 +55,6 @@ function SplitWindow:toggle()
 end
 
 function SplitWindow:render(expected, output, verdict)
-	self:open()
 	vim.api.nvim_buf_set_lines(self.buf_id, 0, -1, false, { "Assistant.nvim", "" })
 
 	if expected then
@@ -72,7 +76,7 @@ function SplitWindow:render(expected, output, verdict)
 			vim.tbl_flatten({ "OUTPUT:", "---------------", vim.split(output, "\n") })
 		)
 	end
-	vim.api.nvim_buf_set_lines(self.buf_id, -1, -1, false, { "VERDICT: " .. verdict })
+	vim.api.nvim_buf_set_lines(self.buf_id, -1, -1, false, { "VERDICT: " .. verdict, "", "[Press Enter to continue]" })
 end
 
 return SplitWindow:new()

@@ -23,9 +23,7 @@ return {
 
 	---@param filename string
 	---@param callback function
-	get_compiled = function(filename, callback)
-		local filetype = vim.bo.filetype
-
+	get_compiled = function(filename, filetype, callback)
 		if filetype == "c" then
 			vim.fn.jobstart({ "gcc", filename .. ".c" }, { on_exit = callback })
 		elseif filetype == "cpp" then
@@ -34,6 +32,8 @@ return {
 			vim.fn.jobstart({ "rustc", filename .. ".rs" }, { on_exit = callback })
 		elseif filetype == "python" then
 			callback()
+		else
+			vim.notify("Unsupported filetype", vim.log.levels.ERROR)
 		end
 	end,
 
