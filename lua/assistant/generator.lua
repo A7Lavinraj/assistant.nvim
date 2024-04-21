@@ -1,5 +1,4 @@
 local utils = require("assistant.utils")
-local ui = require("assistant.ui")
 
 return {
 	--- @param data string: The data received from the client

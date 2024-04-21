@@ -6,7 +6,7 @@ local execute_user_commands = function(arg)
 	if arg.fargs[1] == "Receive" then
 		receiver()
 	elseif arg.fargs[1] == "RunTest" then
-		runner(vim.fn.expand("%:p:r"), vim.bo.filetype)
+		runner()
 	elseif arg.fargs[1] == "Toggle" then
 		ui:toggle()
 	else
@@ -16,12 +16,6 @@ end
 
 return {
 	setup = function()
-		vim.api.nvim_create_autocmd("BufLeave", {
-			pattern = "Assistant",
-			callback = function()
-				ui:close()
-			end,
-		})
 		vim.api.nvim_create_user_command("Assistant", execute_user_commands, {
 			nargs = 1,
 			complete = function()

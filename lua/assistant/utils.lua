@@ -1,3 +1,5 @@
+local ui = require("assistant.ui")
+
 return {
 	---@return table
 	get_sources = function()
@@ -7,7 +9,6 @@ return {
 			cpp = "g++",
 			python = "python",
 			python3 = "python3",
-			rust = "rustc",
 		}
 
 		for key, value in pairs(options) do
@@ -24,15 +25,18 @@ return {
 	---@param filename string
 	---@param callback function
 	get_compiled = function(filename, filetype, callback)
+		local function on_stderr(_, stderr)
+			ui:render(nil, nil, nil, nil, stderr)
+		end
+
 		if filetype == "c" then
-			vim.fn.jobstart({ "gcc", filename .. ".c" }, { on_exit = callback })
+			vim.fn.jobstart({ "gcc", filename .. ".c" }, { on_stderr = on_stderr, on_exit = callback })
 		elseif filetype == "cpp" then
-			vim.fn.jobstart({ "g++", filename .. ".cpp" }, { on_exit = callback })
-		elseif filetype == "rust" then
-			vim.fn.jobstart({ "rustc", filename .. ".rs" }, { on_exit = callback })
+			vim.fn.jobstart({ "g++", filename .. ".cpp" }, { on_stderr = on_stderr, on_exit = callback })
 		elseif filetype == "python" then
 			callback()
 		else
+			vim.print(filename, filetype)
 			vim.notify("Unsupported filetype", vim.log.levels.ERROR)
 		end
 	end,
@@ -70,15 +74,5 @@ return {
 		end
 
 		return result
-	end,
-
-	get_split = function(str)
-		local substrings = {}
-
-		for substring in str:gmatch("[^" .. "\n" .. "]+") do
-			table.insert(substrings, substring)
-		end
-
-		return substrings
 	end,
 }
