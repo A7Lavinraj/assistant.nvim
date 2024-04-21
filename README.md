@@ -6,7 +6,7 @@ A light-weight competitive programming code tester.
 
 ```lua
 {
-  "A7lavinraj/assistant.nvim"
+  "A7lavinraj/assistant.nvim",
   config = function()
     require("assistant").setup()
   end
@@ -15,13 +15,14 @@ A light-weight competitive programming code tester.
 
 ## Usage
 
-```lua
--- Commands to interact with plugin.
-vim.cmd("AssistantRecieve")
-vim.cmd("AssistantRuntest")
-vim.cmd("AssistantToggle")
+| Command           | description                                              |
+| ----------------- | -------------------------------------------------------- |
+| :AssistantRecieve | Starting tcp server for competitive companion extension. |
+| :AssistantRuntest | Running source code against sample testcases             |
+| :AssistantToggle  | Toggling user interface of Asisstant.nvim                |
 
--- Mapping to interact with plugin.
+```lua
+-- Mappings to interact with plugin.
 local opts = { silent = true, noremap = true }
 
 vim.keymap.set("n", "<leader>af", "<cmd>AssistantRecieve<cr>", opts)
