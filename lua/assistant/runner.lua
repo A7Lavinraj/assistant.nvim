@@ -22,8 +22,7 @@ local function runner()
 			python = { "python3", filename .. ".py" },
 		}
 
-		local function callback(event)
-			vim.print(event)
+		local function callback()
 			for _, testcase in pairs(testcases) do
 				local job_id = vim.fn.jobstart(execute_command[filetype], {
 					stdout_buffered = true,
