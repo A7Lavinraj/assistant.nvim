@@ -1,5 +1,4 @@
 local utils = require("assistant.utils")
-local colors = require("assistant.ui.colors")
 local M = {}
 local sample_directory = string.format("%s/%s/", vim.fn.expand("%:p:h"), ".ast")
 
@@ -22,7 +21,6 @@ local function store_problem(chunk)
 end
 
 M.setup = function()
-	colors.load_colors()
 	local server = vim.uv.new_tcp()
 
 	server:bind("127.0.0.1", 10043)

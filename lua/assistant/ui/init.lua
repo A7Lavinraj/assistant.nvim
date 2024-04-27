@@ -1,5 +1,6 @@
 local state = require("assistant.ui.state")
 local buttons = require("assistant.ui.buttons")
+local colors = require("assistant.ui.colors")
 local AssistantWindow = {}
 
 local function close_window()
@@ -47,14 +48,20 @@ local function create_window()
 		return
 	end
 
+	local function size(max, percent)
+		return math.min(max, math.floor(max * percent))
+	end
+
+	colors.load_colors()
 	state.buf = vim.api.nvim_create_buf(false, true)
 	state.win = vim.api.nvim_open_win(state.buf, true, {
 		relative = "editor",
-		width = state.width - 60,
-		height = state.height - 8,
-		row = 4,
-		col = 30,
+		width = size(vim.o.columns, state.width),
+		height = size(vim.o.lines, state.height),
+		row = math.floor((vim.o.lines - size(vim.o.lines, state.height)) / 2),
+		col = math.floor((vim.o.columns - size(vim.o.columns, state.width)) / 2),
 		style = "minimal",
+		focusable = false,
 	})
 	state.open = true
 
@@ -62,6 +69,16 @@ local function create_window()
 		group = state.group,
 		buffer = state.buf,
 		callback = close_window,
+	})
+
+	vim.api.nvim_create_autocmd("VimResized", {
+		group = state.group,
+		callback = function()
+			vim.api.nvim_win_set_config(state.win, {
+				width = size(vim.o.columns, state.width),
+				height = size(vim.o.lines, state.height),
+			})
+		end,
 	})
 
 	render()
