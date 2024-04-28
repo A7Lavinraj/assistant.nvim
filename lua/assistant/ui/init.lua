@@ -43,18 +43,12 @@ local function render()
 	vim.keymap.set("n", "q", close_window, { buffer = state.buf, silent = true, noremap = true })
 end
 
-local function create_window()
-	if state.open then
-		return
-	end
+local function size(max, percent)
+	return math.min(max, math.floor(max * percent))
+end
 
-	local function size(max, percent)
-		return math.min(max, math.floor(max * percent))
-	end
-
-	colors.load_colors()
-	state.buf = vim.api.nvim_create_buf(false, true)
-	state.win = vim.api.nvim_open_win(state.buf, true, {
+local function get_window_config()
+	return {
 		relative = "editor",
 		width = size(vim.o.columns, state.width),
 		height = size(vim.o.lines, state.height),
@@ -62,7 +56,17 @@ local function create_window()
 		col = math.floor((vim.o.columns - size(vim.o.columns, state.width)) / 2),
 		style = "minimal",
 		focusable = false,
-	})
+	}
+end
+
+local function create_window()
+	if state.open then
+		return
+	end
+
+	colors.load_colors()
+	state.buf = vim.api.nvim_create_buf(false, true)
+	state.win = vim.api.nvim_open_win(state.buf, true, get_window_config())
 	state.open = true
 
 	vim.api.nvim_create_autocmd({ "BufLeave", "BufHidden" }, {
@@ -74,10 +78,7 @@ local function create_window()
 	vim.api.nvim_create_autocmd("VimResized", {
 		group = state.group,
 		callback = function()
-			vim.api.nvim_win_set_config(state.win, {
-				width = size(vim.o.columns, state.width),
-				height = size(vim.o.lines, state.height),
-			})
+			vim.api.nvim_win_set_config(state.win, get_window_config())
 		end,
 	})
 
