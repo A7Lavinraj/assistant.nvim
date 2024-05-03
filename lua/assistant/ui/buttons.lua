@@ -1,6 +1,6 @@
 local state = require("assistant.ui.state")
 
----@type RadioButtons
+---@class RadioButtons
 local Buttons = {}
 
 ---@param config ButtonsConfig

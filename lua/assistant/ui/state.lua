@@ -1,4 +1,4 @@
----@type AssistantState
+---@class AssistantState
 local AssistantState = {
 	buf = nil,
 	win = nil,

@@ -36,7 +36,7 @@ function AssistantView:home()
 			end
 		end
 	else
-		text:append(" No sample file found for current source file")
+		text:append(" No sample file found for current buffer")
 	end
 
 	vim.api.nvim_buf_set_lines(state.buf, 2, -1, false, text.content)
