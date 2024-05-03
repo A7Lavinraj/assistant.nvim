@@ -5,6 +5,21 @@
 ---@field width number
 ---@field open boolean
 
+---@class AssistantAPI
+---@field CWD string?
+---@field FILETYPE string?
+---@field ABSOLUTE_FILENAME_WITHOUT_EXTENSION string?
+---@field ABSOLUTE_FILENAME_WITH_EXTENSION string?
+---@field RELATIVE_FILENAME_WITHOUT_EXTENSION string?
+---@field RELATIVE_FILENAME_WITH_EXTENSION string?
+
+---@class AssistantText
+---@field content table<string>?
+
+---@class AssistantRunner
+---@field filepath string?
+---@field command string?
+
 ---@class Button
 ---@field name string
 ---@field active boolean

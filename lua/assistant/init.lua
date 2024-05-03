@@ -1,4 +1,5 @@
-local utils = require("assistant.utils")
+local config = require("assistant.config")
+
 local M = {}
 local sample_directory = string.format("%s/%s/", vim.fn.expand("%:p:h"), ".ast")
 
@@ -9,7 +10,7 @@ local function store_problem(chunk)
 	end
 
 	local data = string.match(chunk, "^.+\r\n(.+)$")
-	local filename = utils.filter_filename(vim.json.decode(data)["name"])
+	local filename = vim.json.decode(data).languages.java.taskClass
 
 	if filename then
 		local problem = io.open(sample_directory .. filename, "w")
@@ -20,7 +21,8 @@ local function store_problem(chunk)
 	end
 end
 
-M.setup = function()
+M.setup = function(opts)
+	config.update(opts or {})
 	local server = vim.uv.new_tcp()
 
 	server:bind("127.0.0.1", 10043)

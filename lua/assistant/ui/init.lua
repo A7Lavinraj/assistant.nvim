@@ -1,6 +1,8 @@
 local state = require("assistant.ui.state")
-local buttons = require("assistant.ui.buttons")
 local colors = require("assistant.ui.colors")
+local buttons = require("assistant.ui.buttons")
+local view = require("assistant.ui.view")
+local api = require("assistant.api")
 local AssistantWindow = {}
 
 local function close_window()
@@ -30,12 +32,15 @@ local function render()
 		},
 	})
 	buttons:render()
+	view:home()
 
 	vim.keymap.set("n", "H", function()
 		buttons:navigate(1)
+		view:home()
 	end, { buffer = state.buf, silent = true, noremap = true })
 	vim.keymap.set("n", "R", function()
 		buttons:navigate(2)
+		view:run()
 	end, { buffer = state.buf, silent = true, noremap = true })
 	vim.keymap.set("n", "A", function()
 		buttons:navigate(3)
@@ -64,7 +69,8 @@ local function create_window()
 		return
 	end
 
-	colors.load_colors()
+	api:sync()
+	colors:load()
 	state.buf = vim.api.nvim_create_buf(false, true)
 	state.win = vim.api.nvim_open_win(state.buf, true, get_window_config())
 	state.open = true

@@ -1,14 +1,14 @@
-local M = {}
+local AssistantColors = {}
 
-M.colors = {
+AssistantColors.colors = {
 	AssistantButton = { link = "CursorLine" },
 	AssistantButtonActive = { link = "IncSearch" },
 }
 
-M.load_colors = function()
-	for group, value in pairs(M.colors) do
+function AssistantColors:load()
+	for group, value in pairs(AssistantColors.colors) do
 		vim.api.nvim_set_hl(0, group, { link = value.link, default = true })
 	end
 end
 
-return M
+return AssistantColors
