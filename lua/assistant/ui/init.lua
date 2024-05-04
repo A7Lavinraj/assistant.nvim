@@ -28,7 +28,6 @@ local function render()
 		buttons = {
 			{ name = "󰟍 Assistant.nvim(H)", active = true },
 			{ name = " Run Test(R)", active = false },
-			{ name = " Add Test(A)", active = false },
 		},
 	})
 	buttons:render()
@@ -41,9 +40,6 @@ local function render()
 	vim.keymap.set("n", "R", function()
 		buttons:navigate(2)
 		view:run()
-	end, { buffer = state.buf, silent = true, noremap = true })
-	vim.keymap.set("n", "A", function()
-		buttons:navigate(3)
 	end, { buffer = state.buf, silent = true, noremap = true })
 	vim.keymap.set("n", "q", close_window, { buffer = state.buf, silent = true, noremap = true })
 end
@@ -71,6 +67,7 @@ local function create_window()
 
 	api:sync()
 	colors:load()
+	vim.cmd("w")
 	state.buf = vim.api.nvim_create_buf(false, true)
 	state.win = vim.api.nvim_open_win(state.buf, true, get_window_config())
 	state.open = true

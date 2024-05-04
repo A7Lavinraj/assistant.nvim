@@ -3,6 +3,21 @@ local config = require("assistant.config")
 local M = {}
 local sample_directory = string.format("%s/%s/", vim.fn.expand("%:p:h"), ".ast")
 
+local function create_source(filename)
+	local sources = {}
+
+	for key, _ in pairs(config.config.commands) do
+		table.insert(sources, key)
+	end
+
+	vim.ui.select(sources, { prompt = "Select source" }, function(source)
+		if source then
+			local extension = config.config.commands[source].extension
+			vim.cmd(string.format("edit %s.%s | w", filename, extension))
+		end
+	end)
+end
+
 ---@param chunk string
 local function store_problem(chunk)
 	if vim.fn.isdirectory(".ast") == 0 then
@@ -17,12 +32,14 @@ local function store_problem(chunk)
 
 		if problem then
 			problem:write(tostring(data))
+			create_source(filename)
 		end
 	end
 end
 
 M.setup = function(opts)
 	config.update(opts or {})
+	config.load()
 	local server = vim.uv.new_tcp()
 
 	server:bind("127.0.0.1", 10043)

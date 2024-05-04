@@ -45,26 +45,30 @@ function AssistantRunner:run(command, testcase, callback)
 end
 
 function AssistantRunner:compile(command, callback)
-	local result = {}
+	local result = { status_code = 0 }
 
-	vim.fn.jobstart(command, {
-		stdout_buffered = true,
-		stderr_buffered = true,
-		on_stdout = function(_, data)
-			if data then
-				result.stdout = data
-			end
-		end,
-		on_stderr = function(_, data)
-			if data then
-				result.stderr = data
-			end
-		end,
-		on_exit = function(_, code)
-			result.status_code = code
-			callback(result)
-		end,
-	})
+	if command then
+		vim.fn.jobstart(command, {
+			stdout_buffered = true,
+			stderr_buffered = true,
+			on_stdout = function(_, data)
+				if data then
+					result.stdout = data
+				end
+			end,
+			on_stderr = function(_, data)
+				if data then
+					result.stderr = data
+				end
+			end,
+			on_exit = function(_, code)
+				result.status_code = code
+				callback(result)
+			end,
+		})
+	else
+		callback(result)
+	end
 end
 
 function AssistantRunner:run_all(testcases, command)

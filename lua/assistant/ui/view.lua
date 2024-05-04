@@ -42,19 +42,23 @@ function AssistantView:home()
 	vim.api.nvim_buf_set_lines(state.buf, 2, -1, false, text.content)
 end
 
+local function interpolate(command)
+	if command == nil then
+		return nil
+	end
+
+	local str_command = table.concat(command, " ")
+	str_command = str_command:gsub("%$FILENAME_WITH_EXTENSION", api.RELATIVE_FILENAME_WITH_EXTENSION)
+	str_command = str_command:gsub("%$FILENAME_WITHOUT_EXTENSION", api.RELATIVE_FILENAME_WITHOUT_EXTENSION)
+
+	return vim.split(str_command, " ")
+end
+
 function AssistantView:run()
 	local command = config.config.commands[api.FILETYPE] or {}
 
-	local compile = table.concat(command.compile, " ")
-	local execute = table.concat(command.execute, " ")
-
-	compile = compile:gsub("%$FILENAME_WITH_EXTENSION", api.ABSOLUTE_FILENAME_WITH_EXTENSION)
-	compile = compile:gsub("%$FILENAME_WITHOUT_EXTENSION", api.ABSOLUTE_FILENAME_WITHOUT_EXTENSION)
-	execute = execute:gsub("%$FILENAME_WITH_EXTENSION", api.RELATIVE_FILENAME_WITH_EXTENSION)
-	execute = execute:gsub("%$FILENAME_WITHOUT_EXTENSION", api.RELATIVE_FILENAME_WITHOUT_EXTENSION)
-
-	command.compile = vim.split(compile, " ")
-	command.execute = vim.split(execute, " ")
+	command.compile = interpolate(command.compile)
+	command.execute = interpolate(command.execute)
 
 	local tests = api:get()["tests"]
 
