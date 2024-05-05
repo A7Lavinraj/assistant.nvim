@@ -34,7 +34,7 @@ function AssistantView:home()
 			end
 
 			text:render()
-			text:clear()
+			text:clear_text()
 		end
 	else
 		text:append(" No sample file found for current buffer")

@@ -1,16 +1,9 @@
 local Text = require("assistant.ui.text")
-local state = require("assistant.ui.state")
+local config = require("assistant.config")
 
 ---@class AssistantRunner
 local AssistantRunner = {}
 AssistantRunner.__index = AssistantRunner
-
-local function setTimeout(delay, callback)
-	local co = coroutine.create(function()
-		vim.defer_fn(callback, delay)
-	end)
-	coroutine.resume(co)
-end
 
 local function run(command, testcase, callback)
 	---@diagnostic disable: undefined-field
@@ -19,15 +12,30 @@ local function run(command, testcase, callback)
 	local stderr = vim.uv.new_pipe()
 	local tbl = {}
 
-	local _, _ = vim.uv.spawn(
+	local handle, _ = vim.uv.spawn(
 		command.main,
 		{ args = command.args, stdio = { stdin, stdout, stderr } },
 		function(code, _)
 			if code == 0 then
+				tbl.status = "FINISHED"
 				callback(tbl)
 			end
 		end
 	)
+
+	tbl.status = "RUNNING"
+
+	local timer = vim.uv.new_timer()
+	timer:start(config.config.time_limit, 0, function()
+		timer:stop()
+		timer:close()
+		handle:close()
+
+		if tbl.status == "RUNNING" then
+			tbl.killed = true
+			callback(tbl)
+		end
+	end)
 
 	vim.uv.read_start(stdout, function(_, data)
 		if data then
@@ -59,21 +67,41 @@ end
 function AssistantRunner:run_all(testcases, command)
 	local text = Text:new()
 
+	text:newline()
+	text:append(" COMPILING... ", "DiagnosticVirtualTextINFO")
+	text:render()
+	text:clear_text()
+
 	compile(command.compile, function(compile_code, _)
+		vim.schedule(function()
+			text:clear_screen()
+			text:newline()
+			text:append(" RUNNING... ", "DiagnosticVirtualTextINFO")
+			text:render()
+			text:clear_text()
+		end)
+
 		if compile_code == 0 then
 			for index, testcase in ipairs(testcases) do
 				run(command.execute, testcase, function(execution_result)
 					text:newline()
 
-					if comparator(execution_result.stdout, testcase.output) then
-						text:append(string.format(" Testcase #%d PASSED ", index), "DiagnosticVirtualTextHINT")
+					if execution_result.killed then
+						text:append(
+							string.format(" Testcase #%d TIME LIMIT EXCEEDED ", index),
+							"DiagnosticVirtualTextWARN"
+						)
 					else
-						text:append(string.format(" Testcase #%d FAILED ", index), "DiagnosticVirtualTextERROR")
+						if comparator(execution_result.stdout, testcase.output) then
+							text:append(string.format(" Testcase #%d PASSED ", index), "DiagnosticVirtualTextHINT")
+						else
+							text:append(string.format(" Testcase #%d FAILED ", index), "DiagnosticVirtualTextERROR")
+						end
 					end
 
 					vim.schedule(function()
+						text:clear_screen()
 						text:render()
-						text:clear()
 					end)
 				end)
 			end
