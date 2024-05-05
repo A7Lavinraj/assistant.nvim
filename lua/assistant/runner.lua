@@ -1,6 +1,5 @@
 local Text = require("assistant.ui.text")
 local state = require("assistant.ui.state")
-local config = require("assistant.config").config
 
 ---@class AssistantRunner
 local AssistantRunner = {}
@@ -13,116 +12,70 @@ local function setTimeout(delay, callback)
 	coroutine.resume(co)
 end
 
-function AssistantRunner:run(command, testcase, callback)
-	local job_id = vim.fn.jobstart(command, {
-		stdout_buffered = true,
-		stderr_buffered = true,
-		on_stdout = function(_, data)
-			if data then
-				testcase.stdout = data
-			end
-		end,
-		on_stderr = function(_, data)
-			if data then
-				testcase.stderr = data
-			end
-		end,
-		on_exit = function(_, code)
-			testcase.status_code = code
-			callback(testcase)
-		end,
-	})
+local function run(command, testcase, callback)
+	---@diagnostic disable: undefined-field
+	local stdin = vim.uv.new_pipe()
+	local stdout = vim.uv.new_pipe()
+	local stderr = vim.uv.new_pipe()
+	local tbl = {}
 
-	setTimeout(config.time_limit, function()
-		local id = vim.fn.jobstop(job_id)
+	local _, _ = vim.uv.spawn(
+		command.main,
+		{ args = command.args, stdio = { stdin, stdout, stderr } },
+		function(code, _)
+			if code == 0 then
+				callback(tbl)
+			end
+		end
+	)
 
-		if id == 1 then
-			testcase.killed = true
+	vim.uv.read_start(stdout, function(_, data)
+		if data then
+			tbl.stdout = data
 		end
 	end)
 
-	vim.api.nvim_chan_send(job_id, testcase.input)
+	vim.uv.read_start(stderr, function(_, data)
+		if data then
+			tbl.stderr = data
+		end
+	end)
+
+	vim.uv.write(stdin, testcase.input)
 end
 
-function AssistantRunner:compile(command, callback)
-	local result = { status_code = 0 }
+local function compile(command, callback)
+	local _, _ = vim.uv.spawn(command.main, { args = command.args }, callback)
+end
 
-	if command then
-		vim.fn.jobstart(command, {
-			stdout_buffered = true,
-			stderr_buffered = true,
-			on_stdout = function(_, data)
-				if data then
-					result.stdout = data
-				end
-			end,
-			on_stderr = function(_, data)
-				if data then
-					result.stderr = data
-				end
-			end,
-			on_exit = function(_, code)
-				result.status_code = code
-				callback(result)
-			end,
-		})
-	else
-		callback(result)
+local function comparator(stdout, expected)
+	local function process_str(str)
+		return str:gsub("\n", " "):gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
 	end
+
+	return process_str(stdout) == process_str(expected)
 end
 
 function AssistantRunner:run_all(testcases, command)
-	self:compile(command.compile, function(compile_status)
-		if compile_status.status_code == 0 then
-			local text = Text:new()
-			text:newline()
+	local text = Text:new()
 
-			if vim.api.nvim_buf_is_valid(state.buf) then
-				vim.api.nvim_buf_set_lines(state.buf, 2, -1, false, {})
-			end
+	compile(command.compile, function(compile_code, _)
+		if compile_code == 0 then
+			for index, testcase in ipairs(testcases) do
+				run(command.execute, testcase, function(execution_result)
+					text:newline()
 
-			for _, testcase in ipairs(testcases) do
-				self:run(command.execute, testcase, function(execute_status)
-					if execute_status.killed then
-						text:append("TIME LIMIT EXCEEDED")
+					if comparator(execution_result.stdout, testcase.output) then
+						text:append(string.format(" Testcase #%d PASSED ", index), "DiagnosticVirtualTextHINT")
 					else
-						text:append("INPUT")
-						text:append("----------")
-
-						for _, value in ipairs(vim.split(testcase.input, "\n")) do
-							text:append(value)
-						end
-
-						text:append("EXPECTED")
-						text:append("----------")
-
-						for _, value in ipairs(vim.split(testcase.output, "\n")) do
-							text:append(value)
-						end
-
-						text:append("STDOUT")
-						text:append("----------")
-
-						for _, value in ipairs(execute_status.stdout) do
-							text:append(value)
-						end
+						text:append(string.format(" Testcase #%d FAILED ", index), "DiagnosticVirtualTextERROR")
 					end
 
-					if vim.api.nvim_buf_is_valid(state.buf) then
-						vim.api.nvim_buf_set_lines(state.buf, -1, -1, false, text.content)
-					end
+					vim.schedule(function()
+						text:render()
+						text:clear()
+					end)
 				end)
-			end
-		else
-			local text = Text:new()
-			text:newline()
-
-			for _, value in ipairs(compile_status.stderr) do
-				text:append(value)
-			end
-
-			if vim.api.nvim_buf_is_valid(state.buf) then
-				vim.api.nvim_buf_set_lines(state.buf, -1, -1, false, text.content)
 			end
 		end
 	end)

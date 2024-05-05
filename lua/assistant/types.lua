@@ -14,7 +14,8 @@
 ---@field RELATIVE_FILENAME_WITH_EXTENSION string?
 
 ---@class AssistantText
----@field content table<string>?
+---@field lines table?
+---@field index number?
 
 ---@class AssistantRunner
 ---@field filepath string?

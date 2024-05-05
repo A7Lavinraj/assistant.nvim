@@ -1,5 +1,4 @@
 local api = require("assistant.api")
-local state = require("assistant.ui.state")
 local config = require("assistant.config")
 local runner = require("assistant.runner")
 local Text = require("assistant.ui.text")
@@ -11,51 +10,65 @@ function AssistantView:home()
 	text:newline()
 
 	if data then
-		text:append(string.format("Name: %s", data.name))
+		text:append(string.format("Name: %s", data.name), "Bold")
 		text:newline()
 		text:append(
-			string.format("Time limit: %.2f seconds, Memory limit: %s MB", data.timeLimit / 1000, data.memoryLimit)
+			string.format("Time limit: %.2f seconds, Memory limit: %s MB", data.timeLimit / 1000, data.memoryLimit),
+			"Comment"
 		)
 		text:newline()
 
-		text:append("INPUT")
-		text:append("----------")
-
 		for _, test in ipairs(data.tests) do
+			text:append("INPUT", "Boolean")
+			text:append("----------", "Boolean")
+
 			for _, value in ipairs(vim.split(test.input, "\n")) do
 				text:append(value)
 			end
-		end
 
-		text:append("EXPECTED")
-		text:append("----------")
+			text:append("EXPECTED", "Boolean")
+			text:append("----------", "Boolean")
 
-		for _, test in ipairs(data.tests) do
 			for _, value in ipairs(vim.split(test.output, "\n")) do
 				text:append(value)
 			end
+
+			text:render()
+			text:clear()
 		end
 	else
 		text:append(" No sample file found for current buffer")
 	end
 
-	vim.api.nvim_buf_set_lines(state.buf, 2, -1, false, text.content)
+	text:render()
 end
 
 local function interpolate(command)
-	if command == nil then
+	if not command then
 		return nil
 	end
 
-	local str_command = table.concat(command, " ")
-	str_command = str_command:gsub("%$FILENAME_WITH_EXTENSION", api.RELATIVE_FILENAME_WITH_EXTENSION)
-	str_command = str_command:gsub("%$FILENAME_WITHOUT_EXTENSION", api.RELATIVE_FILENAME_WITHOUT_EXTENSION)
+	local function replace(filename)
+		return filename
+			:gsub("%$FILENAME_WITH_EXTENSION", api.RELATIVE_FILENAME_WITH_EXTENSION)
+			:gsub("%$FILENAME_WITHOUT_EXTENSION", api.RELATIVE_FILENAME_WITHOUT_EXTENSION)
+	end
 
-	return vim.split(str_command, " ")
+	if command.main then
+		command.main = replace(command.main)
+	end
+
+	if command.args then
+		for i = 1, #command.args do
+			command.args[i] = replace(command.args[i])
+		end
+	end
+
+	return command
 end
 
 function AssistantView:run()
-	local command = config.config.commands[api.FILETYPE] or {}
+	local command = vim.deepcopy(config.config.commands[api.FILETYPE])
 
 	command.compile = interpolate(command.compile)
 	command.execute = interpolate(command.execute)

@@ -67,7 +67,6 @@ local function create_window()
 
 	api:sync()
 	colors:load()
-	vim.cmd("w")
 	state.buf = vim.api.nvim_create_buf(false, true)
 	state.win = vim.api.nvim_open_win(state.buf, true, get_window_config())
 	state.open = true

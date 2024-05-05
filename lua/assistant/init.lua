@@ -40,6 +40,8 @@ end
 M.setup = function(opts)
 	config.update(opts or {})
 	config.load()
+
+	---@diagnostic disable: undefined-field
 	local server = vim.uv.new_tcp()
 
 	server:bind("127.0.0.1", 10043)
