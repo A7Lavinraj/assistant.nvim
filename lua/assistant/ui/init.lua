@@ -17,9 +17,11 @@ local M = {}
 function M.open()
   window.state:sync()
   window:create_window()
+  window.state.test_data =
+    utils.fetch(string.format("%s/.ast/%s", window.state.CWD, window.state.FILENAME_WITHOUT_EXTENSION))
+
   renderer:init({ padding = 2, bufnr = window.buf })
   buttonset:init({ gap = 2 })
-
   buttonset
     :add({ text = " 󰟍 Assistant.nvim ", group = "AssistantButtonActive", is_active = true })
     :add({ text = "  Run Test ", group = "AssistantButton", is_active = false })
@@ -30,19 +32,21 @@ function M.open()
     buttonset:click(1)
     renderer:buttons(buttonset)
 
-    local data = utils.fetch(string.format("%s/.ast/%s", window.state.CWD, window.state.FILENAME_WITHOUT_EXTENSION))
-
-    if data then
-      text:newline():append(string.format("Name: %s", data.name), "AssistantH1")
+    if window.state.test_data then
+      text:newline():append(string.format("Name: %s", window.state.test_data["name"]), "AssistantH1")
       text
         :newline()
         :append(
-          string.format("Time limit: %.2f seconds, Memory limit: %s MB", data.timeLimit / 1000, data.memoryLimit),
+          string.format(
+            "Time limit: %.2f seconds, Memory limit: %s MB",
+            window.state.test_data["timeLimit"] / 1000,
+            window.state.test_data["memoryLimit"]
+          ),
           "AssistantDesc"
         )
         :newline()
 
-      for _, test in ipairs(data.tests) do
+      for _, test in ipairs(window.state.test_data["tests"]) do
         text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
 
         for _, value in ipairs(vim.split(test.input, "\n")) do
@@ -66,12 +70,59 @@ function M.open()
     renderer:text(text)
   end
 
+  local function render_tests(tests)
+    vim.schedule(function()
+      window:clear_window(2, -1)
+      text:update({})
+      text:newline()
+
+      for index, test in ipairs(tests) do
+        text
+          :append(
+            string.format(
+              "%s Testcase #%d: %s",
+              (test.expand and test.expand == true and test.status ~= "RUNNING") and "" or "",
+              index,
+              test.status
+            ),
+            test.group
+          )
+          :newline()
+
+        if test.expand and test.expand == true and test.status ~= "RUNNING" then
+          text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
+
+          for _, line in ipairs(vim.split(test.input, "\n")) do
+            text:append(line, "AssistantText")
+          end
+
+          text:append("EXPECTED", "AssistantH2"):append("----------", "AssistantH2")
+
+          for _, line in ipairs(vim.split(test.output, "\n")) do
+            text:append(line, "AssistantText")
+          end
+
+          text:append("STDOUT", "AssistantH2"):append("----------", "AssistantH2")
+
+          if test.stdout then
+            for _, line in ipairs(vim.split(test.stdout, "\n")) do
+              text:append(line, "AssistantText")
+            end
+          else
+            text:append("NIL", "AssistantDesc"):newline()
+          end
+        end
+      end
+
+      renderer:text(text)
+    end)
+  end
+
   local function run_tab()
     window:clear_window(0, -1)
     buttonset:click(2)
     renderer:buttons(buttonset)
 
-    local data = utils.fetch(string.format("%s/.ast/%s", window.state.CWD, window.state.FILENAME_WITHOUT_EXTENSION))
     local function interpolate(command)
       if not command then
         return nil
@@ -98,9 +149,9 @@ function M.open()
       return _command
     end
 
-    if data then
+    if window.state.test_data then
       runner:init({
-        tests = vim.deepcopy(data.tests),
+        tests = window.state.test_data["tests"],
         command = {
           compile = interpolate(config.commands[window.state.FILETYPE].compile),
           execute = interpolate(config.commands[window.state.FILETYPE].execute),
@@ -153,6 +204,27 @@ function M.open()
     run_tab,
     { noremap = true, silent = true, desc = "Assistant Run Test", buffer = window.buf }
   )
+  vim.keymap.set("n", "<enter>", function()
+    local current_line = vim.api.nvim_get_current_line()
+    local number = current_line:match("Testcase #(%d+): %a+")
+
+    if number then
+      local test = window.state.test_data["tests"][tonumber(number)]
+
+      if not test.expand then
+        test.expand = true
+      else
+        test.expand = false
+      end
+
+      local cursor_pos = vim.api.nvim_win_get_cursor(window.win)
+      render_tests(window.state.test_data["tests"])
+
+      vim.schedule(function()
+        vim.api.nvim_win_set_cursor(window.win, cursor_pos)
+      end)
+    end
+  end, { noremap = true, silent = true, desc = "Assistant Run Test", buffer = window.buf })
 end
 
 function M.close()

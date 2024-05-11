@@ -3,5 +3,6 @@
 - [x] More colors should be added to colors.lua.
 - [x] Button class should be refactor for more extensibility.
 - [x] Window should be converted to class which accepts states for more extensibility.
-- [ ] Handle non-runable files
 - [x] fix types of classes
+- [ ] Handle non-runable files
+- [x] stdout showcase functionality
