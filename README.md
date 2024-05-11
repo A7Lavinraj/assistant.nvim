@@ -20,6 +20,7 @@ https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/2f8ec7d7-2035-42a8
 -- Example to setup for C++ and Python
 {
   "A7lavinraj/assistant.nvim",
+  dependencies = { "stevearc/dressing.nvim" }
   config = function()
     require("assistant").setup({
 	commands = {
