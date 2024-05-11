@@ -1,43 +1,51 @@
 ---@class AssistantState
----@field buf number | nil
----@field win number | nil
----@field height number
----@field width number
----@field open boolean
+---@field CWD? string
+---@field FILETYPE? string
+---@field FILENAME_WITH_EXTENSION? string
+---@field FILENAME_WITHOUT_EXTENSION? string
 
----@class AssistantAPI
----@field CWD string?
----@field FILETYPE string?
----@field ABSOLUTE_FILENAME_WITHOUT_EXTENSION string?
----@field ABSOLUTE_FILENAME_WITH_EXTENSION string?
----@field RELATIVE_FILENAME_WITHOUT_EXTENSION string?
----@field RELATIVE_FILENAME_WITH_EXTENSION string?
-
----@class AssistantText
----@field lines table?
----@field index number?
+---@class AssistantWindow
+---@field buf? number
+---@field win? number
+---@field is_open? boolean
+---@field height? number
+---@field width? number
+---@field augroup? number
+---@field state? AssistantState
 
 ---@class AssistantRunner
----@field filepath string?
----@field command string?
+---@field tests? Test[]
+---@field command? { compile: { main: string, args: table<string> }, execute: { main: string, args: table<string> } }
+---@field time_limit? number
+
+---@class Test
+---@field input string
+---@field output string
+---@field stdout string
+---@field stderr string
+---@field status string
+---@field group string
+
+---@class Renderer
+---@field padding number
+---@field bufnr number
+
+---@class RendererOpts
+---@field padding number
+---@field bufnr number
 
 ---@class Button
----@field name string
----@field active boolean
+---@field text string
+---@field group string
+---@field is_actice boolean
 
----@class ButtonsConfig
----@field buttons Button[]
+---@class ButtonSet
 ---@field gap number
----@field padding number
----@field buf number
+---@field buttons Button[]
 
----@class RadioButtons
----@field text string?
----@field gap number?
----@field padding number?
----@field buttons Button[]?
----@field init function?
----@field render function?
----@field highlights function?
----@field navigate function?
----@field buf number?
+---@class Line
+---@field content string
+---@field group string
+
+---@class Text
+---@field lines Line[]

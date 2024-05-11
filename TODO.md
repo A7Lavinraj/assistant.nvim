@@ -1,0 +1,7 @@
+- [x] Refactor update function in config module.
+- [x] Text class should be fix to do things related to it.
+- [x] More colors should be added to colors.lua.
+- [x] Button class should be refactor for more extensibility.
+- [x] Window should be converted to class which accepts states for more extensibility.
+- [ ] Handle non-runable files
+- [x] fix types of classes

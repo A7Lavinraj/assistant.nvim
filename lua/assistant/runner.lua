@@ -1,62 +1,24 @@
-local Text = require("assistant.ui.text")
-local config = require("assistant.config")
-
----@class AssistantRunner
 local AssistantRunner = {}
-AssistantRunner.__index = AssistantRunner
 
-local function run(command, testcase, callback)
-  ---@diagnostic disable: undefined-field
-  local stdin = vim.uv.new_pipe()
-  local stdout = vim.uv.new_pipe()
-  local stderr = vim.uv.new_pipe()
-  local tbl = {}
+function AssistantRunner.new()
+  local self = setmetatable({}, { __index = AssistantRunner })
 
-  local handle, _ = vim.uv.spawn(
-    command.main,
-    { args = command.args, stdio = { stdin, stdout, stderr } },
-    function(code, _)
-      if code == 0 then
-        tbl.status = "FINISHED"
-        callback(tbl)
-      end
-    end
-  )
+  self.tests = {}
+  self.command = nil
+  self.exe_cb = nil
 
-  tbl.status = "RUNNING"
-
-  local timer = vim.uv.new_timer()
-  timer:start(config.config.time_limit, 0, function()
-    timer:stop()
-    timer:close()
-    handle:close()
-
-    if tbl.status == "RUNNING" then
-      tbl.killed = true
-      callback(tbl)
-    end
-  end)
-
-  vim.uv.read_start(stdout, function(_, data)
-    if data then
-      tbl.stdout = data
-    end
-  end)
-
-  vim.uv.read_start(stderr, function(_, data)
-    if data then
-      tbl.stderr = data
-    end
-  end)
-
-  vim.uv.write(stdin, testcase.input)
+  return self
 end
 
-local function compile(command, callback)
-  local _, _ = vim.uv.spawn(command.main, { args = command.args }, callback)
+function AssistantRunner:init(opts)
+  self.tests = opts.tests
+  self.command = opts.command
+  self.time_limit = opts.time_limit
+  self.cmp_cb = opts.cmp_cb
+  self.exe_cb = opts.exe_cb
 end
 
-local function comparator(stdout, expected)
+function AssistantRunner:comparator(stdout, expected)
   local function process_str(str)
     return str:gsub("\n", " "):gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
   end
@@ -64,47 +26,101 @@ local function comparator(stdout, expected)
   return process_str(stdout) == process_str(expected)
 end
 
-function AssistantRunner:run_all(testcases, command)
-  local text = Text:new()
+function AssistantRunner:compile(callback)
+  _, _ = vim.uv.spawn(self.command.compile.main, { args = self.command.compile.args }, callback)
+end
 
-  text:newline()
-  text:append(" COMPILING... ", "DiagnosticVirtualTextINFO")
-  text:render()
-  text:clear_text()
+function AssistantRunner:run(index)
+  local process = {
+    stdin = vim.uv.new_pipe(),
+    stdout = vim.uv.new_pipe(),
+    stderr = vim.uv.new_pipe(),
+  }
 
-  compile(command.compile, function(compile_code, _)
-    vim.schedule(function()
-      text:clear_screen()
-      text:newline()
-      text:append(" RUNNING... ", "DiagnosticVirtualTextINFO")
-      text:render()
-      text:clear_text()
-    end)
+  process.handle, process.id = vim.uv.spawn(
+    self.command.execute.main,
+    { args = self.command.execute.args, stdio = { process.stdin, process.stdout, process.stderr } },
+    function(code, signal)
+      process.code, process.signal = code, signal
 
-    if compile_code == 0 then
-      for index, testcase in ipairs(testcases) do
-        run(command.execute, testcase, function(execution_result)
-          text:newline()
+      if process.code == 0 then
+        if self:comparator(self.tests[index].stdout, self.tests[index].output) then
+          self.tests[index].status = "PASSED"
+          self.tests[index].group = "AssistantPassed"
+        else
+          self.tests[index].status = "FAILED"
+          self.tests[index].group = "AssistantFailed"
+        end
 
-          if execution_result.killed then
-            text:append(
-              string.format(" Testcase #%d TIME LIMIT EXCEEDED ", index),
-              "DiagnosticVirtualTextWARN"
-            )
-          else
-            if comparator(execution_result.stdout, testcase.output) then
-              text:append(string.format(" Testcase #%d PASSED ", index), "DiagnosticVirtualTextHINT")
-            else
-              text:append(string.format(" Testcase #%d FAILED ", index), "DiagnosticVirtualTextERROR")
-            end
-          end
-
-          vim.schedule(function()
-            text:clear_screen()
-            text:render()
-          end)
-        end)
+        self.exe_cb(self.tests)
       end
+
+      if not process.stdin:is_closing() then
+        process.stdin:close()
+      end
+
+      if not process.handle:is_closing() then
+        process.handle:close()
+      end
+    end
+  )
+
+  self.tests[index].status = "RUNNING"
+  self.tests[index].group = "AssistantRunning"
+  self.exe_cb(self.tests)
+
+  local timer = vim.uv.new_timer()
+  timer:start(self.time_limit, 0, function()
+    timer:stop()
+    timer:close()
+
+    if self.tests[index].status == "RUNNING" then
+      self.tests[index].status = "TIME LIMIT EXCEEDED"
+      self.tests[index].group = "AssistantKilled"
+      self.exe_cb(self.tests)
+    end
+  end)
+
+  vim.uv.read_start(process.stdout, function(err, data)
+    if err or not data then
+      if process.stdout:is_readable() then
+        process.stdout:read_stop()
+      end
+
+      if process.stdout:is_closing() then
+        process.stdout:close()
+      end
+    else
+      self.tests[index].stdout = data
+    end
+  end)
+
+  vim.uv.read_start(process.stderr, function(err, data)
+    if err or not data then
+      if process.stderr:is_readable() then
+        process.stderr:read_stop()
+      end
+
+      if process.stderr:is_closing() then
+        process.stderr:close()
+      end
+    else
+      self.tests[index].stderr = data
+    end
+  end)
+
+  vim.uv.write(process.stdin, self.tests[index].input)
+  vim.uv.shutdown(process.stdin)
+end
+
+function AssistantRunner:run_all()
+  self:compile(function(code, signal)
+    if code == 0 then
+      for i = 1, #self.tests do
+        self:run(i)
+      end
+    else
+      self.cmp_cb(code, signal)
     end
   end)
 end

@@ -1,45 +1,26 @@
-local state = require("assistant.ui.state")
+local Text = {}
 
----@class AssistantText
-local AssistantText = {}
-AssistantText.__index = AssistantText
+function Text.new()
+  local self = setmetatable({}, { __index = Text })
+  self.lines = {}
 
-function AssistantText:new()
-	return setmetatable({
-		lines = {},
-	}, AssistantText)
+  return self
 end
 
-function AssistantText:newline()
-	table.insert(self.lines, { content = "", hl_group = "NonText" })
+function Text:newline()
+  table.insert(self.lines, { content = "", group = "AssistantNonText" })
+  return self
 end
 
-function AssistantText:append(text, hl_group)
-	table.insert(self.lines, { content = string.rep(" ", 2) .. text, hl_group = hl_group or "AerialNormal" })
+function Text:append(content, group)
+  table.insert(self.lines, { content = content, group = group })
+  return self
 end
 
-function AssistantText:clear_screen()
-	vim.api.nvim_buf_set_lines(state.buf, 2, -1, false, {})
+function Text:update(lines)
+  self.lines = lines or {}
+
+  return self
 end
 
-function AssistantText:clear_text()
-	self.lines = {}
-end
-
-function AssistantText:render()
-	for _, line in ipairs(self.lines) do
-		if vim.api.nvim_buf_is_valid(state.buf) then
-			vim.api.nvim_buf_set_lines(state.buf, -1, -1, false, { line.content })
-			vim.api.nvim_buf_add_highlight(
-				state.buf,
-				-1,
-				line.hl_group,
-				vim.api.nvim_buf_line_count(state.buf) - 1,
-				2,
-				-1
-			)
-		end
-	end
-end
-
-return AssistantText
+return Text

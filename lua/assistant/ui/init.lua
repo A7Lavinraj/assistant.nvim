@@ -1,98 +1,174 @@
-local state = require("assistant.ui.state")
-local colors = require("assistant.ui.colors")
-local buttons = require("assistant.ui.buttons")
-local view = require("assistant.ui.view")
-local api = require("assistant.api")
-local AssistantWindow = {}
+require("assistant.ui.colors").load()
+local Window = require("assistant.ui.window")
+local Renderer = require("assistant.ui.renderer")
+local ButtonSet = require("assistant.ui.buttonset")
+local Text = require("assistant.ui.text")
+local Runner = require("assistant.runner")
+local utils = require("assistant.ui.utils")
+local config = require("assistant.config").config
 
-local function close_window()
-	vim.schedule(function()
-		if vim.api.nvim_win_is_valid(state.win) then
-			vim.api.nvim_win_close(state.win, true)
-			state.win = -1
-		end
+local window = Window.new()
+local renderer = Renderer.new()
+local buttonset = ButtonSet.new()
+local text = Text.new()
+local runner = Runner.new()
+local M = {}
 
-		if vim.api.nvim_buf_is_valid(state.buf) then
-			vim.api.nvim_buf_delete(state.buf, { force = true })
-			state.buf = -1
-		end
+function M.open()
+  window.state:sync()
+  window:create_window()
+  renderer:init({ padding = 2, bufnr = window.buf })
+  buttonset:init({ gap = 2 })
 
-		state.open = false
-	end)
+  buttonset
+      :add({ text = " 󰟍 Assistant.nvim ", group = "AssistantButtonActive", is_active = true })
+      :add({ text = "  Run Test ", group = "AssistantButton", is_active = false })
+
+  local function home_tab()
+    window:clear_window(0, -1)
+    text:update({})
+    buttonset:click(1)
+    renderer:buttons(buttonset)
+
+    local data = utils.fetch(string.format("%s/.ast/%s", window.state.CWD, window.state.FILENAME_WITHOUT_EXTENSION))
+
+    if data then
+      text:newline():append(string.format("Name: %s", data.name), "AssistantH1")
+      text:newline()
+          :append(
+            string.format(
+              "Time limit: %.2f seconds, Memory limit: %s MB",
+              data.timeLimit / 1000,
+              data.memoryLimit
+            ),
+            "AssistantDesc"
+          )
+          :newline()
+
+      for _, test in ipairs(data.tests) do
+        text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
+
+        for _, value in ipairs(vim.split(test.input, "\n")) do
+          text:append(value, "AssistantText")
+        end
+
+        text:append("EXPECTED", "AssistantH2"):append("----------", "AssistantH2")
+
+        for _, value in ipairs(vim.split(test.output, "\n")) do
+          text:append(value, "AssistantText")
+        end
+      end
+    else
+      text:newline():append(" No sample found", "AssistantError"):newline():append(
+        ".ast directory might be removed or sample for currently open file not fetched yet.",
+        "AssistantDesc"
+      )
+    end
+
+    renderer:text(text)
+  end
+
+  local function run_tab()
+    window:clear_window(0, -1)
+    buttonset:click(2)
+    renderer:buttons(buttonset)
+
+    local data = utils.fetch(string.format("%s/.ast/%s", window.state.CWD, window.state.FILENAME_WITHOUT_EXTENSION))
+    local function interpolate(command)
+      if not command then
+        return nil
+      end
+
+      local function replace(filename)
+        return filename
+            :gsub("%$FILENAME_WITH_EXTENSION", window.state.FILENAME_WITH_EXTENSION)
+            :gsub("%$FILENAME_WITHOUT_EXTENSION", window.state.FILENAME_WITHOUT_EXTENSION)
+      end
+
+      local _command = vim.deepcopy(command)
+
+      if _command.main then
+        _command.main = replace(_command.main)
+      end
+
+      if _command.args then
+        for i = 1, #command.args do
+          _command.args[i] = replace(command.args[i])
+        end
+      end
+
+      return _command
+    end
+
+    if data then
+      runner:init({
+        tests = vim.deepcopy(data.tests),
+        command = {
+          compile = interpolate(config.commands[window.state.FILETYPE].compile),
+          execute = interpolate(config.commands[window.state.FILETYPE].execute),
+        },
+        time_limit = config.time_limit,
+        cmp_cb = function(code, signal)
+          vim.schedule(function()
+            window:clear_window(2, -1)
+            text:update({})
+                :newline()
+                :append(
+                  string.format("COMPILATION ERROR (CODE: %d, SIGNAL: %d)", code, signal),
+                  "AssistantError"
+                )
+                :newline()
+                :append("Looks like your code doesn't compile, fix and try again", "AssistantDesc")
+            renderer:text(text)
+          end)
+        end,
+        exe_cb = function(tests)
+          vim.schedule(function()
+            window:clear_window(2, -1)
+            text:update({})
+
+            for index, test in ipairs(tests) do
+              text:newline():append(string.format(" Testcase #%d: %s", index, test.status), test.group)
+            end
+
+            renderer:text(text)
+          end)
+        end,
+      })
+
+      runner:run_all()
+    end
+  end
+
+  home_tab()
+
+  vim.keymap.set("n", "q", function()
+    window:delete_window()
+  end, { noremap = true, silent = true, desc = "Assistant Quit", buffer = window.buf })
+  vim.keymap.set(
+    "n",
+    "<s-h>",
+    home_tab,
+    { noremap = true, silent = true, desc = "Assistant Run Test", buffer = window.buf }
+  )
+  vim.keymap.set(
+    "n",
+    "<s-r>",
+    run_tab,
+    { noremap = true, silent = true, desc = "Assistant Run Test", buffer = window.buf }
+  )
 end
 
-local function render()
-	buttons:init({
-		padding = 3,
-		gap = 3,
-		buttons = {
-			{ name = "󰟍 Assistant.nvim(H)", active = true },
-			{ name = " Run Test(R)", active = false },
-		},
-	})
-	buttons:render()
-	view:home()
-
-	vim.keymap.set("n", "H", function()
-		buttons:navigate(1)
-		view:home()
-	end, { buffer = state.buf, silent = true, noremap = true })
-	vim.keymap.set("n", "R", function()
-		buttons:navigate(2)
-		view:run()
-	end, { buffer = state.buf, silent = true, noremap = true })
-	vim.keymap.set("n", "q", close_window, { buffer = state.buf, silent = true, noremap = true })
+function M.close()
+  window:delete_window()
 end
 
-local function size(max, percent)
-	return math.min(max, math.floor(max * percent))
+function M.toggle()
+  if window.is_open then
+    M.close()
+  else
+    M.open()
+  end
 end
 
-local function get_window_config()
-	return {
-		relative = "editor",
-		width = size(vim.o.columns, state.width),
-		height = size(vim.o.lines, state.height),
-		row = math.floor((vim.o.lines - size(vim.o.lines, state.height)) / 2),
-		col = math.floor((vim.o.columns - size(vim.o.columns, state.width)) / 2),
-		style = "minimal",
-		focusable = false,
-	}
-end
-
-local function create_window()
-	if state.open then
-		return
-	end
-
-	api:sync()
-	colors:load()
-	state.buf = vim.api.nvim_create_buf(false, true)
-	state.win = vim.api.nvim_open_win(state.buf, true, get_window_config())
-	state.open = true
-
-	vim.api.nvim_create_autocmd({ "BufLeave", "BufHidden" }, {
-		group = state.group,
-		buffer = state.buf,
-		callback = close_window,
-	})
-
-	vim.api.nvim_create_autocmd("VimResized", {
-		group = state.group,
-		callback = function()
-			vim.api.nvim_win_set_config(state.win, get_window_config())
-		end,
-	})
-
-	render()
-end
-
-function AssistantWindow.toggle()
-	if state.open then
-		close_window()
-	else
-		create_window()
-	end
-end
-
-return AssistantWindow
+return M
