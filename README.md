@@ -4,15 +4,21 @@ A light-weight competitive programming code tester.
 
 ## Plugin UI
 
-**Home**
-![Home](./screenshots/screenshot-1.png)
+**Vscode like prompt**
+![screenshot 1](./screenshots/screenshot-1.png)
+
+**Assistant.nvim Home**
+![screenshot 2](./screenshots/screenshot-2.png)
 
 **Run Test**
-![Run Test](./screenshots/screenshot-2.png)
+![screenshot 3](./screenshots/screenshot-3.png)
+
+**View output**
+![screenshot 4](./screenshots/screenshot-4.png)
 
 ## Plugin in action
 
-https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/2f8ec7d7-2035-42a8-b8e7-e81db469facf
+https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/43f09692-57f0-4dbb-b4f3-406ae5afa5f6
 
 ## Setup with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 

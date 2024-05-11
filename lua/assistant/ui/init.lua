@@ -23,8 +23,8 @@ function M.open()
   renderer:init({ padding = 2, bufnr = window.buf })
   buttonset:init({ gap = 2 })
   buttonset
-    :add({ text = " 󰟍 Assistant.nvim ", group = "AssistantButtonActive", is_active = true })
-    :add({ text = "  Run Test ", group = "AssistantButton", is_active = false })
+    :add({ text = " 󰟍 Assistant.nvim(H) ", group = "AssistantButtonActive", is_active = true })
+    :add({ text = "  Run Test(R) ", group = "AssistantButton", is_active = false })
 
   local function home_tab()
     window:clear_window(0, -1)

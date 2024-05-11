@@ -10,5 +10,7 @@
 - [x] Handle non-runable files
 - [x] made ui window not modifiable
 - [ ] config validator and extender
+- [ ] handle buf write error when window gets close
 - [ ] add tests for plugin
 - [ ] add CONTRIBUTING.md
+- [ ] add help section in UI buttons
