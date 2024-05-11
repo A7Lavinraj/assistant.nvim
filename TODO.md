@@ -8,7 +8,7 @@
 - [x] fix types of classes
 - [x] stdout showcase functionality
 - [x] Handle non-runable files
+- [x] made ui window not modifiable
 - [ ] config validator and extender
 - [ ] add tests for plugin
 - [ ] add CONTRIBUTING.md
-- [ ] made ui window not modifiable

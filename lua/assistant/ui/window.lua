@@ -36,7 +36,9 @@ function AssistantWindow:win_valid()
 end
 
 function AssistantWindow:clear_window(_start, _end)
+  vim.api.nvim_set_option_value("modifiable", true, { buf = self.buf })
   vim.api.nvim_buf_set_lines(self.buf, _start, _end, false, {})
+  vim.api.nvim_set_option_value("modifiable", false, { buf = self.buf })
 end
 
 function AssistantWindow:create_window()
@@ -46,8 +48,9 @@ function AssistantWindow:create_window()
 
   self.buf = vim.api.nvim_create_buf(false, true)
   self.win = vim.api.nvim_open_win(self.buf, true, self:float_opts())
-
   self.is_open = true
+
+  vim.api.nvim_set_option_value("modifiable", false, { buf = self.buf })
 
   vim.api.nvim_create_autocmd("VimResized", {
     group = self.augroup,
