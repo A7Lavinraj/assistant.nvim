@@ -1,9 +1,9 @@
 require("assistant.ui.colors").load()
-local Window = require("assistant.ui.window")
-local Renderer = require("assistant.ui.renderer")
 local ButtonSet = require("assistant.ui.buttonset")
-local Text = require("assistant.ui.text")
+local Renderer = require("assistant.ui.renderer")
 local Runner = require("assistant.runner")
+local Text = require("assistant.ui.text")
+local Window = require("assistant.ui.window")
 local utils = require("assistant.ui.utils")
 local config = require("assistant.config").config
 
@@ -21,8 +21,8 @@ function M.open()
   buttonset:init({ gap = 2 })
 
   buttonset
-      :add({ text = " 󰟍 Assistant.nvim ", group = "AssistantButtonActive", is_active = true })
-      :add({ text = "  Run Test ", group = "AssistantButton", is_active = false })
+    :add({ text = " 󰟍 Assistant.nvim ", group = "AssistantButtonActive", is_active = true })
+    :add({ text = "  Run Test ", group = "AssistantButton", is_active = false })
 
   local function home_tab()
     window:clear_window(0, -1)
@@ -34,16 +34,13 @@ function M.open()
 
     if data then
       text:newline():append(string.format("Name: %s", data.name), "AssistantH1")
-      text:newline()
-          :append(
-            string.format(
-              "Time limit: %.2f seconds, Memory limit: %s MB",
-              data.timeLimit / 1000,
-              data.memoryLimit
-            ),
-            "AssistantDesc"
-          )
-          :newline()
+      text
+        :newline()
+        :append(
+          string.format("Time limit: %.2f seconds, Memory limit: %s MB", data.timeLimit / 1000, data.memoryLimit),
+          "AssistantDesc"
+        )
+        :newline()
 
       for _, test in ipairs(data.tests) do
         text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
@@ -59,10 +56,11 @@ function M.open()
         end
       end
     else
-      text:newline():append(" No sample found", "AssistantError"):newline():append(
-        ".ast directory might be removed or sample for currently open file not fetched yet.",
-        "AssistantDesc"
-      )
+      text
+        :newline()
+        :append(" No sample found", "AssistantError")
+        :newline()
+        :append(".ast directory might be removed or sample for currently open file not fetched yet.", "AssistantDesc")
     end
 
     renderer:text(text)
@@ -81,8 +79,8 @@ function M.open()
 
       local function replace(filename)
         return filename
-            :gsub("%$FILENAME_WITH_EXTENSION", window.state.FILENAME_WITH_EXTENSION)
-            :gsub("%$FILENAME_WITHOUT_EXTENSION", window.state.FILENAME_WITHOUT_EXTENSION)
+          :gsub("%$FILENAME_WITH_EXTENSION", window.state.FILENAME_WITH_EXTENSION)
+          :gsub("%$FILENAME_WITHOUT_EXTENSION", window.state.FILENAME_WITHOUT_EXTENSION)
       end
 
       local _command = vim.deepcopy(command)
@@ -111,14 +109,12 @@ function M.open()
         cmp_cb = function(code, signal)
           vim.schedule(function()
             window:clear_window(2, -1)
-            text:update({})
-                :newline()
-                :append(
-                  string.format("COMPILATION ERROR (CODE: %d, SIGNAL: %d)", code, signal),
-                  "AssistantError"
-                )
-                :newline()
-                :append("Looks like your code doesn't compile, fix and try again", "AssistantDesc")
+            text
+              :update({})
+              :newline()
+              :append(string.format("COMPILATION ERROR (CODE: %d, SIGNAL: %d)", code, signal), "AssistantError")
+              :newline()
+              :append("Looks like your code doesn't compile, fix and try again", "AssistantDesc")
             renderer:text(text)
           end)
         end,

@@ -1,5 +1,5 @@
-local utils = require("assistant.ui.utils")
 local state = require("assistant.state")
+local utils = require("assistant.ui.utils")
 
 local AssistantWindow = {}
 
