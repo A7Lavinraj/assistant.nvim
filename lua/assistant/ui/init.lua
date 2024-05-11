@@ -149,41 +149,52 @@ function M.open()
       return _command
     end
 
-    if window.state.test_data then
-      runner:init({
-        tests = window.state.test_data["tests"],
-        command = {
-          compile = interpolate(config.commands[window.state.FILETYPE].compile),
-          execute = interpolate(config.commands[window.state.FILETYPE].execute),
-        },
-        time_limit = config.time_limit,
-        cmp_cb = function(code, signal)
-          vim.schedule(function()
-            window:clear_window(2, -1)
-            text
-              :update({})
-              :newline()
-              :append(string.format("COMPILATION ERROR (CODE: %d, SIGNAL: %d)", code, signal), "AssistantError")
-              :newline()
-              :append("Looks like your code doesn't compile, fix and try again", "AssistantDesc")
-            renderer:text(text)
-          end)
-        end,
-        exe_cb = function(tests)
-          vim.schedule(function()
-            window:clear_window(2, -1)
-            text:update({})
+    if config.commands[window.state.FILETYPE] == nil then
+      text:update({})
+      text
+        :newline()
+        :append("Command not found for the given filetype", "AssistantError")
+        :newline()
+        :append("It might be caused by the improper plugin configuration", "AssistantDesc")
 
-            for index, test in ipairs(tests) do
-              text:newline():append(string.format(" Testcase #%d: %s", index, test.status), test.group)
-            end
+      renderer:text(text)
+    else
+      if window.state.test_data then
+        runner:init({
+          tests = window.state.test_data["tests"],
+          command = {
+            compile = interpolate(config.commands[window.state.FILETYPE].compile),
+            execute = interpolate(config.commands[window.state.FILETYPE].execute),
+          },
+          time_limit = config.time_limit,
+          cmp_cb = function(code, signal)
+            vim.schedule(function()
+              window:clear_window(2, -1)
+              text
+                :update({})
+                :newline()
+                :append(string.format("COMPILATION ERROR (CODE: %d, SIGNAL: %d)", code, signal), "AssistantError")
+                :newline()
+                :append("Looks like your code doesn't compile, fix and try again", "AssistantDesc")
+              renderer:text(text)
+            end)
+          end,
+          exe_cb = function(tests)
+            vim.schedule(function()
+              window:clear_window(2, -1)
+              text:update({})
 
-            renderer:text(text)
-          end)
-        end,
-      })
+              for index, test in ipairs(tests) do
+                text:newline():append(string.format(" Testcase #%d: %s", index, test.status), test.group)
+              end
 
-      runner:run_all()
+              renderer:text(text)
+            end)
+          end,
+        })
+
+        runner:run_all()
+      end
     end
   end
 

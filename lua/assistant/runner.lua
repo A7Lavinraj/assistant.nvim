@@ -27,7 +27,11 @@ function AssistantRunner:comparator(stdout, expected)
 end
 
 function AssistantRunner:compile(callback)
-  _, _ = vim.uv.spawn(self.command.compile.main, { args = self.command.compile.args }, callback)
+  if self.command.compile then
+    _, _ = vim.uv.spawn(self.command.compile.main, { args = self.command.compile.args }, callback)
+  else
+    callback(0, 0)
+  end
 end
 
 function AssistantRunner:run(index)
