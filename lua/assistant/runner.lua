@@ -18,7 +18,7 @@ function AssistantRunner:init(opts)
   self.exe_cb = opts.exe_cb
 end
 
-function AssistantRunner:comparator(stdout, expected)
+local function comparator(stdout, expected)
   local function process_str(str)
     return str:gsub("\n", " "):gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
   end
@@ -28,7 +28,7 @@ end
 
 function AssistantRunner:compile(callback)
   if self.command.compile then
-    _, _ = vim.uv.spawn(self.command.compile.main, { args = self.command.compile.args }, callback)
+    local _, _ = vim.uv.spawn(self.command.compile.main, { args = self.command.compile.args }, callback)
   else
     callback(0, 0)
   end
@@ -48,7 +48,7 @@ function AssistantRunner:run(index)
       process.code, process.signal = code, signal
 
       if process.code == 0 then
-        if self:comparator(self.tests[index].stdout, self.tests[index].output) then
+        if comparator(self.tests[index].stdout, self.tests[index].output) then
           self.tests[index].status = "PASSED"
           self.tests[index].group = "AssistantPassed"
         else

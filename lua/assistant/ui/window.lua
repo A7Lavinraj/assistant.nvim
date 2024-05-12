@@ -35,9 +35,9 @@ function AssistantWindow:win_valid()
   return vim.api.nvim_win_is_valid(self.win)
 end
 
-function AssistantWindow:clear_window(_start, _end)
+function AssistantWindow:clear_window(from, to)
   vim.api.nvim_set_option_value("modifiable", true, { buf = self.buf })
-  vim.api.nvim_buf_set_lines(self.buf, _start, _end, false, {})
+  vim.api.nvim_buf_set_lines(self.buf, from, to, false, {})
   vim.api.nvim_set_option_value("modifiable", false, { buf = self.buf })
 end
 
