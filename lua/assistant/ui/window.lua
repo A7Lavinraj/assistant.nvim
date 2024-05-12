@@ -55,7 +55,9 @@ function AssistantWindow:create_window()
   vim.api.nvim_create_autocmd("VimResized", {
     group = self.augroup,
     callback = function()
-      vim.api.nvim_win_set_config(self.win, self:float_opts())
+      if self:win_valid() then
+        vim.api.nvim_win_set_config(self.win, self:float_opts())
+      end
     end,
   })
 
