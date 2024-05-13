@@ -71,49 +71,48 @@ function M.open()
   end
 
   local function render_tests(tests)
-    vim.schedule(function()
-      window:clear_window(2, -1)
-      text:update({})
-      text:newline()
+    text:update({})
+    text:newline()
+    for index, test in ipairs(tests) do
+      text
+        :append(
+          string.format(
+            "%s Testcase #%d: %s",
+            (test.expand and test.expand == true and test.status ~= "RUNNING") and "" or "",
+            index,
+            test.status
+          ),
+          test.group
+        )
+        :newline()
 
-      for index, test in ipairs(tests) do
-        text
-          :append(
-            string.format(
-              "%s Testcase #%d: %s",
-              (test.expand and test.expand == true and test.status ~= "RUNNING") and "" or "",
-              index,
-              test.status
-            ),
-            test.group
-          )
-          :newline()
+      if test.expand and test.expand == true and test.status ~= "RUNNING" then
+        text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
 
-        if test.expand and test.expand == true and test.status ~= "RUNNING" then
-          text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
+        for _, line in ipairs(vim.split(test.input, "\n")) do
+          text:append(line, "AssistantText")
+        end
 
-          for _, line in ipairs(vim.split(test.input, "\n")) do
+        text:append("EXPECTED", "AssistantH2"):append("----------", "AssistantH2")
+
+        for _, line in ipairs(vim.split(test.output, "\n")) do
+          text:append(line, "AssistantText")
+        end
+
+        text:append("STDOUT", "AssistantH2"):append("----------", "AssistantH2")
+
+        if test.stdout then
+          for _, line in ipairs(vim.split(test.stdout, "\n")) do
             text:append(line, "AssistantText")
           end
-
-          text:append("EXPECTED", "AssistantH2"):append("----------", "AssistantH2")
-
-          for _, line in ipairs(vim.split(test.output, "\n")) do
-            text:append(line, "AssistantText")
-          end
-
-          text:append("STDOUT", "AssistantH2"):append("----------", "AssistantH2")
-
-          if test.stdout then
-            for _, line in ipairs(vim.split(test.stdout, "\n")) do
-              text:append(line, "AssistantText")
-            end
-          else
-            text:append("NIL", "AssistantDesc"):newline()
-          end
+        else
+          text:append("NIL", "AssistantDesc"):newline()
         end
       end
+    end
 
+    vim.schedule(function()
+      window:clear_window(2, -1)
       renderer:text(text)
     end)
   end

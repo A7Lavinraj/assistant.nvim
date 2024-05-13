@@ -16,12 +16,14 @@ function Renderer:init(opts)
 end
 
 function Renderer:text(text)
-  vim.api.nvim_set_option_value("modifiable", true, { buf = self.buf })
-  for _, line in ipairs(text.lines) do
-    vim.api.nvim_buf_set_lines(self.buf, -1, -1, false, { string.rep(" ", self.padding) .. line.content })
-    vim.api.nvim_buf_add_highlight(self.buf, -1, line.group, vim.api.nvim_buf_line_count(self.buf) - 1, 0, -1)
+  if vim.api.nvim_buf_is_valid(self.buf) then
+    vim.api.nvim_set_option_value("modifiable", true, { buf = self.buf })
+    for _, line in ipairs(text.lines) do
+      vim.api.nvim_buf_set_lines(self.buf, -1, -1, false, { string.rep(" ", self.padding) .. line.content })
+      vim.api.nvim_buf_add_highlight(self.buf, -1, line.group, vim.api.nvim_buf_line_count(self.buf) - 1, 0, -1)
+    end
+    vim.api.nvim_set_option_value("modifiable", false, { buf = self.buf })
   end
-  vim.api.nvim_set_option_value("modifiable", false, { buf = self.buf })
 end
 
 function Renderer:buttons(set)
