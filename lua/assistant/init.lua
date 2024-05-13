@@ -41,12 +41,12 @@ M.setup = function(opts)
   config.load()
 
   ---@diagnostic disable: undefined-field
-  local server = vim.uv.new_tcp()
+  local server = vim.loop.new_tcp()
 
   server:bind("127.0.0.1", 10043)
   server:listen(128, function(listening_error)
     assert(not listening_error, listening_error)
-    local client = vim.uv.new_tcp()
+    local client = vim.loop.new_tcp()
     server:accept(client)
     client:read_start(function(read_error, chunk)
       assert(not read_error, read_error)
@@ -62,7 +62,7 @@ M.setup = function(opts)
     end)
   end)
 
-  vim.uv.run()
+  vim.loop.run()
 end
 
 return M
