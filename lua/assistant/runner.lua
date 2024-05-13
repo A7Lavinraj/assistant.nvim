@@ -28,7 +28,7 @@ end
 
 function AssistantRunner:compile(callback)
   if self.command.compile then
-    local _, _ = vim.uv.spawn(self.command.compile.main, { args = self.command.compile.args }, callback)
+    local _, _ = vim.loop.spawn(self.command.compile.main, { args = self.command.compile.args }, callback)
   else
     callback(0, 0)
   end
@@ -36,12 +36,12 @@ end
 
 function AssistantRunner:run(index)
   local process = {
-    stdin = vim.uv.new_pipe(),
-    stdout = vim.uv.new_pipe(),
-    stderr = vim.uv.new_pipe(),
+    stdin = vim.loop.new_pipe(),
+    stdout = vim.loop.new_pipe(),
+    stderr = vim.loop.new_pipe(),
   }
 
-  process.handle, process.id = vim.uv.spawn(
+  process.handle, process.id = vim.loop.spawn(
     self.command.execute.main,
     { args = self.command.execute.args, stdio = { process.stdin, process.stdout, process.stderr } },
     function(code, signal)
@@ -73,7 +73,7 @@ function AssistantRunner:run(index)
   self.tests[index].group = "AssistantRunning"
   self.exe_cb(self.tests)
 
-  local timer = vim.uv.new_timer()
+  local timer = vim.loop.new_timer()
   timer:start(self.time_limit, 0, function()
     timer:stop()
     timer:close()
@@ -85,7 +85,7 @@ function AssistantRunner:run(index)
     end
   end)
 
-  vim.uv.read_start(process.stdout, function(err, data)
+  vim.loop.read_start(process.stdout, function(err, data)
     if err or not data then
       if process.stdout:is_readable() then
         process.stdout:read_stop()
@@ -99,7 +99,7 @@ function AssistantRunner:run(index)
     end
   end)
 
-  vim.uv.read_start(process.stderr, function(err, data)
+  vim.loop.read_start(process.stderr, function(err, data)
     if err or not data then
       if process.stderr:is_readable() then
         process.stderr:read_stop()
@@ -113,8 +113,8 @@ function AssistantRunner:run(index)
     end
   end)
 
-  vim.uv.write(process.stdin, self.tests[index].input)
-  vim.uv.shutdown(process.stdin)
+  vim.loop.write(process.stdin, self.tests[index].input)
+  vim.loop.shutdown(process.stdin)
 end
 
 function AssistantRunner:run_all()
