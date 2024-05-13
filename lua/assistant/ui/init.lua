@@ -108,6 +108,16 @@ function M.open()
         else
           text:append("NIL", "AssistantDesc"):newline()
         end
+
+        text:append("STDERR", "AssistantH2"):append("----------", "AssistantH2")
+
+        if test.stderr then
+          for _, line in ipairs(vim.split(test.stderr, "\n")) do
+            text:append(line, "AssistantText")
+          end
+        else
+          text:append("NIL", "AssistantDesc"):newline()
+        end
       end
     end
 
