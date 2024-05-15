@@ -9,8 +9,8 @@
 - [x] stdout showcase functionality
 - [x] Handle non-runable files
 - [x] made ui window not modifiable
+- [x] add tests for plugin
 - [ ] config validator and extender
 - [ ] handle buf write error when window gets close
-- [ ] add tests for plugin
 - [ ] add CONTRIBUTING.md
 - [ ] add help section in UI buttons
