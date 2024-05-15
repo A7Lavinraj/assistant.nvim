@@ -28,11 +28,17 @@ function AssistantWindow:float_opts()
 end
 
 function AssistantWindow:buf_valid()
+  if self.buf == nil then
+    return false
+  end
   return vim.api.nvim_buf_is_valid(self.buf)
 end
 
 function AssistantWindow:win_valid()
-  return vim.api.nvim_win_is_valid(self.win)
+  if self.win == nil then
+    return false
+  end
+  return self.win and vim.api.nvim_win_is_valid(self.win)
 end
 
 function AssistantWindow:clear_window(start_row, end_row)
@@ -73,21 +79,19 @@ function AssistantWindow:create_window()
 end
 
 function AssistantWindow:delete_window()
-  if not self.is_open then
+  if self.is_open == false then
     return
   end
 
-  vim.schedule(function()
-    if self:win_valid() then
-      vim.api.nvim_win_close(self.win, true)
-      self.win = -1
-    end
+  if self:buf_valid() then
+    vim.api.nvim_buf_delete(self.buf, { force = true })
+    self.buf = nil
+  end
 
-    if self:buf_valid() then
-      vim.api.nvim_buf_delete(self.buf, { force = true })
-      self.buf = -1
-    end
-  end)
+  if self:win_valid() then
+    vim.api.nvim_win_close(self.win, true)
+    self.win = nil
+  end
 
   self.is_open = false
 end
