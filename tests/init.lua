@@ -8,7 +8,7 @@ end
 ---@param plugin string
 function M.load(plugin)
   local package_root = M.root("dev/plugins/")
-  local name = plugin:match(".*/(.*)%.nvim$")
+  local name = plugin:match(".*/(.*).nvim$")
 
   if not vim.loop.fs_stat(package_root .. name) then
     print("Installing " .. plugin)
