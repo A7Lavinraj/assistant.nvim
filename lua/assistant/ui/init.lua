@@ -176,15 +176,20 @@ function M.open()
             execute = interpolate(config.commands[window.state.FILETYPE].execute),
           },
           time_limit = config.time_limit,
-          cmp_cb = function(code, signal)
+          cmp_cb = function(code, stderr)
             vim.schedule(function()
               window:clear_window(2, -1)
               text
                 :update({})
                 :newline()
-                :append(string.format("COMPILATION ERROR (CODE: %d, SIGNAL: %d)", code, signal), "AssistantError")
+                :append(string.format("COMPILATION ERROR (CODE: %d)", code), "AssistantError")
                 :newline()
-                :append("Looks like your code doesn't compile, fix and try again", "AssistantDesc")
+              -- :append("Looks like your code doesn't compile, fix and try again", "AssistantDesc")
+
+              for _, line in pairs(stderr) do
+                text:append(line, "AssistantDesc")
+              end
+
               renderer:text(text)
             end)
           end,
