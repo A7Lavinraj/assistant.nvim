@@ -3,8 +3,10 @@ local AssistantRunner = {}
 function AssistantRunner.new()
   local self = setmetatable({}, { __index = AssistantRunner })
 
-  self.tests = {}
+  self.tests = nil
   self.command = nil
+  self.time_limit = nil
+  self.cmp_cb = nil
   self.exe_cb = nil
 
   return self
