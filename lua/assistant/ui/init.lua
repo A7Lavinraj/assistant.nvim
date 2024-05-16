@@ -184,7 +184,6 @@ function M.open()
                 :newline()
                 :append(string.format("COMPILATION ERROR (CODE: %d)", code), "AssistantError")
                 :newline()
-              -- :append("Looks like your code doesn't compile, fix and try again", "AssistantDesc")
 
               for _, line in pairs(stderr) do
                 text:append(line, "AssistantDesc")

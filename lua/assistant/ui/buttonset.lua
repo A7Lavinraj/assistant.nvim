@@ -21,7 +21,6 @@ end
 
 function ButtonSet:click(index)
   if index == nil or index > #self.buttons or index <= 0 then
-    print("DISCARD!")
     return
   end
 

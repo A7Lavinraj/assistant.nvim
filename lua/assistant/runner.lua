@@ -27,18 +27,22 @@ local function comparator(stdout, expected)
 end
 
 function AssistantRunner:compile(callback)
-  local process = { cmd = vim.deepcopy(self.command.compile.args) }
+  if self.command.compile then
+    local process = { cmd = vim.deepcopy(self.command.compile.args) }
 
-  table.insert(process.cmd, 1, self.command.compile.main)
-  vim.fn.jobstart(process.cmd, {
-    stderr_buffered = true,
-    on_stderr = function(_, data)
-      process.stderr = data
-    end,
-    on_exit = function(_, code)
-      callback(code, process.stderr)
-    end,
-  })
+    table.insert(process.cmd, 1, self.command.compile.main)
+    vim.fn.jobstart(process.cmd, {
+      stderr_buffered = true,
+      on_stderr = function(_, data)
+        process.stderr = data
+      end,
+      on_exit = function(_, code)
+        callback(code, process.stderr)
+      end,
+    })
+  else
+    callback(0, {})
+  end
 end
 
 function AssistantRunner:run(index)
