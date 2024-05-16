@@ -8,7 +8,7 @@ function Text.new()
 end
 
 function Text:newline()
-  table.insert(self.lines, { content = "", group = "AssistantNonText" })
+  table.insert(self.lines, { content = "", group = "AssistantFadeText" })
   return self
 end
 

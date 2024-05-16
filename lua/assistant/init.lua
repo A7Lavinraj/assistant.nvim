@@ -6,13 +6,13 @@ local sample_directory = string.format("%s/%s/", vim.fn.expand("%:p:h"), ".ast")
 local function create_source(filename)
   local sources = {}
 
-  for key, _ in pairs(config.config.commands) do
+  for key, _ in pairs(config.default.commands) do
     table.insert(sources, key)
   end
 
   vim.ui.select(sources, { prompt = "Select source" }, function(source)
     if source then
-      local extension = config.config.commands[source].extension
+      local extension = config.default.commands[source].extension
       vim.cmd(string.format("edit %s.%s | w", filename, extension))
     end
   end)

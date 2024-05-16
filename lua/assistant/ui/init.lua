@@ -4,8 +4,8 @@ local Renderer = require("assistant.ui.renderer")
 local Runner = require("assistant.runner")
 local Text = require("assistant.ui.text")
 local Window = require("assistant.ui.window")
+local config = require("assistant.config")
 local utils = require("assistant.ui.utils")
-local config = require("assistant.config").config
 
 local window = Window.new()
 local renderer = Renderer.new()
@@ -42,7 +42,7 @@ function M.open()
             window.state.test_data["timeLimit"] / 1000,
             window.state.test_data["memoryLimit"]
           ),
-          "AssistantDesc"
+          "AssistantFadeText"
         )
         :newline()
 
@@ -60,11 +60,7 @@ function M.open()
         end
       end
     else
-      text
-        :newline()
-        :append(" No sample found", "AssistantError")
-        :newline()
-        :append(".ast directory might be removed or sample for currently open file not fetched yet.", "AssistantDesc")
+      text:newline():append(" No sample found", "AssistantError")
     end
 
     renderer:text(text)
@@ -106,7 +102,7 @@ function M.open()
             text:append(line, "AssistantText")
           end
         else
-          text:append("NIL", "AssistantDesc"):newline()
+          text:append("NIL", "AssistantFadeText"):newline()
         end
 
         text:append("STDERR", "AssistantH2"):append("----------", "AssistantH2")
@@ -116,7 +112,7 @@ function M.open()
             text:append(line, "AssistantText")
           end
         else
-          text:append("NIL", "AssistantDesc"):newline()
+          text:append("NIL", "AssistantFadeText"):newline()
         end
       end
     end
@@ -158,13 +154,13 @@ function M.open()
       return _command
     end
 
-    if config.commands[window.state.FILETYPE] == nil then
+    if config.default.commands[window.state.FILETYPE] == nil then
       text:update({})
       text
         :newline()
         :append("Command not found for the given filetype", "AssistantError")
         :newline()
-        :append("It might be caused by the improper plugin configuration", "AssistantDesc")
+        :append("It might be caused by the improper plugin configuration", "AssistantFadeText")
 
       renderer:text(text)
     else
@@ -172,10 +168,10 @@ function M.open()
         runner:init({
           tests = window.state.test_data["tests"],
           command = {
-            compile = interpolate(config.commands[window.state.FILETYPE].compile),
-            execute = interpolate(config.commands[window.state.FILETYPE].execute),
+            compile = interpolate(config.default.commands[window.state.FILETYPE].compile),
+            execute = interpolate(config.default.commands[window.state.FILETYPE].execute),
           },
-          time_limit = config.time_limit,
+          time_limit = config.default.time_limit,
           cmp_cb = function(code, stderr)
             vim.schedule(function()
               window:clear_window(2, -1)
@@ -186,7 +182,7 @@ function M.open()
                 :newline()
 
               for _, line in pairs(stderr) do
-                text:append(line, "AssistantDesc")
+                text:append(line, "AssistantFadeText")
               end
 
               renderer:text(text)

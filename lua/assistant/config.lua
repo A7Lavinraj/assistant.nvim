@@ -1,6 +1,6 @@
 local M = {}
 
-M.config = {
+M.default = {
   commands = {
     cpp = {
       extension = "cpp",
@@ -17,8 +17,9 @@ M.config = {
 }
 
 M.update = function(opts)
-  M.config.commands = opts.commands or M.config.commands
-  M.config.time_limit = opts.time_limit or M.config.time_limit
+  for option, value in pairs(M.default) do
+    M.default[option] = opts[option] or value
+  end
 end
 
 M.load = function()
