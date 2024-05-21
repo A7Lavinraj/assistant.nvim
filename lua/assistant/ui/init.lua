@@ -105,14 +105,14 @@ function M.open()
           text:append("NIL", "AssistantFadeText"):newline()
         end
 
-        text:append("STDERR", "AssistantH2"):append("----------", "AssistantH2")
-
         if test.stderr then
-          for _, line in ipairs(vim.split(test.stderr, "\n")) do
-            text:append(line, "AssistantText")
+          text:append("STDERR", "AssistantH2"):append("----------", "AssistantH2")
+
+          if test.stderr then
+            for _, line in ipairs(vim.split(test.stderr, "\n")) do
+              text:append(line, "AssistantText")
+            end
           end
-        else
-          text:append("NIL", "AssistantFadeText"):newline()
         end
       end
     end
