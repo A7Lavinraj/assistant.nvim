@@ -18,13 +18,13 @@ function M.open()
   window.state:sync()
   window:create_window()
   window.state.test_data =
-      utils.fetch(string.format("%s/.ast/%s", window.state.CWD, window.state.FILENAME_WITHOUT_EXTENSION))
+    utils.fetch(string.format("%s/.ast/%s", window.state.CWD, window.state.FILENAME_WITHOUT_EXTENSION))
 
   renderer:init({ padding = 2, bufnr = window.buf })
   buttonset:init({ gap = 2 })
   buttonset
-      :add({ text = " 󰟍 Assistant.nvim(H) ", group = "AssistantButtonActive", is_active = true })
-      :add({ text = "  Run Test(R) ", group = "AssistantButton", is_active = false })
+    :add({ text = " 󰟍 Assistant.nvim(H) ", group = "AssistantButtonActive", is_active = true })
+    :add({ text = "  Run Test(R) ", group = "AssistantButton", is_active = false })
 
   local function home_tab()
     window:clear_window(0, -1)
@@ -35,16 +35,16 @@ function M.open()
     if window.state.test_data then
       text:newline():append(string.format("Name: %s", window.state.test_data["name"]), "AssistantH1")
       text
-          :newline()
-          :append(
-            string.format(
-              "Time limit: %.2f seconds, Memory limit: %s MB",
-              window.state.test_data["timeLimit"] / 1000,
-              window.state.test_data["memoryLimit"]
-            ),
-            "AssistantFadeText"
-          )
-          :newline()
+        :newline()
+        :append(
+          string.format(
+            "Time limit: %.2f seconds, Memory limit: %s MB",
+            window.state.test_data["timeLimit"] / 1000,
+            window.state.test_data["memoryLimit"]
+          ),
+          "AssistantFadeText"
+        )
+        :newline()
 
       for _, test in ipairs(window.state.test_data["tests"]) do
         text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
@@ -71,16 +71,16 @@ function M.open()
     text:newline()
     for index, test in ipairs(tests) do
       text
-          :append(
-            string.format(
-              "%s Testcase #%d: %s",
-              (test.expand and test.expand == true and test.status ~= "RUNNING") and "" or "",
-              index,
-              test.status
-            ),
-            test.group
-          )
-          :newline()
+        :append(
+          string.format(
+            "%s Testcase #%d: %s",
+            (test.expand and test.expand == true and test.status ~= "RUNNING") and "" or "",
+            index,
+            test.status
+          ),
+          test.group
+        )
+        :newline()
 
       if test.expand and test.expand == true and test.status ~= "RUNNING" then
         text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
@@ -135,8 +135,8 @@ function M.open()
 
       local function replace(filename)
         return filename
-            :gsub("%$FILENAME_WITH_EXTENSION", window.state.FILENAME_WITH_EXTENSION)
-            :gsub("%$FILENAME_WITHOUT_EXTENSION", window.state.FILENAME_WITHOUT_EXTENSION)
+          :gsub("%$FILENAME_WITH_EXTENSION", window.state.FILENAME_WITH_EXTENSION)
+          :gsub("%$FILENAME_WITHOUT_EXTENSION", window.state.FILENAME_WITHOUT_EXTENSION)
       end
 
       local _command = vim.deepcopy(command)
@@ -157,10 +157,10 @@ function M.open()
     if config.default.commands[window.state.FILETYPE] == nil then
       text:update({})
       text
-          :newline()
-          :append("Command not found for the given filetype", "AssistantError")
-          :newline()
-          :append("It might be caused by the improper plugin configuration", "AssistantFadeText")
+        :newline()
+        :append("Command not found for the given filetype", "AssistantError")
+        :newline()
+        :append("It might be caused by the improper plugin configuration", "AssistantFadeText")
 
       renderer:text(text)
     else
@@ -176,10 +176,10 @@ function M.open()
             vim.schedule(function()
               window:clear_window(2, -1)
               text
-                  :update({})
-                  :newline()
-                  :append(string.format("COMPILATION ERROR (CODE: %d)", code), "AssistantError")
-                  :newline()
+                :update({})
+                :newline()
+                :append(string.format("COMPILATION ERROR (CODE: %d)", code), "AssistantError")
+                :newline()
 
               for _, line in pairs(stderr) do
                 text:append(line, "AssistantFadeText")
