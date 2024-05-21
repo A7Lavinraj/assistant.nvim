@@ -22,7 +22,7 @@ end
 
 local function comparator(stdout, expected)
   local function process_str(str)
-    return str:gsub("\n", " "):gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
+    return (str or ""):gsub("\n", " "):gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
   end
 
   return process_str(stdout) == process_str(expected)
