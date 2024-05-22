@@ -66,6 +66,7 @@ function AssistantRunner:run(index)
           self.tests[index].group = "AssistantPassed"
         else
           self.tests[index].status = "FAILED"
+          self.tests[index].expand = true
           self.tests[index].group = "AssistantFailed"
         end
 
