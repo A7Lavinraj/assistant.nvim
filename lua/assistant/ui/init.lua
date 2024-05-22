@@ -69,6 +69,7 @@ function M.open()
   local function render_tests(tests)
     text:update({})
     text:newline()
+
     for index, test in ipairs(tests) do
       text
         :append(
@@ -188,18 +189,7 @@ function M.open()
               renderer:text(text)
             end)
           end,
-          exe_cb = function(tests)
-            vim.schedule(function()
-              window:clear_window(2, -1)
-              text:update({})
-
-              for index, test in ipairs(tests) do
-                text:newline():append(string.format(" Testcase #%d: %s", index, test.status), test.group)
-              end
-
-              renderer:text(text)
-            end)
-          end,
+          exe_cb = render_tests,
         })
 
         runner:run_all()
