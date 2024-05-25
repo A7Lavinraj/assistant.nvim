@@ -29,22 +29,23 @@ local function comparator(stdout, expected)
 end
 
 function AssistantRunner:compile(callback)
-  if self.command.compile then
-    local process = { cmd = vim.deepcopy(self.command.compile.args) }
-
-    table.insert(process.cmd, 1, self.command.compile.main)
-    vim.fn.jobstart(process.cmd, {
-      stderr_buffered = true,
-      on_stderr = function(_, data)
-        process.stderr = data
-      end,
-      on_exit = function(_, code)
-        callback(code, process.stderr)
-      end,
-    })
-  else
+  if not (self.command and self.command.execute) then
     callback(0, {})
+    return
   end
+
+  local process = { cmd = vim.deepcopy(self.command.compile.args) }
+
+  table.insert(process.cmd, 1, self.command.compile.main)
+  vim.fn.jobstart(process.cmd, {
+    stderr_buffered = true,
+    on_stderr = function(_, data)
+      process.stderr = data
+    end,
+    on_exit = function(_, code)
+      callback(code, process.stderr)
+    end,
+  })
 end
 
 function AssistantRunner:run(index)
@@ -53,6 +54,10 @@ function AssistantRunner:run(index)
     stdout = vim.loop.new_pipe(),
     stderr = vim.loop.new_pipe(),
   }
+
+  if not (self.command and self.command.execute) then
+    return
+  end
 
   process.handle, process.id = vim.loop.spawn(
     self.command.execute.main,
@@ -131,10 +136,20 @@ function AssistantRunner:run(index)
   vim.loop.shutdown(process.stdin)
 end
 
+function AssistantRunner:run_unique(index)
+  self:compile(function(code, stderr)
+    if code == 0 then
+      self:run(index)
+    else
+      self.cmp_cb(code, stderr)
+    end
+  end)
+end
+
 function AssistantRunner:run_all()
   self:compile(function(code, stderr)
     if code == 0 then
-      for i = 1, #self.tests do
+      for i = 1, #(self.tests or {}) do
         self:run(i)
       end
     else

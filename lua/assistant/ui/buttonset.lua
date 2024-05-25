@@ -3,19 +3,15 @@ local ButtonSet = {}
 function ButtonSet.new()
   local self = setmetatable({}, { __index = ButtonSet })
 
-  self.gap = nil
+  self.gap = 2
   self.buttons = {}
 
   return self
 end
 
-function ButtonSet:init(opts)
-  self.gap = opts.gap or 2
-  self.buttons = opts.buttons or {}
-end
+function ButtonSet:init(buttons)
+  self.buttons = buttons or {}
 
-function ButtonSet:add(button)
-  table.insert(self.buttons, button)
   return self
 end
 
