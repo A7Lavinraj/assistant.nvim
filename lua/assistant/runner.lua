@@ -29,7 +29,7 @@ local function comparator(stdout, expected)
 end
 
 function AssistantRunner:compile(callback)
-  if not (self.command and self.command.execute) then
+  if not (self.command and self.command.compile) then
     callback(0, {})
     return
   end
@@ -53,6 +53,7 @@ function AssistantRunner:run(index)
     stdin = vim.loop.new_pipe(),
     stdout = vim.loop.new_pipe(),
     stderr = vim.loop.new_pipe(),
+    timer = vim.loop.new_timer(),
   }
 
   if not (self.command and self.command.execute) then
@@ -85,17 +86,34 @@ function AssistantRunner:run(index)
       if not process.handle:is_closing() then
         process.handle:close()
       end
+
+      if not process.timer:is_active() then
+        process.timer:stop()
+      end
+
+      if not process.timer:is_closing() then
+        process.timer:close()
+      end
+
+      self.tests[index].end_at = vim.loop.now()
     end
   )
 
   self.tests[index].status = "RUNNING"
   self.tests[index].group = "AssistantRunning"
+  self.tests[index].start_at = vim.loop.now()
   self.exe_cb(self.tests)
 
-  local timer = vim.loop.new_timer()
-  timer:start(self.time_limit, 0, function()
-    timer:stop()
-    timer:close()
+  process.timer:start(self.time_limit, 0, function()
+    if not process.timer:is_active() then
+      process.timer:stop()
+    end
+
+    if not process.timer:is_closing() then
+      process.timer:close()
+    end
+
+    self.tests[index].end_at = vim.loop.now()
 
     if self.tests[index].status == "RUNNING" then
       self.tests[index].status = "TIME LIMIT EXCEEDED"

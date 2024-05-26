@@ -8,10 +8,11 @@ M.colors = {
   AssistantText = { link = "AerialNormal" },
   AssistantFadeText = { link = "NonText" },
   AssistantError = { link = "@comment.error" },
+  AssistantReady = { link = "@comment.info" },
   AssistantPassed = { link = "@comment.hint" },
-  AssistantFailed = { link = "@comment.error" },
-  AssistantRunning = { link = "@comment.info" },
-  AssistantKilled = { link = "@comment.warning" },
+  AssistantFailed = { link = "AssistantError" },
+  AssistantRunning = { link = "@comment.warning" },
+  AssistantKilled = { link = "AssistantError" },
 }
 
 function M.load()

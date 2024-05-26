@@ -6,34 +6,116 @@ return {
     text:update({})
 
     if window.state.test_data then
-      text:newline():append(string.format("Name: %s", window.state.test_data["name"]), "AssistantH1")
+      text:newline():append({
+        content = string.format("Name: %s", window.state.test_data["name"]),
+        hl = {
+          {
+            col_start = 0,
+            col_end = -1,
+            group = "AssistantH1",
+          },
+        },
+      })
       text
         :newline()
-        :append(
-          string.format(
+        :append({
+          content = string.format(
             "Time limit: %.2f seconds, Memory limit: %s MB",
             window.state.test_data["timeLimit"] / 1000,
             window.state.test_data["memoryLimit"]
           ),
-          "AssistantFadeText"
-        )
+          hl = {
+            {
+              col_start = 0,
+              col_end = -1,
+              group = "AssistantFadeText",
+            },
+          },
+        })
         :newline()
 
       for _, test in ipairs(window.state.test_data["tests"]) do
-        text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
+        text
+          :append({
+            content = "INPUT",
+            hl = {
+              {
+                col_start = 0,
+                col_end = -1,
+                group = "AssistantH2",
+              },
+            },
+          })
+          :append({
+            content = "----------",
+            hl = {
+              {
+                col_start = 0,
+                col_end = -1,
+                group = "AssistantH2",
+              },
+            },
+          })
 
         for _, value in ipairs(vim.split(test.input, "\n")) do
-          text:append(value, "AssistantText")
+          text:append({
+            content = value,
+            hl = {
+              {
+                col_start = 0,
+                col_end = -1,
+                group = "AssistantText",
+              },
+            },
+          })
         end
 
-        text:append("EXPECTED", "AssistantH2"):append("----------", "AssistantH2")
+        text
+          :append({
+            content = "EXPECTED",
+            hl = {
+              {
+                col_start = 0,
+                col_end = -1,
+                group = "AssistantH2",
+              },
+            },
+          })
+          :append({
+            content = "----------",
+            hl = {
+              {
+                col_start = 0,
+                col_end = -1,
+                group = "AssistantH2",
+              },
+            },
+          })
 
         for _, value in ipairs(vim.split(test.output, "\n")) do
-          text:append(value, "AssistantText")
+          text:append({
+            content = value,
+            hl = {
+              {
+                col_start = 0,
+                col_end = -1,
+                group = "AssistantText",
+              },
+            },
+          })
         end
       end
     else
-      text:newline():append(" No sample found", "AssistantError")
+      text:newline():append({
+        content = " No sample found",
+        hl = {
+          {
+            col_start = 0,
+            col_end = -1,
+            group = "AssistantError",
+          },
+        },
+      })
     end
 
     window.renderer:buttons(window.buttonset)
@@ -73,9 +155,27 @@ return {
       text:update({})
       text
         :newline()
-        :append("Command not found for the given filetype", "AssistantError")
+        :append({
+          content = "Command not found for the given filetype",
+          hl = {
+            {
+              col_start = 0,
+              col_end = -1,
+              group = "AssistantError",
+            },
+          },
+        })
         :newline()
-        :append("It might be caused by the improper plugin configuration", "AssistantFadeText")
+        :append({
+          content = "It might be caused by the improper plugin configuration",
+          hl = {
+            {
+              col_start = 0,
+              col_end = -1,
+              group = "AssistantFadeText",
+            },
+          },
+        })
 
       window.renderer:text(text)
     else
@@ -92,11 +192,29 @@ return {
               text
                 :update({})
                 :newline()
-                :append(string.format("COMPILATION ERROR (CODE: %d)", code), "AssistantError")
+                :append({
+                  content = string.format("COMPILATION ERROR (CODE: %d)", code),
+                  hl = {
+                    {
+                      col_start = 0,
+                      col_end = -1,
+                      group = "AssistantError",
+                    },
+                  },
+                })
                 :newline()
 
               for _, line in pairs(stderr) do
-                text:append(line, "AssistantFadeText")
+                text:append({
+                  content = line,
+                  hl = {
+                    {
+                      col_start = 0,
+                      col_end = -1,
+                      group = "AssistantFadeText",
+                    },
+                  },
+                })
               end
 
               window.renderer:buttons(window.buttonset)

@@ -28,8 +28,16 @@ function AssistantWindow:init()
   self.state:init()
   self.renderer:init(self.buf)
   self.buttonset:init({
-    { text = " 󰟍 Assistant.nvim(H) ", group = "AssistantButtonActive", is_active = true },
-    { text = "  Run Test(R) ", group = "AssistantButton", is_active = false },
+    {
+      text = " 󰟍 Assistant.nvim ",
+      group = "AssistantButtonActive",
+      is_active = true,
+    },
+    {
+      text = "  Run Test ",
+      group = "AssistantButton",
+      is_active = false,
+    },
   })
 end
 
