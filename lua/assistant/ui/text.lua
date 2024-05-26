@@ -8,12 +8,22 @@ function Text.new()
 end
 
 function Text:newline()
-  table.insert(self.lines, { content = "", group = "AssistantFadeText" })
+  table.insert(self.lines, {
+    content = "",
+    hl = {
+      {
+        group = "AssistantText",
+        col_start = 0,
+        col_end = -1,
+      },
+    },
+  })
   return self
 end
 
-function Text:append(content, group)
-  table.insert(self.lines, { content = content, group = group })
+function Text:append(text)
+  table.insert(self.lines, text)
+
   return self
 end
 

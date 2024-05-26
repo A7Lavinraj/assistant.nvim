@@ -29,9 +29,19 @@ function Renderer:text(text)
 
     vim.api.nvim_buf_set_lines(self.buf, 2, -1, false, {})
 
-    for _, line in ipairs(text.lines) do
+    for _, line in pairs(text.lines) do
       vim.api.nvim_buf_set_lines(self.buf, -1, -1, false, { string.rep(" ", self.padding) .. line.content })
-      vim.api.nvim_buf_add_highlight(self.buf, -1, line.group, vim.api.nvim_buf_line_count(self.buf) - 1, 0, -1)
+
+      for _, hl in pairs(line.hl) do
+        vim.api.nvim_buf_add_highlight(
+          self.buf,
+          -1,
+          hl.group,
+          vim.api.nvim_buf_line_count(self.buf) - 1,
+          hl.col_start,
+          hl.col_end
+        )
+      end
     end
 
     vim.api.nvim_set_option_value("modifiable", false, { buf = self.buf })
@@ -64,47 +74,134 @@ function Renderer:tests(tests, window)
   local text = require("assistant.ui.text").new():newline()
 
   for index, test in ipairs(tests) do
-    text
-      :append(
-        string.format(
-          "%s Testcase #%d: %s",
-          (test.expand and test.expand == true and test.status ~= "RUNNING") and "" or "",
-          index,
-          test.status or "READY"
-        ),
-        test.group or "AssistantText"
-      )
-      :newline()
+    local default =
+      string.format("%s Testcase #%d: %s", test.expand == true and "" or "", index, test.status or "READY")
+
+    text:append({
+      content = (test.start_at and test.end_at)
+          and (default .. string.format(" takes %.3f seconds", (test.end_at - test.start_at) / 1000))
+        or default,
+      hl = {
+        {
+          col_start = 0,
+          col_end = #default + 2,
+          group = test.group or "AssistantReady",
+        },
+        {
+          col_start = #default + 2,
+          col_end = -1,
+          group = "AssistantFadeText",
+        },
+      },
+    })
+
+    text:newline()
 
     if test.expand and test.expand == true and test.status ~= "RUNNING" then
-      text:append("INPUT", "AssistantH2"):append("----------", "AssistantH2")
+      text
+        :append({
+          content = " INPUT ",
+          hl = {
+            {
+              col_start = 2,
+              col_end = -1,
+              group = "AssistantButton",
+            },
+          },
+        })
+        :newline()
 
       for _, line in ipairs(vim.split(test.input, "\n")) do
-        text:append(line, "AssistantText")
+        text:append({
+          content = line,
+          hl = {
+            {
+              col_start = 0,
+              col_end = -1,
+              group = "AssistantText",
+            },
+          },
+        })
       end
 
-      text:append("EXPECTED", "AssistantH2"):append("----------", "AssistantH2")
+      text
+        :append({
+          content = " EXPECTED ",
+          hl = {
+            {
+              col_start = 2,
+              col_end = -1,
+              group = "AssistantButton",
+            },
+          },
+        })
+        :newline()
 
       for _, line in ipairs(vim.split(test.output, "\n")) do
-        text:append(line, "AssistantText")
+        text:append({
+          content = line,
+          hl = {
+            {
+              col_start = 0,
+              col_end = -1,
+              group = "AssistantText",
+            },
+          },
+        })
       end
 
-      text:append("STDOUT", "AssistantH2"):append("----------", "AssistantH2")
-
       if test.stdout then
+        text
+          :append({
+            content = " STDOUT ",
+            hl = {
+              {
+                col_start = 2,
+                col_end = -1,
+                group = "AssistantButton",
+              },
+            },
+          })
+          :newline()
+
         for _, line in ipairs(vim.split(test.stdout, "\n")) do
-          text:append(line, "AssistantText")
+          text:append({
+            content = line,
+            hl = {
+              {
+                col_start = 0,
+                col_end = -1,
+                group = "AssistantText",
+              },
+            },
+          })
         end
-      else
-        text:append("NIL", "AssistantFadeText"):newline()
       end
 
       if test.stderr then
-        text:append("STDERR", "AssistantH2"):append("----------", "AssistantH2")
+        text:append({
+          content = " STDERR ",
+          hl = {
+            {
+              col_start = 2,
+              col_end = -1,
+              group = "AssistantButton",
+            },
+          },
+        })
 
         if test.stderr then
           for _, line in ipairs(vim.split(test.stderr, "\n")) do
-            text:append(line, "AssistantText")
+            text:append({
+              content = line,
+              hl = {
+                {
+                  col_start = 0,
+                  col_end = -1,
+                  group = "AssistantText",
+                },
+              },
+            })
           end
         end
       end
@@ -113,7 +210,10 @@ function Renderer:tests(tests, window)
 
   vim.schedule(function()
     self:text(text)
-    vim.api.nvim_win_set_cursor(window.win, window.cpos)
+
+    if window.cpos[1] < vim.api.nvim_buf_line_count(window.buf) then
+      vim.api.nvim_win_set_cursor(window.win, window.cpos)
+    end
   end)
 end
 
