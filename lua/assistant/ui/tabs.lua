@@ -37,25 +37,16 @@ return {
       for _, test in ipairs(window.state.test_data["tests"]) do
         text
           :append({
-            content = "INPUT",
+            content = " INPUT ",
             hl = {
               {
-                col_start = 0,
+                col_start = 2,
                 col_end = -1,
-                group = "AssistantH2",
+                group = "AssistantNote",
               },
             },
           })
-          :append({
-            content = "----------",
-            hl = {
-              {
-                col_start = 0,
-                col_end = -1,
-                group = "AssistantH2",
-              },
-            },
-          })
+          :newline()
 
         for _, value in ipairs(vim.split(test.input, "\n")) do
           text:append({
@@ -72,25 +63,16 @@ return {
 
         text
           :append({
-            content = "EXPECTED",
+            content = " EXPECTED ",
             hl = {
               {
-                col_start = 0,
+                col_start = 2,
                 col_end = -1,
-                group = "AssistantH2",
+                group = "AssistantNote",
               },
             },
           })
-          :append({
-            content = "----------",
-            hl = {
-              {
-                col_start = 0,
-                col_end = -1,
-                group = "AssistantH2",
-              },
-            },
-          })
+          :newline()
 
         for _, value in ipairs(vim.split(test.output, "\n")) do
           text:append({

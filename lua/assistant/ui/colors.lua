@@ -8,6 +8,7 @@ M.colors = {
   AssistantText = { link = "AerialNormal" },
   AssistantFadeText = { link = "NonText" },
   AssistantError = { link = "@comment.error" },
+  AssistantNote = { fg = "Black", bg = "LightBlue" },
   AssistantReady = { link = "@comment.info" },
   AssistantPassed = { link = "@comment.hint" },
   AssistantFailed = { link = "AssistantError" },
@@ -17,7 +18,7 @@ M.colors = {
 
 function M.load()
   for group, value in pairs(M.colors) do
-    vim.api.nvim_set_hl(0, group, { link = value.link, default = true })
+    vim.api.nvim_set_hl(0, group, value)
   end
 end
 
