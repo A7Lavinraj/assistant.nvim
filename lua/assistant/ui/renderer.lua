@@ -105,7 +105,7 @@ function Renderer:tests(tests, window)
             {
               col_start = 2,
               col_end = -1,
-              group = "AssistantButton",
+              group = "AssistantNote",
             },
           },
         })
@@ -131,7 +131,7 @@ function Renderer:tests(tests, window)
             {
               col_start = 2,
               col_end = -1,
-              group = "AssistantButton",
+              group = "AssistantNote",
             },
           },
         })
@@ -158,7 +158,7 @@ function Renderer:tests(tests, window)
               {
                 col_start = 2,
                 col_end = -1,
-                group = "AssistantButton",
+                group = "AssistantNote",
               },
             },
           })
@@ -185,7 +185,7 @@ function Renderer:tests(tests, window)
             {
               col_start = 2,
               col_end = -1,
-              group = "AssistantButton",
+              group = "AssistantNote",
             },
           },
         })
