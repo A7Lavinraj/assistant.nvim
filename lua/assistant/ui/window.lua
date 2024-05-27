@@ -2,6 +2,7 @@ local Buttonset = require("assistant.ui.buttonset")
 local Renderer = require("assistant.ui.renderer")
 local Runner = require("assistant.runner")
 local State = require("assistant.state")
+local defaults = require("assistant.defaults")
 local utils = require("assistant.ui.utils")
 
 local AssistantWindow = {}
@@ -12,9 +13,8 @@ function AssistantWindow.new()
   self.buf = nil
   self.win = nil
   self.is_open = false
-  self.height = 0.8
-  self.width = 0.6
   self.augroup = vim.api.nvim_create_augroup("AssistantWindow", { clear = true })
+  self.opts = defaults.win_opts
   self.state = State.new()
   self.renderer = Renderer.new()
   self.runner = Runner.new()
@@ -41,15 +41,21 @@ function AssistantWindow:init()
   })
 end
 
-function AssistantWindow:float_opts()
-  return {
-    relative = "editor",
-    width = utils.size(vim.o.columns, self.width),
-    height = utils.size(vim.o.lines, self.height),
-    row = math.floor((vim.o.lines - utils.size(vim.o.lines, self.height)) / 2),
-    col = math.floor((vim.o.columns - utils.size(vim.o.columns, self.width)) / 2),
-    style = "minimal",
-  }
+function AssistantWindow:update_opts(opts)
+  if not self:win_valid() then
+    return
+  end
+
+  vim.api.nvim_win_set_config(self.win, vim.tbl_deep_extend("force", self.opts, opts))
+end
+
+function AssistantWindow:resize()
+  self:update_opts({
+    width = utils.size(vim.o.columns, self.opts.width),
+    height = utils.size(vim.o.lines, self.opts.height),
+    row = math.floor((vim.o.lines - utils.size(vim.o.lines, self.opts.height)) / 2),
+    col = math.floor((vim.o.columns - utils.size(vim.o.columns, self.opts.width)) / 2),
+  })
 end
 
 function AssistantWindow:buf_valid()
@@ -73,7 +79,14 @@ function AssistantWindow:create_window()
 
   self.buf = vim.api.nvim_create_buf(false, true)
   self:init()
-  self.win = vim.api.nvim_open_win(self.buf, true, self:float_opts())
+  self.win = vim.api.nvim_open_win(self.buf, true, {
+    relative = "editor",
+    style = "minimal",
+    width = utils.size(vim.o.columns, self.opts.width),
+    height = utils.size(vim.o.lines, self.opts.height),
+    row = math.floor((vim.o.lines - utils.size(vim.o.lines, self.opts.height)) / 2),
+    col = math.floor((vim.o.columns - utils.size(vim.o.columns, self.opts.width)) / 2),
+  })
   self.is_open = true
   self.cpos = vim.api.nvim_win_get_cursor(self.win)
 
@@ -81,9 +94,7 @@ function AssistantWindow:create_window()
   vim.api.nvim_create_autocmd("VimResized", {
     group = self.augroup,
     callback = function()
-      if self:win_valid() then
-        vim.api.nvim_win_set_config(self.win, self:float_opts())
-      end
+      self:resize()
     end,
   })
   vim.api.nvim_create_autocmd({ "BufLeave", "BufHidden" }, {

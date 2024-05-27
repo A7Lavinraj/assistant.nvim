@@ -1,5 +1,6 @@
 local tabs = require("assistant.ui.tabs")
-local window = require("assistant.ui.window").new()
+local window_input = require("assistant.ui.window").new()
+local window_main = require("assistant.ui.window").new()
 require("assistant.ui.colors").load()
 
 local M = {}
@@ -9,18 +10,18 @@ local function set_keymaps()
     {
       lhs = "q",
       rhs = function()
-        window:delete_window()
+        window_main:delete_window()
       end,
-      opts = { noremap = true, silent = true, desc = "Assistant Close", buffer = window.buf },
+      opts = { noremap = true, silent = true, desc = "Assistant Close", buffer = window_main.buf },
     },
     {
       lhs = "<tab>",
       rhs = function()
-        window.state.tab = (window.state.tab + 1) % #window.buttonset.buttons
-        window.buttonset:click(window.state.tab + 1)
-        tabs[window.state.tab + 1](window)
+        window_main.state.tab = (window_main.state.tab + 1) % #window_main.buttonset.buttons
+        window_main.buttonset:click(window_main.state.tab + 1)
+        tabs[window_main.state.tab + 1](window_main)
       end,
-      opts = { noremap = true, silent = true, desc = "Assistant Tab CyclicNext", buffer = window.buf },
+      opts = { noremap = true, silent = true, desc = "Assistant Tab CyclicNext", buffer = window_main.buf },
     },
     {
       lhs = "<enter>",
@@ -29,7 +30,7 @@ local function set_keymaps()
         local number = current_line:match("Testcase #(%d+): %a+")
 
         if number then
-          local test = window.state.test_data["tests"][tonumber(number)]
+          local test = window_main.state.test_data["tests"][tonumber(number)]
 
           if not test.expand then
             test.expand = true
@@ -37,10 +38,10 @@ local function set_keymaps()
             test.expand = false
           end
 
-          window.renderer:tests(window.state.test_data["tests"], window)
+          window_main.renderer:tests(window_main.state.test_data["tests"], window_main)
         end
       end,
-      opts = { noremap = true, silent = true, desc = "Assistant Expand Test", buffer = window.buf },
+      opts = { noremap = true, silent = true, desc = "Assistant Expand Test", buffer = window_main.buf },
     },
     {
       lhs = "r",
@@ -49,17 +50,17 @@ local function set_keymaps()
         local number = current_line:match("Testcase #(%d+): %a+")
 
         if number then
-          window.runner:run_unique(tonumber(number))
+          window_main.runner:run_unique(tonumber(number))
         end
       end,
-      opts = { noremap = true, silent = true, desc = "Assistant Run Test", buffer = window.buf },
+      opts = { noremap = true, silent = true, desc = "Assistant Run Test", buffer = window_main.buf },
     },
     {
       lhs = "R",
       rhs = function()
-        window.runner:run_all()
+        window_main.runner:run_all()
       end,
-      opts = { noremap = true, silent = true, desc = "Assistant Run Test", buffer = window.buf },
+      opts = { noremap = true, silent = true, desc = "Assistant Run Test", buffer = window_main.buf },
     },
   }
 
@@ -69,18 +70,18 @@ local function set_keymaps()
 end
 
 function M.open()
-  window:create_window()
+  window_main:create_window()
   set_keymaps()
-  window.buttonset:click(window.state.tab + 1)
-  tabs[window.state.tab + 1](window)
+  window_main.buttonset:click(window_main.state.tab + 1)
+  tabs[window_main.state.tab + 1](window_main)
 end
 
 function M.close()
-  window:delete_window()
+  window_main:delete_window()
 end
 
 function M.toggle()
-  if window.is_open then
+  if window_main.is_open then
     M.close()
   else
     M.open()

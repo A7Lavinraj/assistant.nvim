@@ -1,25 +1,10 @@
+local default = require("assistant.defaults")
 local M = {}
 
-M.default = {
-  commands = {
-    cpp = {
-      extension = "cpp",
-      compile = { "g++", "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
-      execute = { "./$FILENAME_WITHOUT_EXTENSION" },
-    },
-    python = {
-      extension = "py",
-      compile = nil,
-      execute = { "python3", "$FILENAME_WITH_EXTENSION" },
-    },
-  },
-  time_limit = 5000,
-}
+M.default = {}
 
 M.update = function(opts)
-  for option, value in pairs(M.default) do
-    M.default[option] = opts[option] or value
-  end
+  M.default = vim.tbl_deep_extend("force", default["config"], opts)
 end
 
 M.load = function()
