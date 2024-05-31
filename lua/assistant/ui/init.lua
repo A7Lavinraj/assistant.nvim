@@ -1,5 +1,4 @@
 local tabs = require("assistant.ui.tabs")
-local window_input = require("assistant.ui.window").new()
 local window_main = require("assistant.ui.window").new()
 require("assistant.ui.colors").load()
 
