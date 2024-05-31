@@ -1,18 +1,27 @@
 local M = {}
 
+local white = "White"
+local black = "Black"
+local orange = "#fab387"
+local gray = "#6c7086"
+local red = "#f38ba8"
+local blue = "#b4befe"
+local green = "#a6e3a1"
+local yellow = "#f9e2af"
+
 M.colors = {
-  AssistantButton = { link = "CursorLine" },
-  AssistantButtonActive = { link = "IncSearch" },
-  AssistantH1 = { link = "Bold" },
-  AssistantH2 = { link = "Boolean" },
-  AssistantText = { link = "AerialNormal" },
-  AssistantFadeText = { link = "NonText" },
-  AssistantError = { link = "@comment.error" },
-  AssistantNote = { fg = "Black", bg = "LightBlue" },
-  AssistantReady = { link = "@comment.info" },
-  AssistantPassed = { link = "@comment.hint" },
+  AssistantButton = { bg = gray, fg = black },
+  AssistantButtonActive = { bg = orange, fg = black },
+  AssistantH1 = { bold = true },
+  AssistantH2 = { fg = orange },
+  AssistantText = { fg = white },
+  AssistantFadeText = { fg = gray },
+  AssistantError = { fg = red },
+  AssistantNote = { bg = gray, fg = black },
+  AssistantReady = { fg = blue },
+  AssistantPassed = { fg = green },
   AssistantFailed = { link = "AssistantError" },
-  AssistantRunning = { link = "@comment.warning" },
+  AssistantRunning = { fg = yellow },
   AssistantKilled = { link = "AssistantError" },
 }
 
