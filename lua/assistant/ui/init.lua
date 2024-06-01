@@ -57,6 +57,10 @@ local function set_keymaps()
     {
       lhs = "R",
       rhs = function()
+        if window_main.state.tab ~= 1 then
+          return
+        end
+
         window_main.runner:run_all()
       end,
       opts = { noremap = true, silent = true, desc = "Assistant Run Test", buffer = window_main.buf },
