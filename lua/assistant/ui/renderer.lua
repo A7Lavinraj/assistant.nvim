@@ -26,13 +26,19 @@ end
 function Renderer:text(text)
   if self:is_buf() then
     vim.api.nvim_set_option_value("modifiable", true, { buf = self.buf })
+  end
 
+  if self:is_buf() then
     vim.api.nvim_buf_set_lines(self.buf, 2, -1, false, {})
+  end
 
-    for _, line in pairs(text.lines) do
+  for _, line in pairs(text.lines) do
+    if self:is_buf() then
       vim.api.nvim_buf_set_lines(self.buf, -1, -1, false, { string.rep(" ", self.padding) .. line.content })
+    end
 
-      for _, hl in pairs(line.hl) do
+    for _, hl in pairs(line.hl) do
+      if self:is_buf() then
         vim.api.nvim_buf_add_highlight(
           self.buf,
           -1,
@@ -43,13 +49,17 @@ function Renderer:text(text)
         )
       end
     end
+  end
 
+  if self:is_buf() then
     vim.api.nvim_set_option_value("modifiable", false, { buf = self.buf })
   end
 end
 
 function Renderer:buttons(set)
-  vim.api.nvim_set_option_value("modifiable", true, { buf = self.buf })
+  if self:is_buf() then
+    vim.api.nvim_set_option_value("modifiable", true, { buf = self.buf })
+  end
 
   local text = string.rep(" ", self.padding)
 
@@ -57,17 +67,23 @@ function Renderer:buttons(set)
     text = text .. button.text .. string.rep(" ", set.gap)
   end
 
-  vim.api.nvim_buf_set_lines(self.buf, 1, -1, false, { text })
+  if self:is_buf() then
+    vim.api.nvim_buf_set_lines(self.buf, 1, -1, false, { text })
+  end
 
   local start = self.padding
   local line = vim.api.nvim_buf_line_count(self.buf) - 1
 
   for _, button in pairs(set.buttons) do
-    vim.api.nvim_buf_add_highlight(self.buf, -1, button.group, line, start, start + #button.text)
+    if self:is_buf() then
+      vim.api.nvim_buf_add_highlight(self.buf, -1, button.group, line, start, start + #button.text)
+    end
     start = start + #button.text + set.gap
   end
 
-  vim.api.nvim_set_option_value("modifiable", true, { buf = self.buf })
+  if self:is_buf() then
+    vim.api.nvim_set_option_value("modifiable", true, { buf = self.buf })
+  end
 end
 
 function Renderer:tests(tests, window)
@@ -211,8 +227,10 @@ function Renderer:tests(tests, window)
   vim.schedule(function()
     self:text(text)
 
-    if window.cpos[1] < vim.api.nvim_buf_line_count(window.buf) then
-      vim.api.nvim_win_set_cursor(window.win, window.cpos)
+    if self:is_buf() then
+      if window.cpos[1] < vim.api.nvim_buf_line_count(window.buf) then
+        vim.api.nvim_win_set_cursor(window.win, window.cpos)
+      end
     end
   end)
 end
