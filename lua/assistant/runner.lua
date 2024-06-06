@@ -1,3 +1,4 @@
+---@class AssistantRunner
 local AssistantRunner = {}
 
 function AssistantRunner.new()

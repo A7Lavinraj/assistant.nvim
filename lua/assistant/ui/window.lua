@@ -3,8 +3,9 @@ local Renderer = require("assistant.ui.renderer")
 local Runner = require("assistant.runner")
 local State = require("assistant.state")
 local defaults = require("assistant.defaults")
-local utils = require("assistant.ui.utils")
+local utils = require("assistant.utils")
 
+---@class AssistantWindow
 local AssistantWindow = {}
 
 function AssistantWindow.new()
@@ -19,7 +20,6 @@ function AssistantWindow.new()
   self.renderer = Renderer.new()
   self.runner = Runner.new()
   self.buttonset = Buttonset.new()
-  self.runner = Runner.new()
 
   return self
 end

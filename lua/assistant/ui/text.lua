@@ -1,3 +1,4 @@
+---@class Text
 local Text = {}
 
 function Text.new()

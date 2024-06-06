@@ -1,5 +1,6 @@
-local utils = require("assistant.ui.utils")
+local utils = require("assistant.utils")
 
+---@class AssistantState
 local AssistantState = {}
 
 function AssistantState.new()

@@ -12,9 +12,9 @@ local yellow = "#f9e2af"
 M.colors = {
   AssistantButton = { bg = gray, fg = black },
   AssistantButtonActive = { bg = orange, fg = black },
-  AssistantH1 = { bold = true },
+  AssistantH1 = { bold = true, fg = white },
   AssistantH2 = { fg = orange },
-  AssistantText = { fg = white },
+  AssistantText = {},
   AssistantFadeText = { fg = gray },
   AssistantError = { fg = red },
   AssistantNote = { bg = gray, fg = black },

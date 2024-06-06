@@ -1,10 +1,11 @@
+---@class AssistantRenderer
 local Renderer = {}
 
 function Renderer.new()
   local self = setmetatable({}, { __index = Renderer })
 
-  self.padding = 2
   self.buf = nil
+  self.padding = 2
 
   return self
 end
@@ -71,7 +72,7 @@ function Renderer:buttons(set)
     vim.api.nvim_buf_set_lines(self.buf, 1, -1, false, { text })
   end
 
-  local start = self.padding
+  local start = self.padding or 2
   local line = vim.api.nvim_buf_line_count(self.buf) - 1
 
   for _, button in pairs(set.buttons) do
