@@ -1,3 +1,4 @@
+---@class ButtonSet
 local ButtonSet = {}
 
 function ButtonSet.new()
