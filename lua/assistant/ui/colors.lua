@@ -22,6 +22,7 @@ M.colors = {
   AssistantPassed = { fg = green },
   AssistantFailed = { link = "AssistantError" },
   AssistantRunning = { fg = yellow },
+  AssistantCompiling = { fg = yellow },
   AssistantKilled = { link = "AssistantError" },
 }
 
