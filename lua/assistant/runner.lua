@@ -156,6 +156,10 @@ function AssistantRunner:run(index)
 end
 
 function AssistantRunner:run_unique(index)
+  self.tests[index].status = "COMPILING"
+  self.tests[index].group = "AssistantCompiling"
+  self.exe_cb(self.tests)
+
   self:compile(function(code, stderr)
     if code == 0 then
       self:run(index)
@@ -166,6 +170,12 @@ function AssistantRunner:run_unique(index)
 end
 
 function AssistantRunner:run_all()
+  for i = 1, #self.tests do
+    self.tests[i].status = "COMPILING"
+    self.tests[i].group = "AssistantCompiling"
+  end
+
+  self.exe_cb(self.tests)
   self:compile(function(code, stderr)
     if code == 0 then
       for i = 1, #(self.tests or {}) do
