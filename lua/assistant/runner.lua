@@ -29,6 +29,10 @@ local function comparator(stdout, expected)
   return process_str(stdout) == process_str(expected)
 end
 
+local function get_stream_data(received)
+  return table.concat(vim.split(string.gsub(received, "\r\n", "\n"), "\n", { plain = true }), "\n")
+end
+
 function AssistantRunner:compile(callback)
   if not (self.command and self.command.compile) then
     callback(0, {})
@@ -123,6 +127,10 @@ function AssistantRunner:run(index)
     end
   end)
 
+  vim.loop.write(process.stdin, self.tests[index].input)
+  vim.loop.shutdown(process.stdin)
+
+  self.tests[index].stdout = ""
   vim.loop.read_start(process.stdout, function(err, data)
     if err or not data then
       if process.stdout:is_readable() then
@@ -133,10 +141,11 @@ function AssistantRunner:run(index)
         process.stdout:close()
       end
     else
-      self.tests[index].stdout = data
+      self.tests[index].stdout = self.tests[index].stdout .. get_stream_data(data)
     end
   end)
 
+  self.tests[index].stderr = ""
   vim.loop.read_start(process.stderr, function(err, data)
     if err or not data then
       if process.stderr:is_readable() then
@@ -147,12 +156,9 @@ function AssistantRunner:run(index)
         process.stderr:close()
       end
     else
-      self.tests[index].stderr = data
+      self.tests[index].stderr = self.tests[index].stderr .. get_stream_data(data)
     end
   end)
-
-  vim.loop.write(process.stdin, self.tests[index].input)
-  vim.loop.shutdown(process.stdin)
 end
 
 function AssistantRunner:run_unique(index)
