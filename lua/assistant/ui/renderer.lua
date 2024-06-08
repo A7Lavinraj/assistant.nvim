@@ -167,7 +167,7 @@ function Renderer:tests(tests, window)
         })
       end
 
-      if test.stdout then
+      if test.stdout and test.stdout ~= "" then
         text
           :append({
             content = " STDOUT ",
@@ -195,7 +195,7 @@ function Renderer:tests(tests, window)
         end
       end
 
-      if test.stderr then
+      if test.stderr and test.stderr ~= "" then
         text:append({
           content = " STDERR ",
           hl = {
@@ -207,7 +207,7 @@ function Renderer:tests(tests, window)
           },
         })
 
-        if test.stderr then
+        if test.stderr and test.stderr ~= "" then
           for _, line in ipairs(vim.split(test.stderr, "\n")) do
             text:append({
               content = line,
