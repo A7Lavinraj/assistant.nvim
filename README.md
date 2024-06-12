@@ -10,15 +10,12 @@ A light-weight competitive programming code tester.
 **Assistant.nvim Home**
 ![screenshot 2](./screenshots/screenshot-2.png)
 
-**Run Test**
+**Assistant.nvim RunTest**
 ![screenshot 3](./screenshots/screenshot-3.png)
-
-**View output**
-![screenshot 4](./screenshots/screenshot-4.png)
 
 ## Plugin in action
 
-https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/43f09692-57f0-4dbb-b4f3-406ae5afa5f6
+https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/ac89f341-e07f-458f-9340-8e664ebd2191
 
 ## Setup with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -73,3 +70,13 @@ commands = {
 ```vim
 :lua print(vim.bo.filetype)
 ```
+
+## Keymappings
+
+| keymap      | Description                               |
+| ----------- | ----------------------------------------- |
+| `q`         | Close window                              |
+| `<Tab>`     | Go to next tab in cyclic manner           |
+| `<Enter>`   | Toggle testcase details                   |
+| `r`         | Runs the testcase on the cursor is holded |
+| `R`         | Runs all available testcases              |
