@@ -42,9 +42,6 @@
 ---@field gap number
 ---@field buttons {text:string, group:string, is_active:boolean}[]
 
----@class Line
----@field content string
----@field hl {group:string, col_start:number, col_end:number}[]
-
----@class Text
----@field lines Line[]
+---@class AssistantText
+---@field padding number
+---@field lines {str:string, hl:string}[][]

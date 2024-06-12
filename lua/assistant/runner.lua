@@ -81,7 +81,9 @@ function AssistantRunner:run(index)
           self.tests[index].group = "AssistantFailed"
         end
 
-        self.exe_cb(self.tests)
+        vim.schedule(function()
+          vim.cmd("doautocmd User AssistantTabRender")
+        end)
       end
 
       if not process.stdin:is_closing() then
@@ -107,7 +109,10 @@ function AssistantRunner:run(index)
   self.tests[index].status = "RUNNING"
   self.tests[index].group = "AssistantRunning"
   self.tests[index].start_at = vim.loop.now()
-  self.exe_cb(self.tests)
+
+  vim.schedule(function()
+    vim.cmd("doautocmd User AssistantTabRender")
+  end)
 
   process.timer:start(self.time_limit, 0, function()
     if not process.timer:is_active() then
@@ -123,7 +128,10 @@ function AssistantRunner:run(index)
     if self.tests[index].status == "RUNNING" then
       self.tests[index].status = "TIME LIMIT EXCEEDED"
       self.tests[index].group = "AssistantKilled"
-      self.exe_cb(self.tests)
+
+      vim.schedule(function()
+        vim.cmd("doautocmd User AssistantTabRender")
+      end)
     end
   end)
 
@@ -164,7 +172,10 @@ end
 function AssistantRunner:run_unique(index)
   self.tests[index].status = "COMPILING"
   self.tests[index].group = "AssistantCompiling"
-  self.exe_cb(self.tests)
+
+  vim.schedule(function()
+    vim.cmd("doautocmd User AssistantTabRender")
+  end)
 
   self:compile(function(code, stderr)
     if code == 0 then
@@ -181,7 +192,10 @@ function AssistantRunner:run_all()
     self.tests[i].group = "AssistantCompiling"
   end
 
-  self.exe_cb(self.tests)
+  vim.schedule(function()
+    vim.cmd("doautocmd User AssistantTabRender")
+  end)
+
   self:compile(function(code, stderr)
     if code == 0 then
       for i = 1, #(self.tests or {}) do

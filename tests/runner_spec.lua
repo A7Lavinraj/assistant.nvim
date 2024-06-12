@@ -9,7 +9,6 @@ describe("runner", function()
       command = { compile = {}, execute = {} },
       time_limit = 5000,
       cmp_cb = function() end,
-      exe_cb = function() end,
     })
 
     if runner.tests == nil then
@@ -23,9 +22,6 @@ describe("runner", function()
     end
     if runner.cmp_cb == nil then
       assert(false, "runner.cmp_cb is a nil value")
-    end
-    if runner.cmp_cb == nil then
-      assert(false, "runner.exe_cb is a nil value")
     end
   end)
 end)
