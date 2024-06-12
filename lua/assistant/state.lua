@@ -7,7 +7,7 @@ function AssistantState.new()
   local self = setmetatable({}, { __index = AssistantState })
 
   self.CWD = nil
-  self.tab = 0
+  self.tab = 1
   self.FILETYPE = nil
   self.FILENAME_WITHOUT_EXTENSION = nil
   self.FILENAME_WITH_EXTENSION = nil
