@@ -96,7 +96,7 @@ function M.show(tab)
   if tab == 1 then
     renderer:text(
       window.buf,
-      transformer:merge(transformer:buttons(buttons), transformer:problem(window.state.test_data))
+      transformer.merge(transformer.buttons(buttons), transformer.problem(window.state.test_data))
     )
   elseif tab == 2 then
     local text = Text.new()
@@ -133,14 +133,14 @@ function M.show(tab)
                 text:nl()
               end
 
-              renderer:text(window.buf, transformer:merge(transformer:buttons(buttons), text))
+              renderer:text(window.buf, transformer.merge(transformer.buttons(buttons), text))
             end)
           end,
         })
 
         renderer:text(
           window.buf,
-          transformer:merge(transformer:buttons(buttons), transformer:testcases(window.state.test_data["tests"]))
+          transformer.merge(transformer.buttons(buttons), transformer.testcases(window.state.test_data["tests"]))
         )
       end
     end
