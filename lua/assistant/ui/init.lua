@@ -82,13 +82,15 @@ function M.maps()
     local current_line = vim.api.nvim_get_current_line()
     local number = current_line:match("Testcase #(%d+): %a+")
 
-    if number then
+    if number and window.state.tab == 2 then
       runner:run_unique(tonumber(number))
     end
   end, { buffer = window.buf })
 
   vim.keymap.set("n", "R", function()
-    runner:run_all()
+    if window.state.tab == 2 then
+      runner:run_all()
+    end
   end, { buffer = window.buf })
 end
 
