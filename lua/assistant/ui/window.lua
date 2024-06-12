@@ -1,6 +1,3 @@
-local Buttonset = require("assistant.ui.buttonset")
-local Renderer = require("assistant.ui.renderer")
-local Runner = require("assistant.runner")
 local State = require("assistant.state")
 local defaults = require("assistant.defaults")
 local utils = require("assistant.utils")
@@ -17,28 +14,8 @@ function AssistantWindow.new()
   self.augroup = vim.api.nvim_create_augroup("AssistantWindow", { clear = true })
   self.opts = defaults.win_opts
   self.state = State.new()
-  self.renderer = Renderer.new()
-  self.runner = Runner.new()
-  self.buttonset = Buttonset.new()
 
   return self
-end
-
-function AssistantWindow:init()
-  self.state:init()
-  self.renderer:init(self.buf)
-  self.buttonset:init({
-    {
-      text = " 󰟍 Assistant.nvim ",
-      group = "AssistantButtonActive",
-      is_active = true,
-    },
-    {
-      text = "  Run Test ",
-      group = "AssistantButton",
-      is_active = false,
-    },
-  })
 end
 
 function AssistantWindow:update_opts(opts)
@@ -62,6 +39,7 @@ function AssistantWindow:buf_valid()
   if self.buf == nil then
     return false
   end
+
   return vim.api.nvim_buf_is_valid(self.buf)
 end
 
@@ -69,6 +47,7 @@ function AssistantWindow:win_valid()
   if self.win == nil then
     return false
   end
+
   return self.win and vim.api.nvim_win_is_valid(self.win)
 end
 
@@ -77,8 +56,9 @@ function AssistantWindow:create_window()
     return
   end
 
+  self.is_open = true
+  self.state:init()
   self.buf = vim.api.nvim_create_buf(false, true)
-  self:init()
   self.win = vim.api.nvim_open_win(self.buf, true, {
     relative = "editor",
     style = "minimal",
@@ -87,10 +67,7 @@ function AssistantWindow:create_window()
     row = math.floor((vim.o.lines - utils.size(vim.o.lines, self.opts.height)) / 2),
     col = math.floor((vim.o.columns - utils.size(vim.o.columns, self.opts.width)) / 2),
   })
-  self.is_open = true
-  self.cpos = vim.api.nvim_win_get_cursor(self.win)
 
-  vim.api.nvim_set_option_value("modifiable", false, { buf = self.buf })
   vim.api.nvim_create_autocmd("VimResized", {
     group = self.augroup,
     callback = function()
@@ -104,13 +81,11 @@ function AssistantWindow:create_window()
       self:delete_window()
     end,
   })
-  vim.api.nvim_create_autocmd("CursorMoved", {
-    group = self.augroup,
-    buffer = self.buf,
-    callback = function()
-      self.cpos = vim.api.nvim_win_get_cursor(self.win)
-    end,
-  })
+
+  vim.cmd("doautocmd User AssistantTabRender")
+  vim.cmd("doautocmd User AssistantWindowCreate")
+
+  vim.api.nvim_set_option_value("modifiable", false, { buf = self.buf })
 end
 
 function AssistantWindow:delete_window()
