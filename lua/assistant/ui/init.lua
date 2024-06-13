@@ -70,7 +70,7 @@ function M.maps()
     local number = current_line:match("Testcase #(%d+): %a+")
 
     if number then
-      local test = runner.tests[tonumber(number)] or window.state.test_data["tests"][tonumber(number)]
+      local test = window.state.test_data["tests"][tonumber(number)]
 
       if not test.expand then
         test.expand = true
@@ -114,7 +114,7 @@ function M.show(tab)
     else
       if window.state.test_data then
         runner:init({
-          tests = runner.tests or window.state.test_data["tests"],
+          tests = window.state.test_data["tests"],
           command = {
             compile = utils.interpolate(
               window.state.FILENAME_WITH_EXTENSION,
@@ -146,10 +146,7 @@ function M.show(tab)
 
         renderer:text(
           window.buf,
-          transformer.merge(
-            transformer.buttons(buttons),
-            transformer.testcases(runner.tests or window.state.test_data["tests"])
-          )
+          transformer.merge(transformer.buttons(buttons), transformer.testcases(window.state.test_data["tests"]))
         )
       end
     end
