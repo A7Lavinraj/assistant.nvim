@@ -39,7 +39,9 @@ vim.api.nvim_create_autocmd("User", {
   group = window.augroup,
   pattern = "AssistantRenderStart",
   callback = function()
-    vim.api.nvim_set_option_value("modifiable", true, { buf = window.buf })
+    if window.buf then
+      vim.api.nvim_set_option_value("modifiable", true, { buf = window.buf })
+    end
   end,
 })
 
@@ -47,7 +49,9 @@ vim.api.nvim_create_autocmd("User", {
   group = window.augroup,
   pattern = "AssistantRenderEnd",
   callback = function()
-    vim.api.nvim_set_option_value("modifiable", false, { buf = window.buf })
+    if window.buf then
+      vim.api.nvim_set_option_value("modifiable", false, { buf = window.buf })
+    end
   end,
 })
 
@@ -66,7 +70,7 @@ function M.maps()
     local number = current_line:match("Testcase #(%d+): %a+")
 
     if number then
-      local test = window.state.test_data["tests"][tonumber(number)]
+      local test = runner.tests[tonumber(number)] or window.state.test_data["tests"][tonumber(number)]
 
       if not test.expand then
         test.expand = true
@@ -105,12 +109,12 @@ function M.show(tab)
 
     if config.default.commands[window.state.FILETYPE] == nil then
       text:nl()
-      text:append("Command not found for the given filetype", "AssistantError")
-      renderer:text(window.buf, text)
+      text:append("Command not found for the given filetype", "AssistantFadeText")
+      renderer:text(window.buf, transformer.merge(transformer.buttons(buttons), text))
     else
       if window.state.test_data then
         runner:init({
-          tests = window.state.test_data["tests"],
+          tests = runner.tests or window.state.test_data["tests"],
           command = {
             compile = utils.interpolate(
               window.state.FILENAME_WITH_EXTENSION,
@@ -142,7 +146,10 @@ function M.show(tab)
 
         renderer:text(
           window.buf,
-          transformer.merge(transformer.buttons(buttons), transformer.testcases(window.state.test_data["tests"]))
+          transformer.merge(
+            transformer.buttons(buttons),
+            transformer.testcases(runner.tests or window.state.test_data["tests"])
+          )
         )
       end
     end

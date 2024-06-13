@@ -56,10 +56,12 @@ function AssisstantTransformer.problem(problem)
         text:nl()
         text:append(value, "AssistantText")
       end
+
+      text:nl()
     end
   else
     text:nl()
-    text:append(" No sample found", "AssistantError")
+    text:append("No sample found", "AssistantFadeText")
   end
 
   return text

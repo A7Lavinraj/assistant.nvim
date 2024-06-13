@@ -187,6 +187,10 @@ function AssistantRunner:run_unique(index)
 end
 
 function AssistantRunner:run_all()
+  if not self.tests then
+    return
+  end
+
   for i = 1, #self.tests do
     self.tests[i].status = "COMPILING"
     self.tests[i].group = "AssistantCompiling"
