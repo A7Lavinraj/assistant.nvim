@@ -86,15 +86,6 @@ function AssisstantTransformer.testcases(tests)
 
     if test.expand and test.expand == true and test.status ~= "RUNNING" then
       text:nl()
-      text:append(" INPUT ", "AssistantNote")
-      text:nl()
-
-      for _, line in ipairs(vim.split(test.input, "\n")) do
-        text:nl()
-        text:append(line, "AssistantText")
-      end
-
-      text:nl()
       text:append(" EXPECTED ", "AssistantNote")
       text:nl()
 
