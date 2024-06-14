@@ -17,6 +17,7 @@ end
 
 function AssistantState:init()
   self.CWD = vim.fn.expand("%:p:h")
+  self.tab = 1
   self.FILETYPE = vim.bo.filetype
   self.FILENAME_WITHOUT_EXTENSION = vim.fn.expand("%:t:r")
   self.FILENAME_WITH_EXTENSION = vim.fn.expand("%:t")

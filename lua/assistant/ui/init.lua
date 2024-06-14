@@ -14,58 +14,27 @@ local buttons = { { title = " 󰟍 Assistant.nvim ", isActive = true }, { title 
 
 local M = {}
 
-vim.api.nvim_create_autocmd("User", {
-  group = window.augroup,
-  pattern = "AssistantWindowCreate",
-  callback = function()
-    M.maps()
-  end,
-})
+function M.on(pattern, fn)
+  vim.api.nvim_create_autocmd("User", {
+    group = window.augroup,
+    pattern = pattern,
+    callback = fn,
+  })
+end
 
-vim.api.nvim_create_autocmd("User", {
-  group = window.augroup,
-  pattern = "AssistantTabRender",
-  callback = function()
-    for i = 1, #buttons do
-      buttons[i].isActive = false
-    end
+function M.key(lhs, rhs)
+  vim.keymap.set("n", lhs, rhs, { buffer = window.buf })
+end
 
-    buttons[window.state.tab].isActive = true
-    M.show(window.state.tab)
-  end,
-})
-
-vim.api.nvim_create_autocmd("User", {
-  group = window.augroup,
-  pattern = "AssistantRenderStart",
-  callback = function()
-    if window.buf then
-      vim.api.nvim_set_option_value("modifiable", true, { buf = window.buf })
-    end
-  end,
-})
-
-vim.api.nvim_create_autocmd("User", {
-  group = window.augroup,
-  pattern = "AssistantRenderEnd",
-  callback = function()
-    if window.buf then
-      vim.api.nvim_set_option_value("modifiable", false, { buf = window.buf })
-    end
-  end,
-})
-
-function M.maps()
-  vim.keymap.set("n", "q", function()
+function M.set_mappings()
+  M.key("q", function()
     window:delete_window()
-  end, { buffer = window.buf })
-
-  vim.keymap.set("n", "<tab>", function()
+  end)
+  M.key("<tab>", function()
     window.state.tab = window.state.tab % #buttons + 1
     vim.cmd("doautocmd User AssistantTabRender")
-  end, { buffer = window.buf })
-
-  vim.keymap.set("n", "<enter>", function()
+  end)
+  M.key("<enter>", function()
     local current_line = vim.api.nvim_get_current_line()
     local number = current_line:match("Testcase #(%d+): %a+")
 
@@ -80,21 +49,49 @@ function M.maps()
 
       vim.cmd("doautocmd User AssistantTabRender")
     end
-  end, { buffer = window.buf })
-
-  vim.keymap.set("n", "r", function()
+  end)
+  M.key("r", function()
     local current_line = vim.api.nvim_get_current_line()
     local number = current_line:match("Testcase #(%d+): %a+")
 
     if number then
       runner:run_unique(tonumber(number))
     end
-  end, { buffer = window.buf })
-
-  vim.keymap.set("n", "R", function()
+  end)
+  M.key("R", function()
     runner:run_all()
-  end, { buffer = window.buf })
+  end)
 end
+
+M.on("AssistantWindowCreate", M.set_mappings)
+M.on("AssistantTabRender", function()
+  for i = 1, #buttons do
+    buttons[i].isActive = false
+  end
+
+  buttons[window.state.tab].isActive = true
+  M.show(window.state.tab)
+end)
+M.on("AssistantRenderStart", function()
+  if window.buf then
+    vim.api.nvim_set_option_value("modifiable", true, { buf = window.buf })
+  end
+end)
+M.on("AssistantRenderEnd", function()
+  if window.buf then
+    vim.api.nvim_set_option_value("modifiable", false, { buf = window.buf })
+  end
+end)
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  group = window.augroup,
+  pattern = "*.*",
+  callback = function(data)
+    if vim.fn.fnamemodify(data.match, ":.") ~= window.state.FILENAME_WITH_EXTENSION then
+      window.state:init()
+    end
+  end,
+})
 
 function M.show(tab)
   if tab == 1 then

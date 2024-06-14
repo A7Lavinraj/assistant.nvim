@@ -57,7 +57,6 @@ function AssistantWindow:create_window()
   end
 
   self.is_open = true
-  self.state:init()
   self.buf = vim.api.nvim_create_buf(false, true)
   self.win = vim.api.nvim_open_win(self.buf, true, {
     relative = "editor",
