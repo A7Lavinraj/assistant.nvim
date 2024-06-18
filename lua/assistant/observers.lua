@@ -1,3 +1,4 @@
+local colors = require("assistant.ui.colors")
 local mappings = require("assistant.mappings")
 local store = require("assistant.store")
 local ui = require("assistant.ui")
@@ -25,6 +26,7 @@ function M.load()
     end
   end)
   M.look("User", "AssistantCompiled", ui.render_tab)
+  M.look("ColorScheme", nil, colors.load)
 end
 
 return M
