@@ -10,7 +10,7 @@ function AssistantWindow.new(state)
   return setmetatable({ state = state }, { __index = AssistantWindow })
 end
 
-function AssistantWindow:opts(custom)
+function AssistantWindow.opts(custom)
   local opts = {}
   opts.relative = "editor"
   opts.style = "minimal"
