@@ -1,4 +1,5 @@
 local Text = require("assistant.ui.text")
+local store = require("assistant.store")
 local AssisstantTransformer = {}
 
 ---@param a AssistantText
@@ -83,11 +84,27 @@ end
 function AssisstantTransformer.testcases(tests)
   local text = Text.new()
 
+  if store.COMPILE_STATUS.code and store.COMPILE_STATUS.code ~= 0 then
+    text:nl()
+    text:append("COMPILATION FAILED", "AssistantError")
+    text:nl(2)
+
+    for _, line in pairs(store.COMPILE_STATUS.error) do
+      text:append(line, "AssistantFadeText")
+      text:nl()
+    end
+
+    for i = 1, #store.PROBLEM_DATA["tests"] do
+      store.PROBLEM_DATA["tests"][i].status = "COMPILATION FAILED"
+      store.PROBLEM_DATA["tests"][i].group = "AssistantError"
+    end
+  end
+
   for index, test in ipairs(tests) do
     text:nl()
     text:append(test.expand and "" or "", "AssistantReady")
     text:append(string.format("Testcase #%d:", index), "AssistantReady")
-    text:append(string.format("%s", test.status or "READY"), test.group or "AssistantReady")
+    text:append(string.format("%s", test.status or "READY"), test.group or "AssistantText")
 
     if test.start_at and test.end_at then
       text:append(string.format("takes %.3f seconds", (test.end_at - test.start_at) / 1000), "AssistantFadeText")

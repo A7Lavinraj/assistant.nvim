@@ -19,7 +19,12 @@ function M.load()
   M.look("User", "AssistantRender", ui.render_tab)
   M.look("User", "AssistantRenderStart", ui.write_start)
   M.look("User", "AssistantRenderEnd", ui.write_stop)
-  M.look("BufEnter", "*.*", store.init)
+  M.look("BufEnter", "*.*", function(buf)
+    if vim.fn.fnamemodify(buf.match, ":.") ~= store.FILENAME_WITH_EXTENSION then
+      store.init()
+    end
+  end)
+  M.look("User", "AssistantCompiled", ui.render_tab)
 end
 
 return M

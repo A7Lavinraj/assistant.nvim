@@ -15,6 +15,11 @@ function M.render_tab()
       window.state.buf,
       transformer.merge(transformer.buttons(config.tabs), transformer.problem(store.PROBLEM_DATA))
     )
+  elseif store.TAB == 2 then
+    renderer.render(
+      window.state.buf,
+      transformer.merge(transformer.buttons(config.tabs), transformer.testcases(store.PROBLEM_DATA["tests"]))
+    )
   end
 end
 

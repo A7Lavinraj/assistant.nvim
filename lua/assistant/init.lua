@@ -1,3 +1,4 @@
+local colors = require("assistant.ui.colors")
 local config = require("assistant.config")
 local observers = require("assistant.observers")
 local server = require("assistant.server")
@@ -9,6 +10,7 @@ function M.setup()
   config.load()
   server.load()
   observers.load()
+  colors.load()
   vim.api.nvim_create_user_command("AssistantToggle", ui.toggle_window, { desc = "Toggle assistant window" })
 end
 

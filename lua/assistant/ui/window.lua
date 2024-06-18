@@ -75,11 +75,15 @@ function AssistantWindow:on_key(mode, lhs, rhs)
 end
 
 function AssistantWindow:write_start()
-  vim.api.nvim_set_option_value("modifiable", true, { buf = self.state.buf })
+  if self:is_buf() then
+    vim.api.nvim_set_option_value("modifiable", true, { buf = self.state.buf })
+  end
 end
 
 function AssistantWindow:write_stop()
-  vim.api.nvim_set_option_value("modifiable", false, { buf = self.state.buf })
+  if self:is_buf() then
+    vim.api.nvim_set_option_value("modifiable", false, { buf = self.state.buf })
+  end
 end
 
 function AssistantWindow:is_buf()

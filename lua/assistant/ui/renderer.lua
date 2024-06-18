@@ -19,13 +19,17 @@ function M.render(buf, text)
     table.insert(lines, line)
   end
 
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  if buf and vim.api.nvim_buf_is_valid(buf) then
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  end
 
   for cnt, row in pairs(text.lines) do
     local offset = text.padding
 
     for _, col in pairs(row) do
-      vim.api.nvim_buf_add_highlight(buf, -1, col.hl, cnt - 1, offset, offset + #col.str)
+      if buf and vim.api.nvim_buf_is_valid(buf) then
+        vim.api.nvim_buf_add_highlight(buf, -1, col.hl, cnt - 1, offset, offset + #col.str)
+      end
 
       offset = offset + #col.str + 1
     end
