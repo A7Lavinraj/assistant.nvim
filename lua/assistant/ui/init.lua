@@ -10,6 +10,12 @@ local M = {}
 local window = Window.new(State.new())
 
 function M.render_tab()
+  for i = 1, #config.tabs do
+    config.tabs[i].isActive = false
+  end
+
+  config.tabs[store.TAB].isActive = true
+
   if store.TAB == 1 then
     renderer.render(
       window.state.buf,

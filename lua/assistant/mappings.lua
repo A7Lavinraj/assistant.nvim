@@ -11,11 +11,6 @@ function M.load()
   ui.on_key("n", "<tab>", function()
     store.TAB = store.TAB % #config.tabs + 1
 
-    for i = 1, #config.tabs do
-      config.tabs[i].isActive = false
-    end
-
-    config.tabs[store.TAB].isActive = true
     emitter.emit("AssistantRender")
   end)
   ui.on_key("n", "<enter>", function()

@@ -10,6 +10,7 @@ M.FILENAME_WITH_EXTENSION = nil
 M.COMPILE_STATUS = { code = nil, error = nil }
 
 function M.init()
+  M.TAB = 1
   M.CWD = vim.fn.expand("%:p:h")
   M.FILETYPE = vim.bo.filetype
   M.FILENAME_WITHOUT_EXTENSION = vim.fn.expand("%:t:r")
