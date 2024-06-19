@@ -5,6 +5,10 @@ function M.size(max, percent)
 end
 
 function M.fetch(path)
+  if not path then
+    return nil
+  end
+
   local file = io.open(path, "r")
 
   if file then
