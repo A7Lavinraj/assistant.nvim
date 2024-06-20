@@ -1,6 +1,5 @@
 local State = require("assistant.ui.state")
 local Window = require("assistant.ui.window")
-local config = require("assistant.config")
 local renderer = require("assistant.ui.renderer")
 local store = require("assistant.store")
 local transformer = require("assistant.ui.transformer")
@@ -10,22 +9,10 @@ local M = {}
 local window = Window.new(State.new())
 
 function M.render_tab()
-  for i = 1, #config.tabs do
-    config.tabs[i].isActive = false
-  end
-
-  config.tabs[store.TAB].isActive = true
-
   if store.TAB == 1 then
-    renderer.render(
-      window.state.buf,
-      transformer.merge(transformer.buttons(config.tabs), transformer.problem(store.PROBLEM_DATA))
-    )
+    renderer.render(window.state.buf, transformer.merge(transformer.tabs(), transformer.problem()))
   elseif store.TAB == 2 then
-    renderer.render(
-      window.state.buf,
-      transformer.merge(transformer.buttons(config.tabs), transformer.testcases(store.PROBLEM_DATA))
-    )
+    renderer.render(window.state.buf, transformer.merge(transformer.tabs(), transformer.testcases()))
   end
 end
 

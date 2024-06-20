@@ -1,4 +1,5 @@
 local Text = require("assistant.ui.text")
+local config = require("assistant.config")
 local store = require("assistant.store")
 local AssisstantTransformer = {}
 
@@ -16,31 +17,36 @@ function AssisstantTransformer.merge(a, b)
   return text
 end
 
----@param buttons {title:string, isActive:boolean}[]
 ---@return AssistantText
-function AssisstantTransformer.buttons(buttons)
+function AssisstantTransformer.tabs()
   local text = Text.new()
+
+  for i = 1, #config.tabs do
+    config.tabs[i].isActive = false
+  end
+
+  config.tabs[store.TAB].isActive = true
   text:nl()
 
-  for i = 1, #buttons do
-    text:append(buttons[i].title, buttons[i].isActive and "AssistantButtonActive" or "AssistantButton")
+  for i = 1, #config.tabs do
+    text:append(config.tabs[i].title, config.tabs[i].isActive and "AssistantButtonActive" or "AssistantButton")
   end
 
   return text
 end
 
-function AssisstantTransformer.problem(problem)
+function AssisstantTransformer.problem()
   local text = Text.new()
 
-  if problem then
+  if store.PROBLEM_DATA then
     text:nl()
-    text:append(string.format("%s", problem["name"]), "AssistantH1")
+    text:append(string.format("%s", store.PROBLEM_DATA["name"]), "AssistantH1")
     text:nl(2)
-    text:append(string.format("Time limit: %.2f seconds", problem["timeLimit"] / 1000), "AssistantFadeText")
-    text:append(string.format("Memory limit: %s MB", problem["memoryLimit"]), "AssistantFadeText")
+    text:append(string.format("Time limit: %.2f seconds", store.PROBLEM_DATA["timeLimit"] / 1000), "AssistantFadeText")
+    text:append(string.format("Memory limit: %s MB", store.PROBLEM_DATA["memoryLimit"]), "AssistantFadeText")
     text:nl(2)
 
-    for _, test in ipairs(problem["tests"]) do
+    for _, test in ipairs(store.PROBLEM_DATA["tests"]) do
       text:append("INPUT", "AssistantNote")
       text:nl()
 
@@ -79,12 +85,11 @@ end
 ---@field group string
 ---@field expand boolean
 
----@param tests Test[]
 ---@return AssistantText
-function AssisstantTransformer.testcases(tests)
+function AssisstantTransformer.testcases()
   local text = Text.new()
 
-  if not tests then
+  if not (store.PROBLEM_DATA or store.PROBLEM_DATA["tests"]) then
     text:nl()
     text:append("No sample found", "AssistantFadeText")
   else
@@ -104,7 +109,7 @@ function AssisstantTransformer.testcases(tests)
       end
     end
 
-    for index, test in ipairs(tests) do
+    for index, test in ipairs(store.PROBLEM_DATA["tests"]) do
       text:nl()
       text:append(test.expand and "" or "", "AssistantReady")
       text:append(string.format("Testcase #%d:", index), "AssistantReady")
