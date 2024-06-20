@@ -24,7 +24,7 @@ function M.render_tab()
   elseif store.TAB == 2 then
     renderer.render(
       window.state.buf,
-      transformer.merge(transformer.buttons(config.tabs), transformer.testcases(store.PROBLEM_DATA["tests"]))
+      transformer.merge(transformer.buttons(config.tabs), transformer.testcases(store.PROBLEM_DATA))
     )
   end
 end

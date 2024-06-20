@@ -17,6 +17,10 @@ function M.col(ratio)
 end
 
 function M.fetch(path)
+  if not path then
+    return
+  end
+
   local file = io.open(path, "r")
 
   if file then

@@ -6,6 +6,10 @@ local utils = require("assistant.utils")
 local M = {}
 
 function M.compile(callback)
+  if not store.PROBLEM_DATA then
+    return
+  end
+
   local command = utils.interpolate(
     store.FILENAME_WITH_EXTENSION,
     store.FILENAME_WITHOUT_EXTENSION,
