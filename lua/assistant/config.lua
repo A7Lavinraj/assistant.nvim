@@ -1,14 +1,36 @@
-local default = require("assistant.defaults")
 local M = {}
 
-M.default = {}
+M.commands = {
+  python = {
+    extension = "py",
+    compile = nil,
+    execute = { main = "python3", args = { "$FILENAME_WITH_EXTENSION" } },
+  },
+  cpp = {
+    extension = "cpp",
+    compile = { main = "g++", args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" } },
+    execute = { main = "./$FILENAME_WITHOUT_EXTENSION", args = nil },
+  },
+}
 
-M.update = function(opts)
-  M.default = vim.tbl_deep_extend("force", default["config"], opts)
-end
+M.time_limit = 5000
 
-M.load = function()
-  vim.api.nvim_create_user_command("AssistantToggle", require("assistant.ui").toggle, {})
+M.tabs = {
+  {
+    title = " 󰟍 Assistant.nvim ",
+    isActive = true,
+  },
+  {
+    title = "  Run Test ",
+    isActive = false,
+  },
+}
+
+function M.load(opts)
+  if opts then
+    M.commands = vim.tbl_deep_extend("force", opts.commands or {})
+    M.time_limit = opts.time_limit or M.time_limit
+  end
 end
 
 return M

@@ -1,28 +1,18 @@
 local M = {}
 
-local white = "White"
-local black = "Black"
-local orange = "#fab387"
-local gray = "#6c7086"
-local red = "#f38ba8"
-local blue = "#b4befe"
-local green = "#a6e3a1"
-local yellow = "#f9e2af"
-
 M.colors = {
-  AssistantButton = { bg = gray, fg = black },
-  AssistantButtonActive = { bg = orange, fg = black },
-  AssistantH1 = { bold = true, fg = white },
-  AssistantH2 = { fg = orange },
-  AssistantText = {},
-  AssistantFadeText = { fg = gray },
-  AssistantError = { fg = red },
-  AssistantNote = { bg = gray, fg = black },
-  AssistantReady = { fg = blue },
-  AssistantPassed = { fg = green },
+  AssistantButton = { link = "CursorLine" },
+  AssistantButtonActive = { link = "IncSearch" },
+  AssistantH1 = { bold = true },
+  AssistantText = { link = "@text" },
+  AssistantFadeText = { link = "Comment" },
+  AssistantError = { link = "@diff.minus" },
+  AssistantNote = { link = "@define" },
+  AssistantReady = { link = "@define" },
+  AssistantPassed = { link = "@diff.plus" },
   AssistantFailed = { link = "AssistantError" },
-  AssistantRunning = { fg = yellow },
-  AssistantCompiling = { fg = yellow },
+  AssistantRunning = { link = "@diff.delta" },
+  AssistantCompiling = { link = "AssistantRunning" },
   AssistantKilled = { link = "AssistantError" },
 }
 

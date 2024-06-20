@@ -1,29 +1,16 @@
----@class AssistantRenderer
-local Renderer = {}
+local emitter = require("assistant.emitter")
 
-function Renderer.new()
-  local self = setmetatable({}, { __index = Renderer })
-  self.padding = 2
-
-  return self
-end
-
-local function is_buf(buf)
-  if buf == nil then
-    return false
-  end
-
-  return vim.api.nvim_buf_is_valid(buf)
-end
+local M = {}
 
 ---@param buf number
 ---@param text AssistantText
-function Renderer:text(buf, text)
-  vim.cmd("doautocmd User AssistantRenderStart")
+function M.render(buf, text)
+  emitter.emit("AssistantRenderStart")
+
   local lines = {}
 
   for _, row in pairs(text.lines) do
-    local line = string.rep(" ", self.padding)
+    local line = string.rep(" ", text.padding)
 
     for i, col in pairs(row) do
       line = line .. col.str .. string.rep(" ", i == #row and 0 or 1)
@@ -32,15 +19,15 @@ function Renderer:text(buf, text)
     table.insert(lines, line)
   end
 
-  if is_buf(buf) then
+  if buf and vim.api.nvim_buf_is_valid(buf) then
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   end
 
   for cnt, row in pairs(text.lines) do
-    local offset = self.padding
+    local offset = text.padding
 
     for _, col in pairs(row) do
-      if is_buf(buf) then
+      if buf and vim.api.nvim_buf_is_valid(buf) then
         vim.api.nvim_buf_add_highlight(buf, -1, col.hl, cnt - 1, offset, offset + #col.str)
       end
 
@@ -48,7 +35,7 @@ function Renderer:text(buf, text)
     end
   end
 
-  vim.cmd("doautocmd User AssistantRenderEnd")
+  emitter.emit("AssistantRenderEnd")
 end
 
-return Renderer
+return M

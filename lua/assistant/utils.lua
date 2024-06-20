@@ -1,7 +1,19 @@
 local M = {}
 
-function M.size(max, percent)
-  return math.min(max, math.floor(max * percent))
+function M.width(ratio)
+  return math.min(vim.o.columns, math.floor(vim.o.columns * ratio))
+end
+
+function M.height(ratio)
+  return math.min(vim.o.lines, math.floor(vim.o.lines * ratio))
+end
+
+function M.row(ratio)
+  return math.floor((vim.o.lines - M.height(ratio)) / 2)
+end
+
+function M.col(ratio)
+  return math.floor((vim.o.columns - M.width(ratio)) / 2)
 end
 
 function M.fetch(path)
@@ -18,6 +30,18 @@ function M.fetch(path)
   return nil
 end
 
+function M.compare(stdout, expected)
+  local function process_str(str)
+    return (str or ""):gsub("\n", " "):gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
+  end
+
+  return process_str(stdout) == process_str(expected)
+end
+
+function M.get_stream_data(received)
+  return table.concat(vim.split(string.gsub(received, "\r\n", "\n"), "\n", { plain = true }), "\n")
+end
+
 function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, command)
   if not command then
     return nil
@@ -29,19 +53,19 @@ function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, comm
       :gsub("%$FILENAME_WITHOUT_EXTENSION", FILENAME_WITHOUT_EXTENSION)
   end
 
-  local _command = vim.deepcopy(command)
+  local modified = vim.deepcopy(command)
 
-  if _command.main then
-    _command.main = replace(_command.main)
+  if modified.main then
+    modified.main = replace(modified.main)
   end
 
-  if _command.args then
+  if modified.args then
     for i = 1, #command.args do
-      _command.args[i] = replace(command.args[i])
+      modified.args[i] = replace(command.args[i])
     end
   end
 
-  return _command
+  return modified
 end
 
 return M

@@ -1,15 +1,11 @@
 ---@class AssistantText
-local Text = {}
+local AssistantText = {}
 
-function Text.new()
-  local self = setmetatable({}, { __index = Text })
-  self.padding = 2
-  self.lines = { {} }
-
-  return self
+function AssistantText.new()
+  return setmetatable({ padding = 2, lines = { {} } }, { __index = AssistantText })
 end
 
-function Text:nl(count)
+function AssistantText:nl(count)
   for _ = 1, (count or 1) do
     table.insert(self.lines, {})
   end
@@ -17,16 +13,10 @@ function Text:nl(count)
   return self
 end
 
-function Text:append(str, hl)
+function AssistantText:append(str, hl)
   table.insert(self.lines[#self.lines], { str = str, hl = hl })
 
   return self
 end
 
-function Text:update(lines)
-  self.lines = lines or { {} }
-
-  return self
-end
-
-return Text
+return AssistantText
