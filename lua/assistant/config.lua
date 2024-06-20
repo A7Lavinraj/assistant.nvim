@@ -28,7 +28,7 @@ M.tabs = {
 
 function M.load(opts)
   if opts then
-    M.commands = vim.tbl_deep_extend("force", opts.commands or {})
+    M.commands = vim.tbl_deep_extend("force", M.commands, opts.commands or {})
     M.time_limit = opts.time_limit or M.time_limit
   end
 end

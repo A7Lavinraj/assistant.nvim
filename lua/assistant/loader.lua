@@ -12,7 +12,7 @@ end
 
 function M.load()
   for _, module in ipairs(M.module_list) do
-    require("assistant." .. module.name).load(module.opt)
+    require("assistant." .. module.name).load(module.opts)
   end
 end
 
