@@ -18,7 +18,7 @@ end
 
 function M.fetch(path)
   if not path then
-    return
+    return nil
   end
 
   local file = io.open(path, "r")
