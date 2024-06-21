@@ -1,17 +1,7 @@
 local M = {}
 
-M.module_list = {}
-
-function M.add_list(list)
-  M.module_list = list
-end
-
-function M.add(module)
-  table.insert(M.module_list, module)
-end
-
-function M.load()
-  for _, module in ipairs(M.module_list) do
+function M.load(module_list)
+  for _, module in ipairs(module_list) do
     require("assistant." .. module.name).load(module.opts)
   end
 end

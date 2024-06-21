@@ -45,11 +45,11 @@ function M.on_key(mode, lhs, rhs)
 end
 
 function M.is_buf()
-  window:is_buf()
+  return window:is_buf()
 end
 
 function M.is_win()
-  window:is_win()
+  return window:is_win()
 end
 
 function M.get_state()

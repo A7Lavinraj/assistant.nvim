@@ -1,21 +1,31 @@
 local M = {}
 
+---@param ratio number
+---@return number
 function M.width(ratio)
   return math.min(vim.o.columns, math.floor(vim.o.columns * ratio))
 end
 
+---@param ratio number
+---@return number
 function M.height(ratio)
   return math.min(vim.o.lines, math.floor(vim.o.lines * ratio))
 end
 
+---@param ratio number
+---@return number
 function M.row(ratio)
   return math.floor((vim.o.lines - M.height(ratio)) / 2)
 end
 
+---@param ratio number
+---@return number
 function M.col(ratio)
   return math.floor((vim.o.columns - M.width(ratio)) / 2)
 end
 
+---@param path string | nil
+---@return table | nil
 function M.fetch(path)
   if not path then
     return nil
@@ -30,6 +40,9 @@ function M.fetch(path)
   return nil
 end
 
+---@param stdout string
+---@param expected string
+---@return boolean
 function M.compare(stdout, expected)
   local function process_str(str)
     return (str or ""):gsub("\n", " "):gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
@@ -38,10 +51,16 @@ function M.compare(stdout, expected)
   return process_str(stdout) == process_str(expected)
 end
 
+---@param received string
+---@return string
 function M.get_stream_data(received)
   return table.concat(vim.split(string.gsub(received, "\r\n", "\n"), "\n", { plain = true }), "\n")
 end
 
+---@param FILENAME_WITH_EXTENSION string | nil
+---@param FILENAME_WITHOUT_EXTENSION string | nil
+---@param command table | nil
+---@return table | nil
 function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, command)
   if not command then
     return nil

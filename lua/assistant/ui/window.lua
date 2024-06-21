@@ -70,6 +70,9 @@ function AssistantWindow:resize()
   vim.api.nvim_win_set_config(self.state.win, opts)
 end
 
+---@param mode string
+---@param lhs string
+---@param rhs string | function
 function AssistantWindow:on_key(mode, lhs, rhs)
   vim.keymap.set(mode or "n", lhs, rhs, { buffer = self.state.buf })
 end
@@ -86,6 +89,7 @@ function AssistantWindow:write_stop()
   end
 end
 
+---@return boolean
 function AssistantWindow:is_buf()
   if not self.state.buf then
     return false
@@ -94,6 +98,7 @@ function AssistantWindow:is_buf()
   return vim.api.nvim_buf_is_valid(self.state.buf)
 end
 
+---@return boolean
 function AssistantWindow:is_win()
   if not self.state.win then
     return false

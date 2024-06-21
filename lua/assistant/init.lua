@@ -1,13 +1,14 @@
 local loader = require("assistant.loader")
-local ui = require("assistant.ui")
 
 local M = {}
 
 function M.setup(opts)
-  loader.add_list({ { name = "config", opts = opts }, { name = "observers" }, { name = "server" } })
-  loader.load()
-
-  vim.api.nvim_create_user_command("AssistantToggle", ui.toggle_window, { desc = "Toggle assistant window" })
+  loader.load({
+    { name = "config", opts = opts },
+    { name = "observers" },
+    { name = "server" },
+    { name = "commands" },
+  })
 end
 
 return M
