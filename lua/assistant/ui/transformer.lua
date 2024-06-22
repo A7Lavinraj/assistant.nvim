@@ -89,7 +89,7 @@ end
 function AssisstantTransformer.testcases()
   local text = Text.new()
 
-  if not (store.PROBLEM_DATA or store.PROBLEM_DATA["tests"]) then
+  if not (store.PROBLEM_DATA and store.PROBLEM_DATA["tests"]) then
     text:nl()
     text:append("No sample found", "AssistantFadeText")
   else
