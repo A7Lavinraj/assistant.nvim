@@ -112,8 +112,8 @@ function AssisstantTransformer.testcases()
     for index, test in ipairs(store.PROBLEM_DATA["tests"]) do
       text:nl()
       text:append(test.expand and "" or "", "AssistantReady")
-      text:append(string.format("Testcase #%d:", index), "AssistantReady")
-      text:append(string.format("%s", test.status or "READY"), test.group or "AssistantText")
+      text:append(string.format("Testcase #%d:", index), "AssistantNote")
+      text:append(string.format("%s", test.status or "READY"), test.group or "AssistantReady")
 
       if test.start_at and test.end_at then
         text:append(string.format("takes %.3f seconds", (test.end_at - test.start_at) / 1000), "AssistantFadeText")
