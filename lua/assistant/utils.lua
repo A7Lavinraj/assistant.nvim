@@ -31,13 +31,27 @@ function M.fetch(path)
     return nil
   end
 
-  local file = io.open(path, "r")
+  local fd = vim.loop.fs_open(path, "r", 438)
 
-  if file then
-    return vim.json.decode(file:read())
+  if not fd then
+    return nil
   end
 
-  return nil
+  local stat = vim.loop.fs_fstat(fd)
+
+  if not stat then
+    return nil
+  end
+
+  local data = vim.loop.fs_read(fd, stat.size, 0)
+
+  if (not data) or (data:gsub("\r\n", "\n") == "") then
+    return nil
+  end
+
+  vim.loop.fs_close(fd)
+
+  return vim.json.decode(data)
 end
 
 ---@param stdout string

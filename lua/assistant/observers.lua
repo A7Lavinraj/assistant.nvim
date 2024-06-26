@@ -23,7 +23,7 @@ function M.load()
   M.look("ColorScheme", nil, colors.load)
   M.look("VimResized", nil, ui.resize_window)
   M.look({ "BufLeave", "BufHidden" }, nil, ui.close_window)
-  M.look("BufEnter", "*.*", function(buf)
+  M.look({ "BufEnter", "BufNew" }, "*.*", function(buf)
     if vim.fn.fnamemodify(buf.match, ":.") ~= store.FILENAME_WITH_EXTENSION then
       store.init()
     end
