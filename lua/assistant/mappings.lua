@@ -1,5 +1,6 @@
 local config = require("assistant.config")
 local emitter = require("assistant.emitter")
+local prompt = require("assistant.ui.prompt")
 local runner = require("assistant.runner")
 local store = require("assistant.store")
 local ui = require("assistant.ui")
@@ -30,6 +31,10 @@ function M.load()
     end
   end)
   ui.on_key("n", "r", function()
+    if store.TAB ~= 2 then
+      return
+    end
+
     local current_line = vim.api.nvim_get_current_line()
     local number = current_line:match("#(%d+):")
 
@@ -37,7 +42,58 @@ function M.load()
       runner.run_unique(tonumber(number))
     end
   end)
-  ui.on_key("n", "R", runner.run_all)
+  ui.on_key("n", "R", function()
+    if store.TAB ~= 2 then
+      return
+    end
+
+    runner.run_all()
+  end)
+  ui.on_key("n", "c", function()
+    if store.TAB ~= 2 then
+      return
+    end
+
+    table.insert(store.PROBLEM_DATA["tests"], { input = "NIL", output = "NIL" })
+    emitter.emit("AssistantRender")
+  end)
+  ui.on_key("n", "d", function()
+    if store.TAB ~= 2 then
+      return
+    end
+
+    local current_line = vim.api.nvim_get_current_line()
+    local number = current_line:match("Testcase #(%d+): %a+")
+
+    if number then
+      table.remove(store.PROBLEM_DATA["tests"], tonumber(number))
+      emitter.emit("AssistantRender")
+    end
+  end)
+  ui.on_key("n", "i", function()
+    if store.TAB ~= 2 then
+      return
+    end
+
+    local current_line = vim.api.nvim_get_current_line()
+    local number = current_line:match("Testcase #(%d+): %a+")
+
+    if number then
+      prompt.open(tonumber(number), "input")
+    end
+  end)
+  ui.on_key("n", "e", function()
+    if store.TAB ~= 2 then
+      return
+    end
+
+    local current_line = vim.api.nvim_get_current_line()
+    local number = current_line:match("Testcase #(%d+): %a+")
+
+    if number then
+      prompt.open(tonumber(number), "output")
+    end
+  end)
 end
 
 return M

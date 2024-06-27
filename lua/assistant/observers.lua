@@ -1,5 +1,6 @@
 local colors = require("assistant.ui.colors")
 local mappings = require("assistant.mappings")
+local prompt = require("assistant.ui.prompt")
 local store = require("assistant.store")
 local ui = require("assistant.ui")
 
@@ -22,7 +23,19 @@ function M.load()
 
   M.look("ColorScheme", nil, colors.load)
   M.look("VimResized", nil, ui.resize_window)
-  M.look({ "BufLeave", "BufHidden" }, nil, ui.close_window)
+  M.look(
+    "QuitPre",
+    nil,
+    vim.schedule_wrap(function()
+      if not ui.is_win() then
+        ui.close_window()
+      end
+
+      if not prompt.is_win() then
+        prompt.close()
+      end
+    end)
+  )
   M.look("BufEnter", "*.*", function(buf)
     if vim.fn.fnamemodify(buf.match, ":.") ~= store.FILENAME_WITH_EXTENSION then
       store.init()

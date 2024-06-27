@@ -13,7 +13,7 @@ function M.run_unique(index)
     store.PROBLEM_DATA["tests"][index].start_at = 0
 
     executor.execute(index)
-  end)
+  end, index)
 end
 
 function M.run_all()

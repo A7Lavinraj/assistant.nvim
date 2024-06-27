@@ -5,7 +5,7 @@ local utils = require("assistant.utils")
 
 local M = {}
 
-function M.compile(callback)
+function M.compile(callback, index)
   if not store.PROBLEM_DATA then
     return
   end
@@ -16,9 +16,14 @@ function M.compile(callback)
     config.commands[store.FILETYPE].compile
   )
 
-  for i = 1, #store.PROBLEM_DATA["tests"] do
-    store.PROBLEM_DATA["tests"][i].status = "COMPILING"
-    store.PROBLEM_DATA["tests"][i].group = "AssistantCompiling"
+  if index then
+    store.PROBLEM_DATA["tests"][index].status = "COMPILING"
+    store.PROBLEM_DATA["tests"][index].group = "AssistantCompiling"
+  else
+    for i = 1, #store.PROBLEM_DATA["tests"] do
+      store.PROBLEM_DATA["tests"][i].status = "COMPILING"
+      store.PROBLEM_DATA["tests"][i].group = "AssistantCompiling"
+    end
   end
 
   store.COMPILE_STATUS = { code = nil, error = nil }
