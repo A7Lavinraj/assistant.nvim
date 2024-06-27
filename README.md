@@ -13,9 +13,12 @@ A light-weight competitive programming code tester.
 **Assistant.nvim RunTest**
 ![screenshot 3](./screenshots/screenshot-3.png)
 
+**Assistant.nvim EditTest**
+![screenshot 4](./screenshots/screenshot-4.png)
+
 ## Plugin in action
 
-https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/ac89f341-e07f-458f-9340-8e664ebd2191
+https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/33ba9be2-bb04-4974-8549-6ba736b5a799
 
 ## Setup with [Lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -73,10 +76,14 @@ commands = {
 
 ## Keymappings
 
-| keymap      | Description                               |
-| ----------- | ----------------------------------------- |
-| `q`         | Close window                              |
-| `<Tab>`     | Go to next tab in cyclic manner           |
-| `<Enter>`   | Toggle testcase details                   |
-| `r`         | Runs the testcase on the cursor is holded |
-| `R`         | Runs all available testcases              |
+| keymap    | Description                                             |
+| --------- | ------------------------------------------------------- |
+| `q`       | Close window                                            |
+| `<Tab>`   | Go to next tab in cyclic manner                         |
+| `<Enter>` | Toggle testcase details                                 |
+| `r`       | Runs the testcase on which cursor is holded             |
+| `R`       | Runs all available testcases                            |
+| `c`       | Creates an empty testcase                               |
+| `d`       | Delete testcase on which cursor is hold                 |
+| `i`       | Open edit prompt for `input` on which cursor is holded  |
+| `e`       | Open edit prompt for `output` on which cursor is holded |
