@@ -10,8 +10,6 @@ function M.compile(callback)
     return
   end
 
-  print(vim.inspect(store.FILETYPE))
-
   local command = utils.interpolate(
     store.FILENAME_WITH_EXTENSION,
     store.FILENAME_WITHOUT_EXTENSION,
