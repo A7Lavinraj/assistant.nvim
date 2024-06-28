@@ -47,13 +47,15 @@ function AssistantPrompt:open(number, field)
     border = "rounded",
   })
 
-  vim.api.nvim_buf_set_lines(
-    self.buf,
-    0,
-    -1,
-    false,
-    vim.split(store.PROBLEM_DATA["tests"][self.tcnumber][self.field], "\n")
-  )
+  if store.PROBLEM_DATA then
+    vim.api.nvim_buf_set_lines(
+      self.buf,
+      0,
+      -1,
+      false,
+      vim.split(store.PROBLEM_DATA["tests"][self.tcnumber][self.field], "\n")
+    )
+  end
 
   self:on_key("n", "q", function()
     self:close()

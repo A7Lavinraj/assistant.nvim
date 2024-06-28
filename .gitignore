@@ -1,1 +1,3 @@
 dev
+.ast
+foo.cpp
