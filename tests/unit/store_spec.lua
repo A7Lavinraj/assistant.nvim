@@ -5,7 +5,7 @@ local store = require("assistant.store")
 describe("Assistant Store", function()
   it("can be synchronized", function()
     vim.cmd("edit main.cpp")
-    store.init()
+    store:init()
 
     assert(store.TAB == 1)
     assert(store.CWD == vim.fn.expand("%:p:h"))

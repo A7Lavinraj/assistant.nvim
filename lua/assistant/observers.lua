@@ -31,14 +31,14 @@ function M.load()
         ui.close_window()
       end
 
-      if not prompt.is_win() then
-        prompt.close()
+      if not prompt:is_win() then
+        prompt:close()
       end
     end)
   )
   M.look("BufEnter", "*.*", function(buf)
     if vim.fn.fnamemodify(buf.match, ":.") ~= store.FILENAME_WITH_EXTENSION then
-      store.init()
+      store:init()
     end
   end)
 end

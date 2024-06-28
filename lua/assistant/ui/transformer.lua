@@ -46,22 +46,24 @@ function AssisstantTransformer.problem()
     text:append(string.format("Memory limit: %s MB", store.PROBLEM_DATA["memoryLimit"]), "AssistantFadeText")
     text:nl(2)
 
-    for _, test in ipairs(store.PROBLEM_DATA["tests"]) do
-      text:append("INPUT", "AssistantNote")
+    for index, test in ipairs(store.PROBLEM_DATA["tests"]) do
+      text:append(string.format("SAMPLE #%d", index), "AssistantNote")
+      text:nl(2)
+      text:append("  INPUT", "AssistantFadeText")
       text:nl()
 
       for _, value in ipairs(vim.split(test.input, "\n")) do
         text:nl()
-        text:append(value, "AssistantText")
+        text:append("  " .. value, "AssistantText")
       end
 
-      text:nl()
-      text:append("EXPECTED", "AssistantNote")
+      text:nl(2)
+      text:append("  EXPECTED", "AssistantFadeText")
       text:nl()
 
       for _, value in ipairs(vim.split(test.output, "\n")) do
         text:nl()
-        text:append(value, "AssistantText")
+        text:append("  " .. value, "AssistantText")
       end
 
       text:nl()

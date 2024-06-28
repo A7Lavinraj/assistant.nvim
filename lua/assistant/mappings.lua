@@ -9,6 +9,9 @@ local M = {}
 
 function M.load()
   ui.on_key("n", "q", ui.close_window)
+  ui.on_key("n", "<esc>", function()
+    prompt:close()
+  end)
   ui.on_key("n", "<tab>", function()
     store.TAB = store.TAB % #config.tabs + 1
 
@@ -54,7 +57,7 @@ function M.load()
       return
     end
 
-    table.insert(store.PROBLEM_DATA["tests"], { input = "NIL", output = "NIL" })
+    table.insert(store.PROBLEM_DATA["tests"], { input = "...", output = "..." })
     emitter.emit("AssistantRender")
   end)
   ui.on_key("n", "d", function()
@@ -79,7 +82,7 @@ function M.load()
     local number = current_line:match("Testcase #(%d+): %a+")
 
     if number then
-      prompt.open(tonumber(number), "input")
+      prompt:open(tonumber(number), "input")
     end
   end)
   ui.on_key("n", "e", function()
@@ -91,7 +94,7 @@ function M.load()
     local number = current_line:match("Testcase #(%d+): %a+")
 
     if number then
-      prompt.open(tonumber(number), "output")
+      prompt:open(tonumber(number), "output")
     end
   end)
 end
