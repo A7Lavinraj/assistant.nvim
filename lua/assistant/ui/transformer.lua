@@ -47,7 +47,7 @@ function AssisstantTransformer.problem()
     text:nl(2)
 
     for index, test in ipairs(store.PROBLEM_DATA["tests"]) do
-      text:append(string.format("SAMPLE #%d", index), "AssistantNote")
+      text:append(string.format(" SAMPLE #%d", index), "AssistantNote")
       text:nl(2)
       text:append("  INPUT", "AssistantFadeText")
       text:nl()
@@ -113,7 +113,7 @@ function AssisstantTransformer.testcases()
 
     for index, test in ipairs(store.PROBLEM_DATA["tests"]) do
       text:nl()
-      text:append(test.expand and "" or "", "AssistantReady")
+      text:append(test.expand and "" or "", "AssistantNote")
       text:append(string.format("Testcase #%d:", index), "AssistantNote")
       text:append(string.format("%s", test.status or "READY"), test.group or "AssistantReady")
 
@@ -125,7 +125,7 @@ function AssisstantTransformer.testcases()
 
       if test.expand and test.expand == true and test.status ~= "RUNNING" then
         text:nl()
-        text:append("  INPUT", "AssistantNote")
+        text:append("  INPUT", "AssistantFadeText")
         text:nl()
 
         for _, line in ipairs(vim.split(test.input, "\n")) do
@@ -134,7 +134,7 @@ function AssisstantTransformer.testcases()
         end
 
         text:nl(2)
-        text:append("  EXPECTED", "AssistantNote")
+        text:append("  EXPECTED", "AssistantFadeText")
         text:nl()
 
         for _, line in ipairs(vim.split(test.output, "\n")) do
@@ -144,7 +144,7 @@ function AssisstantTransformer.testcases()
 
         if test.stdout and test.stdout ~= "" then
           text:nl(2)
-          text:append("  STDOUT", "AssistantNote")
+          text:append("  STDOUT", "AssistantFadeText")
           text:nl()
 
           for _, line in ipairs(vim.split(test.stdout, "\n")) do
@@ -155,7 +155,7 @@ function AssisstantTransformer.testcases()
 
         if test.stderr and test.stderr ~= "" then
           text:nl()
-          text:append("  STDERR", "AssistantNote")
+          text:append("  STDERR", "AssistantFadeText")
           text:nl()
 
           if test.stderr and test.stderr ~= "" then
