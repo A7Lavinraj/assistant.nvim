@@ -21,7 +21,7 @@ M.tabs = {
     isActive = true,
   },
   {
-    title = "  Run Test ",
+    title = "  Run Test ",
     isActive = false,
   },
 }
