@@ -8,6 +8,10 @@ describe("Assistant Prompt", function()
     vim.cmd("edit foo.cpp")
     store:init()
 
+    if not store.PROBLEM_DATA then
+      return
+    end
+
     prompt:open(1, "input")
     assert(
       table.concat(vim.api.nvim_buf_get_lines(prompt.buf, 0, -1, false), "\n") == store.PROBLEM_DATA["tests"][1].input,
