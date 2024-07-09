@@ -1,6 +1,7 @@
-local M = {}
+---@class AssistantConfig
+local AssistantConfig = {}
 
-M.commands = {
+AssistantConfig.commands = {
   python = {
     extension = "py",
     compile = nil,
@@ -13,9 +14,9 @@ M.commands = {
   },
 }
 
-M.time_limit = 5000
+AssistantConfig.time_limit = 5000
 
-M.tabs = {
+AssistantConfig.tabs = {
   {
     title = " 󰟍 Assistant.nvim ",
     isActive = true,
@@ -26,11 +27,12 @@ M.tabs = {
   },
 }
 
-function M.load(opts)
+function AssistantConfig.load(opts)
   if opts then
-    M.commands = vim.tbl_deep_extend("force", M.commands, opts.commands or {})
-    M.time_limit = opts.time_limit or M.time_limit
+    AssistantConfig.commands = vim.tbl_deep_extend("force", AssistantConfig.commands, opts.commands or {})
+    AssistantConfig.time_limit = opts.time_limit or AssistantConfig.time_limit
+    AssistantConfig.border = opts.border
   end
 end
 
-return M
+return AssistantConfig

@@ -1,3 +1,4 @@
+local config = require("assistant.config")
 local emitter = require("assistant.emitter")
 local utils = require("assistant.utils")
 
@@ -18,6 +19,7 @@ function AssistantWindow.opts(custom)
   opts.height = utils.height(0.7)
   opts.row = utils.row(0.7)
   opts.col = utils.col(0.5)
+  opts.border = config.border
 
   vim.tbl_deep_extend("force", opts, custom or {})
 
@@ -30,6 +32,8 @@ function AssistantWindow:create()
     self.state.win = vim.api.nvim_open_win(self.state.buf, true, self:opts())
     self.state.is_open = true
     self:write_stop()
+
+    vim.api.nvim_set_option_value("winhighlight", "Normal:AssistantNormal", { win = self.state.win })
 
     emitter.emit("AssistantOpenWindow")
     emitter.emit("AssistantRender")
@@ -61,6 +65,10 @@ function AssistantWindow:toggle()
 end
 
 function AssistantWindow:resize()
+  if not self:is_win() then
+    return
+  end
+
   local opts = vim.api.nvim_win_get_config(self.state.win)
   opts.width = utils.width(0.5)
   opts.height = utils.height(0.7)
