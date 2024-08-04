@@ -57,6 +57,10 @@ function M.load()
       return
     end
 
+    if not store.PROBLEM_DATA then
+      store.PROBLEM_DATA = { tests = {} }
+    end
+
     table.insert(store.PROBLEM_DATA["tests"], { input = "...", output = "..." })
     emitter.emit("AssistantRender")
   end)
