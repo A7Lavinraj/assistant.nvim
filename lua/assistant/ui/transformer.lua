@@ -2,7 +2,7 @@ local Text = require("assistant.ui.text")
 local config = require("assistant.config")
 local store = require("assistant.store")
 local AssisstantTransformer = {}
-local MAX_RENDER_LIMIT = 10
+local MAX_RENDER_LIMIT = 1000
 
 ---@param a AssistantText
 ---@param b AssistantText
