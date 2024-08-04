@@ -2,6 +2,7 @@ local Text = require("assistant.ui.text")
 local config = require("assistant.config")
 local store = require("assistant.store")
 local AssisstantTransformer = {}
+local MAX_RENDER_LIMIT = 10
 
 ---@param a AssistantText
 ---@param b AssistantText
@@ -40,10 +41,24 @@ function AssisstantTransformer.problem()
 
   if store.PROBLEM_DATA then
     text:nl()
-    text:append(string.format("%s", store.PROBLEM_DATA["name"]), "AssistantH1")
+    text:append(string.format("%s", store.PROBLEM_DATA["name"] or "Untitled"), "AssistantH1")
     text:nl(2)
-    text:append(string.format("Time limit: %.2f seconds", store.PROBLEM_DATA["timeLimit"] / 1000), "AssistantFadeText")
-    text:append(string.format("Memory limit: %s MB", store.PROBLEM_DATA["memoryLimit"]), "AssistantFadeText")
+
+    if store.PROBLEM_DATA["timeLimit"] then
+      text:append(
+        string.format("Time limit: %.2f seconds", store.PROBLEM_DATA["timeLimit"] / 1000),
+        "AssistantFadeText"
+      )
+    else
+      text:append("Time limit: Unknown,", "AssistantFadeText")
+    end
+
+    if store.PROBLEM_DATA["memoryLimit"] then
+      text:append(string.format("Memory limit: %s MB", store.PROBLEM_DATA["memoryLimit"]), "AssistantFadeText")
+    else
+      text:append("Memory limit: Unknown", "AssistantFadeText")
+    end
+
     text:nl(2)
 
     for index, test in ipairs(store.PROBLEM_DATA["tests"]) do
@@ -52,18 +67,30 @@ function AssisstantTransformer.problem()
       text:append("  INPUT", "AssistantFadeText")
       text:nl()
 
-      for _, value in ipairs(vim.split(test.input, "\n")) do
+      local lines = vim.split(test.input, "\n")
+
+      for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
         text:nl()
-        text:append("  " .. value, "AssistantText")
+        text:append("  " .. lines[i], "AssistantText")
+      end
+
+      if #lines > MAX_RENDER_LIMIT then
+        text:append("...Data is too large to render", "AssistantFadeText")
       end
 
       text:nl(2)
       text:append("  EXPECTED", "AssistantFadeText")
       text:nl()
 
-      for _, value in ipairs(vim.split(test.output, "\n")) do
+      lines = vim.split(test.output, "\n")
+
+      for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
         text:nl()
-        text:append("  " .. value, "AssistantText")
+        text:append("  " .. lines[i], "AssistantText")
+      end
+
+      if #lines > MAX_RENDER_LIMIT then
+        text:append("...Data is too large to render", "AssistantFadeText")
       end
 
       text:nl()
@@ -128,18 +155,30 @@ function AssisstantTransformer.testcases()
         text:append("  INPUT", "AssistantFadeText")
         text:nl()
 
-        for _, line in ipairs(vim.split(test.input, "\n")) do
+        local lines = vim.split(test.input, "\n")
+
+        for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
           text:nl()
-          text:append("  " .. line, "AssistantText")
+          text:append("  " .. lines[i], "AssistantText")
+        end
+
+        if #lines > MAX_RENDER_LIMIT then
+          text:append("...Data is too large to render", "AssistantFadeText")
         end
 
         text:nl(2)
         text:append("  EXPECTED", "AssistantFadeText")
         text:nl()
 
-        for _, line in ipairs(vim.split(test.output, "\n")) do
+        lines = vim.split(test.output, "\n")
+
+        for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
           text:nl()
-          text:append("  " .. line, "AssistantText")
+          text:append("  " .. lines[i], "AssistantText")
+        end
+
+        if #lines > MAX_RENDER_LIMIT then
+          text:append("...Data is too large to render", "AssistantFadeText")
         end
 
         if test.stdout and test.stdout ~= "" then
@@ -147,9 +186,15 @@ function AssisstantTransformer.testcases()
           text:append("  STDOUT", "AssistantFadeText")
           text:nl()
 
-          for _, line in ipairs(vim.split(test.stdout, "\n")) do
+          lines = vim.split(test.stdout, "\n")
+
+          for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
             text:nl()
-            text:append("  " .. line, "AssistantText")
+            text:append("  " .. lines[i], "AssistantText")
+          end
+
+          if #lines > MAX_RENDER_LIMIT then
+            text:append("...Data is too large to render", "AssistantFadeText")
           end
         end
 
@@ -159,9 +204,15 @@ function AssisstantTransformer.testcases()
           text:nl()
 
           if test.stderr and test.stderr ~= "" then
-            for _, line in ipairs(vim.split(test.stderr, "\n")) do
+            lines = vim.split(test.stderr, "\n")
+
+            for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
               text:nl()
-              text:append("  " .. line, "AssistantText")
+              text:append("  " .. lines[i], "AssistantText")
+            end
+
+            if #lines > MAX_RENDER_LIMIT then
+              text:append("...Data is too large to render", "AssistantFadeText")
             end
           end
         end
