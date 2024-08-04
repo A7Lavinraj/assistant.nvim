@@ -41,6 +41,7 @@ https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/33ba9be2-bb04-4974
             },
         },
         time_limit = 5000,
+        border = false -- border is OFF by default
     }
 }
 ```
