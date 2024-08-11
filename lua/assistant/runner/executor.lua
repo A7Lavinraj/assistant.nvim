@@ -32,6 +32,7 @@ function M.execute(index)
       if process.code == 0 then
         if utils.compare(store.PROBLEM_DATA["tests"][index].stdout, store.PROBLEM_DATA["tests"][index].output) then
           store.PROBLEM_DATA["tests"][index].status = "PASSED"
+          store.PROBLEM_DATA["tests"][index].expand = false
           store.PROBLEM_DATA["tests"][index].group = "AssistantPassed"
         else
           store.PROBLEM_DATA["tests"][index].status = "FAILED"
