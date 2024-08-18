@@ -16,23 +16,23 @@ function M.compile(callback, index)
     config.commands[store.FILETYPE].compile
   )
 
-  if index then
-    store.PROBLEM_DATA["tests"][index].status = "COMPILING"
-    store.PROBLEM_DATA["tests"][index].group = "AssistantCompiling"
-  else
-    for i = 1, #store.PROBLEM_DATA["tests"] do
-      store.PROBLEM_DATA["tests"][i].status = "COMPILING"
-      store.PROBLEM_DATA["tests"][i].group = "AssistantCompiling"
-    end
-  end
-
   store.COMPILE_STATUS = { code = nil, error = nil }
 
-  emitter.emit("AssistantRender")
-
   if not command then
-    emitter.emit("AssistantRender")
+    callback()
   else
+    if index then
+      store.PROBLEM_DATA["tests"][index].status = "COMPILING"
+      store.PROBLEM_DATA["tests"][index].group = "AssistantCompiling"
+    else
+      for i = 1, #store.PROBLEM_DATA["tests"] do
+        store.PROBLEM_DATA["tests"][i].status = "COMPILING"
+        store.PROBLEM_DATA["tests"][i].group = "AssistantCompiling"
+      end
+    end
+
+    emitter.emit("AssistantRender")
+
     vim.fn.jobstart(vim.tbl_flatten({ command.main, command.args }), {
       stderr_buffered = true,
       on_stderr = function(_, data)

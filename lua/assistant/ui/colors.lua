@@ -1,7 +1,6 @@
 local M = {}
 
 M.colors = {
-  AssistantNormal = { link = "NormalFloat" },
   AssistantButton = { link = "CursorLine" },
   AssistantButtonActive = { link = "IncSearch" },
   AssistantH1 = { bold = true },

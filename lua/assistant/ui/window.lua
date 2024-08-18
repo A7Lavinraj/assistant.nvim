@@ -33,8 +33,6 @@ function AssistantWindow:create()
     self.state.is_open = true
     self:write_stop()
 
-    vim.api.nvim_set_option_value("winhighlight", "Normal:AssistantNormal", { win = self.state.win })
-
     emitter.emit("AssistantOpenWindow")
     emitter.emit("AssistantRender")
   end
