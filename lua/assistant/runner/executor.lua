@@ -23,47 +23,51 @@ function M.execute(index)
     return
   end
 
-  process.handle, process.id = vim.loop.spawn(
-    command.main,
-    { args = command.args, stdio = { process.stdin, process.stdout, process.stderr } },
-    function(code, signal)
-      process.code, process.signal = code, signal
+  process.handle, process.id = vim.loop.spawn(command.main, {
+    args = command.args,
+    stdio = { process.stdin, process.stdout, process.stderr },
+  }, function(code, signal)
+    process.code, process.signal = code, signal
 
-      if process.code == 0 then
-        if utils.compare(store.PROBLEM_DATA["tests"][index].stdout, store.PROBLEM_DATA["tests"][index].output) then
-          store.PROBLEM_DATA["tests"][index].status = "PASSED"
-          store.PROBLEM_DATA["tests"][index].expand = false
-          store.PROBLEM_DATA["tests"][index].group = "AssistantPassed"
-        else
-          store.PROBLEM_DATA["tests"][index].status = "FAILED"
-          store.PROBLEM_DATA["tests"][index].expand = true
-          store.PROBLEM_DATA["tests"][index].group = "AssistantFailed"
-        end
-
-        vim.schedule(function()
-          emitter.emit("AssistantRender")
-        end)
+    if process.code == 0 then
+      if
+        utils.compare(
+          store.PROBLEM_DATA["tests"][index].stdout,
+          store.PROBLEM_DATA["tests"][index].output
+        )
+      then
+        store.PROBLEM_DATA["tests"][index].status = "PASSED"
+        store.PROBLEM_DATA["tests"][index].expand = false
+        store.PROBLEM_DATA["tests"][index].group = "AssistantPassed"
+      else
+        store.PROBLEM_DATA["tests"][index].status = "FAILED"
+        store.PROBLEM_DATA["tests"][index].expand = true
+        store.PROBLEM_DATA["tests"][index].group = "AssistantFailed"
       end
 
-      if not process.stdin:is_closing() then
-        process.stdin:close()
-      end
-
-      if not process.handle:is_closing() then
-        process.handle:close()
-      end
-
-      if not process.timer:is_active() then
-        process.timer:stop()
-      end
-
-      if not process.timer:is_closing() then
-        process.timer:close()
-      end
-
-      store.PROBLEM_DATA["tests"][index].end_at = vim.loop.now()
+      vim.schedule(function()
+        emitter.emit("AssistantRender")
+      end)
     end
-  )
+
+    if not process.stdin:is_closing() then
+      process.stdin:close()
+    end
+
+    if not process.handle:is_closing() then
+      process.handle:close()
+    end
+
+    if not process.timer:is_active() then
+      process.timer:stop()
+    end
+
+    if not process.timer:is_closing() then
+      process.timer:close()
+    end
+
+    store.PROBLEM_DATA["tests"][index].end_at = vim.loop.now()
+  end)
 
   store.PROBLEM_DATA["tests"][index].status = "RUNNING"
   store.PROBLEM_DATA["tests"][index].group = "AssistantRunning"

@@ -8,16 +8,18 @@ local ui = require("assistant.ui")
 local M = {}
 
 function M.load()
-  ui.on_key("n", "q", ui.close_window)
-  ui.on_key("n", "<esc>", function()
-    prompt:close()
+  ui:on_key("n", "q", function()
+    ui:remove()
   end)
-  ui.on_key("n", "<tab>", function()
+  ui:on_key("n", "<esc>", function()
+    ui:remove()
+  end)
+  ui:on_key("n", "<tab>", function()
     store.TAB = store.TAB % #config.tabs + 1
 
     emitter.emit("AssistantRender")
   end)
-  ui.on_key("n", "<enter>", function()
+  ui:on_key("n", "<enter>", function()
     local current_line = vim.api.nvim_get_current_line()
     local number = current_line:match("Testcase #(%d+): %a+")
 
@@ -33,7 +35,7 @@ function M.load()
       emitter.emit("AssistantRender")
     end
   end)
-  ui.on_key("n", "r", function()
+  ui:on_key("n", "r", function()
     if store.TAB ~= 2 then
       return
     end
@@ -45,14 +47,14 @@ function M.load()
       runner.run_unique(tonumber(number))
     end
   end)
-  ui.on_key("n", "R", function()
+  ui:on_key("n", "R", function()
     if store.TAB ~= 2 then
       return
     end
 
     runner.run_all()
   end)
-  ui.on_key("n", "c", function()
+  ui:on_key("n", "c", function()
     if store.TAB ~= 2 then
       return
     end
@@ -64,7 +66,7 @@ function M.load()
     table.insert(store.PROBLEM_DATA["tests"], { input = "...", output = "..." })
     emitter.emit("AssistantRender")
   end)
-  ui.on_key("n", "d", function()
+  ui:on_key("n", "d", function()
     if store.TAB ~= 2 then
       return
     end
@@ -77,7 +79,7 @@ function M.load()
       emitter.emit("AssistantRender")
     end
   end)
-  ui.on_key("n", "i", function()
+  ui:on_key("n", "i", function()
     if store.TAB ~= 2 then
       return
     end
@@ -89,7 +91,7 @@ function M.load()
       prompt:open(tonumber(number), "input")
     end
   end)
-  ui.on_key("n", "e", function()
+  ui:on_key("n", "e", function()
     if store.TAB ~= 2 then
       return
     end

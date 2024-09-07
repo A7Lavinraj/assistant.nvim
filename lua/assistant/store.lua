@@ -22,7 +22,13 @@ function AssistantStore:init()
   self.COMPILE_STATUS = { code = nil, error = nil }
 
   if self.FILENAME_WITHOUT_EXTENSION and self.CWD then
-    self.PROBLEM_DATA = utils.fetch(string.format("%s/.ast/%s.json", self.CWD, self.FILENAME_WITHOUT_EXTENSION))
+    self.PROBLEM_DATA = utils.fetch(
+      string.format(
+        "%s/.ast/%s.json",
+        self.CWD,
+        self.FILENAME_WITHOUT_EXTENSION
+      )
+    )
   end
 end
 

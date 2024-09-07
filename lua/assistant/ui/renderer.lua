@@ -1,12 +1,9 @@
-local emitter = require("assistant.emitter")
-
 local M = {}
 
 ---@param buf number
+---@param access boolean
 ---@param text AssistantText
-function M.render(buf, text)
-  emitter.emit("AssistantRenderStart")
-
+function M.render(buf, access, text)
   local lines = {}
 
   for _, row in pairs(text.lines) do
@@ -20,6 +17,9 @@ function M.render(buf, text)
   end
 
   if buf and vim.api.nvim_buf_is_valid(buf) then
+    if not access then
+      vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
+    end
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   end
 
@@ -28,14 +28,25 @@ function M.render(buf, text)
 
     for _, col in pairs(row) do
       if buf and vim.api.nvim_buf_is_valid(buf) then
-        vim.api.nvim_buf_add_highlight(buf, -1, col.hl, cnt - 1, offset, offset + #col.str)
+        vim.api.nvim_buf_add_highlight(
+          buf,
+          -1,
+          col.hl,
+          cnt - 1,
+          offset,
+          offset + #col.str
+        )
       end
 
       offset = offset + #col.str + 1
     end
   end
 
-  emitter.emit("AssistantRenderEnd")
+  if buf and vim.api.nvim_buf_is_valid(buf) then
+    if not access then
+      vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
+    end
+  end
 end
 
 return M

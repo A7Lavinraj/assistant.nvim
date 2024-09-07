@@ -59,7 +59,11 @@ end
 ---@return boolean
 function M.compare(stdout, expected)
   local function process_str(str)
-    return (str or ""):gsub("\n", " "):gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
+    return (str or "")
+      :gsub("\n", " ")
+      :gsub("%s+", " ")
+      :gsub("^%s", "")
+      :gsub("%s$", "")
   end
 
   return process_str(stdout) == process_str(expected)
@@ -68,14 +72,21 @@ end
 ---@param received string
 ---@return string
 function M.get_stream_data(received)
-  return table.concat(vim.split(string.gsub(received, "\r\n", "\n"), "\n", { plain = true }), "\n")
+  return table.concat(
+    vim.split(string.gsub(received, "\r\n", "\n"), "\n", { plain = true }),
+    "\n"
+  )
 end
 
 ---@param FILENAME_WITH_EXTENSION string | nil
 ---@param FILENAME_WITHOUT_EXTENSION string | nil
 ---@param command table | nil
 ---@return table | nil
-function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, command)
+function M.interpolate(
+  FILENAME_WITH_EXTENSION,
+  FILENAME_WITHOUT_EXTENSION,
+  command
+)
   if not command then
     return nil
   end
