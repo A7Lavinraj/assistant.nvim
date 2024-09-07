@@ -10,7 +10,14 @@ describe("Assistant Config", function()
       commands = {
         c = {
           extension = "c",
-          compile = { main = "gcc", args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" } },
+          compile = {
+            main = "gcc",
+            args = {
+              "$FILENAME_WITH_EXTENSION",
+              "-o",
+              "$FILENAME_WITHOUT_EXTENSION",
+            },
+          },
           execute = { main = "./$FILENAME_WITHOUT_EXTENSION", args = nil },
         },
       },

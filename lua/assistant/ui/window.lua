@@ -29,10 +29,15 @@ end
 function AssistantWindow:create()
   if not self.state.is_open then
     self.state.buf = vim.api.nvim_create_buf(false, true)
-    self.state.win = vim.api.nvim_open_win(self.state.buf, true, self:opts())
+    self.state.win =
+      vim.api.nvim_open_win(self.state.buf, true, self.state:get_config())
     self.state.is_open = true
-    self:write_stop()
 
+    vim.api.nvim_set_option_value(
+      "winhighlight",
+      "Normal:AssistantNormal",
+      { win = self.state.win }
+    )
     emitter.emit("AssistantOpenWindow")
     emitter.emit("AssistantRender")
   end
@@ -67,13 +72,7 @@ function AssistantWindow:resize()
     return
   end
 
-  local opts = vim.api.nvim_win_get_config(self.state.win)
-  opts.width = utils.width(0.5)
-  opts.height = utils.height(0.7)
-  opts.row = utils.row(0.7)
-  opts.col = utils.col(0.5)
-
-  vim.api.nvim_win_set_config(self.state.win, opts)
+  vim.api.nvim_win_set_config(self.state.win, self.state:get_config())
 end
 
 ---@param mode string
@@ -81,18 +80,6 @@ end
 ---@param rhs string | function
 function AssistantWindow:on_key(mode, lhs, rhs)
   vim.keymap.set(mode or "n", lhs, rhs, { buffer = self.state.buf })
-end
-
-function AssistantWindow:write_start()
-  if self:is_buf() then
-    vim.api.nvim_set_option_value("modifiable", true, { buf = self.state.buf })
-  end
-end
-
-function AssistantWindow:write_stop()
-  if self:is_buf() then
-    vim.api.nvim_set_option_value("modifiable", false, { buf = self.state.buf })
-  end
 end
 
 ---@return boolean

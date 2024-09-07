@@ -19,8 +19,11 @@ describe("Assistant Renderer", function()
     local text = Text.new()
     local content = get_random_string()
     text:append(content, "AssistantFadeText")
-    renderer.render(0, text)
+    renderer.render(0, false, text)
 
-    assert(table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "") == string.rep(" ", text.padding) .. content)
+    assert(
+      table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "")
+        == string.rep(" ", text.padding) .. content
+    )
   end)
 end)

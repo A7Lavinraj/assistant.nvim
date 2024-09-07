@@ -17,6 +17,7 @@ function M.compile(callback, index)
   )
 
   store.COMPILE_STATUS = { code = nil, error = nil }
+  emitter.emit("AssistantRender")
 
   if not command then
     callback()

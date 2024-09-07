@@ -2,6 +2,10 @@
 ---@field is_open boolean
 ---@field buf number
 ---@field win number
+---@field width_ratio number
+---@field height_ratio number
+---@field config table
+---@field data table
 
 ---@class AssistantWindow
 ---@field state AssistantWindowState
