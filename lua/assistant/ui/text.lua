@@ -2,10 +2,7 @@
 local AssistantText = {}
 
 function AssistantText.new(padding)
-  return setmetatable(
-    { padding = padding or 2, lines = { {} } },
-    { __index = AssistantText }
-  )
+  return setmetatable({ padding = padding or 2, lines = { {} } }, { __index = AssistantText })
 end
 
 function AssistantText:nl(count)

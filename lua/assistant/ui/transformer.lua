@@ -30,10 +30,7 @@ function AssisstantTransformer.tabs()
   text:nl()
 
   for i = 1, #config.tabs do
-    text:append(
-      config.tabs[i].title,
-      config.tabs[i].isActive and "AssistantButtonActive" or "AssistantButton"
-    )
+    text:append(config.tabs[i].title, config.tabs[i].isActive and "AssistantButtonActive" or "AssistantButton")
   end
 
   return text
@@ -44,18 +41,12 @@ function AssisstantTransformer.problem()
 
   if store.PROBLEM_DATA then
     text:nl()
-    text:append(
-      string.format("%s", store.PROBLEM_DATA["name"] or "Untitled"),
-      "AssistantH1"
-    )
+    text:append(string.format("%s", store.PROBLEM_DATA["name"] or "Untitled"), "AssistantH1")
     text:nl(2)
 
     if store.PROBLEM_DATA["timeLimit"] then
       text:append(
-        string.format(
-          "Time limit: %.2f seconds",
-          store.PROBLEM_DATA["timeLimit"] / 1000
-        ),
+        string.format("Time limit: %.2f seconds", store.PROBLEM_DATA["timeLimit"] / 1000),
         "AssistantFadeText"
       )
     else
@@ -63,10 +54,7 @@ function AssisstantTransformer.problem()
     end
 
     if store.PROBLEM_DATA["memoryLimit"] then
-      text:append(
-        string.format("Memory limit: %s MB", store.PROBLEM_DATA["memoryLimit"]),
-        "AssistantFadeText"
-      )
+      text:append(string.format("Memory limit: %s MB", store.PROBLEM_DATA["memoryLimit"]), "AssistantFadeText")
     else
       text:append("Memory limit: Unknown", "AssistantFadeText")
     end
@@ -154,19 +142,10 @@ function AssisstantTransformer.testcases()
       text:nl()
       text:append(test.expand and "" or "", "AssistantNote")
       text:append(string.format("Testcase #%d:", index), "AssistantNote")
-      text:append(
-        string.format("%s", test.status or "READY"),
-        test.group or "AssistantReady"
-      )
+      text:append(string.format("%s", test.status or "READY"), test.group or "AssistantReady")
 
       if test.start_at and test.end_at then
-        text:append(
-          string.format(
-            "takes %.3f seconds",
-            (test.end_at - test.start_at) / 1000
-          ),
-          "AssistantFadeText"
-        )
+        text:append(string.format("takes %.3f seconds", (test.end_at - test.start_at) / 1000), "AssistantFadeText")
       end
 
       text:nl()

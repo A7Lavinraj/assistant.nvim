@@ -28,14 +28,7 @@ function M.render(buf, access, text)
 
     for _, col in pairs(row) do
       if buf and vim.api.nvim_buf_is_valid(buf) then
-        vim.api.nvim_buf_add_highlight(
-          buf,
-          -1,
-          col.hl,
-          cnt - 1,
-          offset,
-          offset + #col.str
-        )
+        vim.api.nvim_buf_add_highlight(buf, -1, col.hl, cnt - 1, offset, offset + #col.str)
       end
 
       offset = offset + #col.str + 1

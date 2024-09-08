@@ -11,7 +11,7 @@ local M = setmetatable({ access = true }, {
     height = 0.5,
     width = 0.3,
     style = "minimal",
-    border = "rounded",
+    border = "single",
   })),
 })
 
@@ -22,8 +22,7 @@ function M:open(tc_number, field)
   self.field = field
   self:create()
   local data = Text.new(0)
-  local test =
-    vim.split(store.PROBLEM_DATA["tests"][self.tc_number][self.field], "\n")
+  local test = vim.split(store.PROBLEM_DATA["tests"][self.tc_number][self.field], "\n")
 
   if store.PROBLEM_DATA then
     for index, segment in ipairs(test) do
@@ -46,10 +45,13 @@ function M:open(tc_number, field)
 end
 
 function M:close()
-  store.PROBLEM_DATA["tests"][self.tc_number][self.field] =
-    table.concat(vim.api.nvim_buf_get_lines(self.state.buf, 0, -1, false), "\n")
-  emitter.emit("AssistantRender")
-  self:remove()
+  self:remove(function()
+    if self.state.buf and vim.api.nvim_buf_is_valid(self.state.buf) then
+      store.PROBLEM_DATA["tests"][self.tc_number][self.field] =
+        table.concat(vim.api.nvim_buf_get_lines(self.state.buf, 0, -1, false), "\n")
+      emitter.emit("AssistantRender")
+    end
+  end)
 end
 
 return M

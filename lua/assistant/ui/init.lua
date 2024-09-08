@@ -17,17 +17,9 @@ local M = setmetatable({ access = false }, {
 
 function M:render_tab()
   if store.TAB == 1 then
-    renderer.render(
-      self.state.buf,
-      self.access,
-      transformer.merge(transformer.tabs(), transformer.problem())
-    )
+    renderer.render(self.state.buf, self.access, transformer.merge(transformer.tabs(), transformer.problem()))
   elseif store.TAB == 2 then
-    renderer.render(
-      self.state.buf,
-      self.access,
-      transformer.merge(transformer.tabs(), transformer.testcases())
-    )
+    renderer.render(self.state.buf, self.access, transformer.merge(transformer.tabs(), transformer.testcases()))
   end
 end
 

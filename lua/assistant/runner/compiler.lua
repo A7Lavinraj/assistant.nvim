@@ -15,7 +15,6 @@ function M.compile(callback, index)
     store.FILENAME_WITHOUT_EXTENSION,
     config.commands[store.FILETYPE].compile
   )
-
   store.COMPILE_STATUS = { code = nil, error = nil }
   emitter.emit("AssistantRender")
 
