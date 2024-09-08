@@ -28,3 +28,4 @@
 ---@field commands table<Command>
 ---@field time_limit number
 ---@field border string
+---@field theme string

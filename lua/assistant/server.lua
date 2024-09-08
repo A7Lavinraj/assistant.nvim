@@ -27,11 +27,7 @@ function M.store_problem(chunk)
 
   if filename then
     vim.schedule(function()
-      local fd = vim.loop.fs_open(
-        string.format("%s/%s/%s.json", vim.fn.expand("%:p:h"), ".ast", filename),
-        "w",
-        438
-      )
+      local fd = vim.loop.fs_open(string.format("%s/%s/%s.json", vim.fn.expand("%:p:h"), ".ast", filename), "w", 438)
 
       if fd then
         vim.loop.fs_write(fd, (tostring(data)))

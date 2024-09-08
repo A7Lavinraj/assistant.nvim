@@ -29,13 +29,11 @@ end
 function AssistantWindow:create()
   if not self.state.is_open then
     self.state.buf = vim.api.nvim_create_buf(false, true)
-    self.state.win =
-      vim.api.nvim_open_win(self.state.buf, true, self.state:get_config())
+    self.state.win = vim.api.nvim_open_win(self.state.buf, true, self.state:get_config())
     self.state.is_open = true
-
     vim.api.nvim_set_option_value(
       "winhighlight",
-      "Normal:AssistantNormal",
+      "NormalFloat:AssistantNormalFloat,FloatBorder:AssistantFloatBorder",
       { win = self.state.win }
     )
     emitter.emit("AssistantOpenWindow")
@@ -43,7 +41,12 @@ function AssistantWindow:create()
   end
 end
 
-function AssistantWindow:remove()
+---@param pre_cb function | nil
+function AssistantWindow:remove(pre_cb)
+  if pre_cb then
+    pre_cb()
+  end
+
   if self.state.is_open then
     if self:is_win() then
       vim.api.nvim_win_close(self.state.win, true)

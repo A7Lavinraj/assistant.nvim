@@ -23,26 +23,27 @@ function M.execute(index)
     return
   end
 
+  local test = store.PROBLEM_DATA["tests"][index]
   process.handle, process.id = vim.loop.spawn(command.main, {
     args = command.args,
     stdio = { process.stdin, process.stdout, process.stderr },
   }, function(code, signal)
     process.code, process.signal = code, signal
+    store.PROBLEM_DATA["tests"][index].end_at = vim.loop.now()
 
     if process.code == 0 then
-      if
-        utils.compare(
-          store.PROBLEM_DATA["tests"][index].stdout,
-          store.PROBLEM_DATA["tests"][index].output
-        )
-      then
-        store.PROBLEM_DATA["tests"][index].status = "PASSED"
-        store.PROBLEM_DATA["tests"][index].expand = false
-        store.PROBLEM_DATA["tests"][index].group = "AssistantPassed"
+      if test.end_at - test.start_at > config.time_limit then
+        test.status = "TIME LIMIT EXCEEDED"
+        test.expand = true
+        test.group = "AssistantKilled"
+      elseif utils.compare(test.stdout, test.output) then
+        test.status = "PASSED"
+        test.expand = false
+        test.group = "AssistantPassed"
       else
-        store.PROBLEM_DATA["tests"][index].status = "FAILED"
-        store.PROBLEM_DATA["tests"][index].expand = true
-        store.PROBLEM_DATA["tests"][index].group = "AssistantFailed"
+        test.status = "FAILED"
+        test.expand = true
+        test.group = "AssistantFailed"
       end
 
       vim.schedule(function()
@@ -65,18 +66,15 @@ function M.execute(index)
     if not process.timer:is_closing() then
       process.timer:close()
     end
-
-    store.PROBLEM_DATA["tests"][index].end_at = vim.loop.now()
   end)
 
-  store.PROBLEM_DATA["tests"][index].status = "RUNNING"
-  store.PROBLEM_DATA["tests"][index].group = "AssistantRunning"
-  store.PROBLEM_DATA["tests"][index].start_at = vim.loop.now()
-
+  test.status = "RUNNING"
+  test.group = "AssistantRunning"
+  test.start_at = vim.loop.now()
+  test.end_at = test.start_at
   vim.schedule(function()
     emitter.emit("AssistantRender")
   end)
-
   process.timer:start(config.time_limit, 0, function()
     if not process.timer:is_active() then
       process.timer:stop()
@@ -86,21 +84,15 @@ function M.execute(index)
       process.timer:close()
     end
 
-    store.PROBLEM_DATA["tests"][index].end_at = vim.loop.now()
+    test.end_at = vim.loop.now()
 
-    if store.PROBLEM_DATA["tests"][index].status == "RUNNING" then
-      store.PROBLEM_DATA["tests"][index].status = "TIME LIMIT EXCEEDED"
-      store.PROBLEM_DATA["tests"][index].group = "AssistantKilled"
-
-      vim.schedule(function()
-        emitter.emit("AssistantRender")
-      end)
+    if process.handle and process.handle:is_active() then
+      process.handle:kill()
     end
   end)
 
-  vim.loop.write(process.stdin, store.PROBLEM_DATA["tests"][index].input)
+  vim.loop.write(process.stdin, test.input)
   vim.loop.shutdown(process.stdin)
-
   vim.loop.read_start(process.stdout, function(err, data)
     if err or not data then
       if process.stdout:is_readable() then
@@ -111,11 +103,9 @@ function M.execute(index)
         process.stdout:close()
       end
     else
-      store.PROBLEM_DATA["tests"][index].stdout = store.PROBLEM_DATA["tests"][index].stdout
-        .. utils.get_stream_data(data)
+      test.stdout = test.stdout .. utils.get_stream_data(data)
     end
   end)
-
   vim.loop.read_start(process.stderr, function(err, data)
     if err or not data then
       if process.stderr:is_readable() then
@@ -126,8 +116,7 @@ function M.execute(index)
         process.stderr:close()
       end
     else
-      store.PROBLEM_DATA["tests"][index].stderr = store.PROBLEM_DATA["tests"][index].stderr
-        .. utils.get_stream_data(data)
+      test.stderr = test.stderr .. utils.get_stream_data(data)
     end
   end)
 end

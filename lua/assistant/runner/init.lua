@@ -5,25 +5,27 @@ local store = require("assistant.store")
 local M = {}
 
 function M.run_unique(index)
+  local test = store.PROBLEM_DATA["tests"][index]
   compiler.compile(function()
-    store.PROBLEM_DATA["tests"][index].status = "RUNNING"
-    store.PROBLEM_DATA["tests"][index].group = "AssistantRunning"
-    store.PROBLEM_DATA["tests"][index].stdout = ""
-    store.PROBLEM_DATA["tests"][index].stderr = ""
-    store.PROBLEM_DATA["tests"][index].start_at = 0
-
+    test.status = "RUNNING"
+    test.group = "AssistantRunning"
+    test.stdout = ""
+    test.stderr = ""
+    test.start_at = 0
     executor.execute(index)
   end, index)
 end
 
 function M.run_all()
   compiler.compile(function()
+    local tests = store.PROBLEM_DATA["tests"]
+
     for i = 1, #store.PROBLEM_DATA["tests"] do
-      store.PROBLEM_DATA["tests"][i].status = "RUNNING"
-      store.PROBLEM_DATA["tests"][i].group = "AssistantRunning"
-      store.PROBLEM_DATA["tests"][i].stdout = ""
-      store.PROBLEM_DATA["tests"][i].stderr = ""
-      store.PROBLEM_DATA["tests"][i].start_at = 0
+      tests[i].status = "RUNNING"
+      tests[i].group = "AssistantRunning"
+      tests[i].stdout = ""
+      tests[i].stderr = ""
+      tests[i].start_at = 0
     end
 
     for i = 1, #store.PROBLEM_DATA["tests"] do
