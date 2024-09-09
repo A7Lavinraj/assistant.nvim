@@ -9,6 +9,7 @@
 
 ---@class AssistantWindow
 ---@field state AssistantWindowState
+---@field callback function(buf: number, win: number): void
 
 ---@class AssistantText
 ---@field padding number

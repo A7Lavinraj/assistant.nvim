@@ -12,7 +12,7 @@ return {
   },
   ["catppuccin"] = {
     PRIMARY = "#1A1823",
-    SECONDARY = "#1E1D2F",
+    SECONDARY = "#302D41",
     ACCENT = "#F8BD96",
     DIMMED = "#575268",
     BLACK = "#131020",
@@ -20,5 +20,16 @@ return {
     RED = "#F28FAD",
     GREEN = "#ABE9B3",
     YELLOW = "#FAE3B0",
+  },
+  ["tokyonight"] = {
+    PRIMARY = "#1F2335",
+    SECONDARY = "#292E42",
+    ACCENT = "#FF9E64",
+    DIMMED = "#575268",
+    BLACK = "#131020",
+    WHITE = "#D9E0EE",
+    RED = "#FF757F",
+    GREEN = "#C3E88D",
+    YELLOW = "#FFC777",
   },
 }

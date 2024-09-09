@@ -6,13 +6,22 @@ local store = require("assistant.store")
 local transformer = require("assistant.ui.transformer")
 
 local M = setmetatable({ access = false }, {
-  __index = Window.new(State.new({
-    relative = "editor",
-    style = "minimal",
-    width = 0.5,
-    height = 0.7,
-    border = config.border,
-  })),
+  __index = Window.new(
+    State.new({
+      relative = "editor",
+      style = "minimal",
+      width = 0.5,
+      height = 0.7,
+      border = config.border,
+    }),
+    function(_, win)
+      vim.api.nvim_set_option_value(
+        "winhighlight",
+        "NormalFloat:AssistantWindow,FloatBorder:AssistantWindowBorder",
+        { win = win }
+      )
+    end
+  ),
 })
 
 function M:render_tab()
