@@ -6,16 +6,25 @@ local renderer = require("assistant.ui.renderer")
 local store = require("assistant.store")
 
 local M = setmetatable({ access = true }, {
-  __index = Window.new(State.new({
-    relative = "editor",
-    height = 0.5,
-    width = 0.3,
-    style = "minimal",
-    border = "single",
-  })),
+  __index = Window.new(
+    State.new({
+      relative = "editor",
+      height = 0.5,
+      width = 0.3,
+      style = "minimal",
+      border = "single",
+    }),
+    function(_, win)
+      vim.api.nvim_set_option_value(
+        "winhighlight",
+        "NormalFloat:AssistantPrompt,FloatBorder:AssistantPromptBorder",
+        { win = win }
+      )
+    end
+  ),
 })
 
----@param tc_number number?
+---@param tc_number number | nil
 ---@param field string
 function M:open(tc_number, field)
   self.tc_number = tc_number

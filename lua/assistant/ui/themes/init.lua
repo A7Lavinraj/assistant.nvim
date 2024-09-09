@@ -10,40 +10,116 @@ local function get_custom_theme(theme)
   end
 
   return {
-    AssistantFloatBorder = { bg = colors.PRIMARY, fg = colors.SECONDARY },
-    AssistantNormalFloat = { bg = colors.PRIMARY },
-    AssistantButton = { bg = colors.SECONDARY, fg = colors.WHITE },
-    AssistantButtonActive = { bg = colors.ACCENT, fg = colors.BLACK },
-    AssistantH1 = { bold = true, fg = colors.WHITE },
-    AssistantText = { fg = colors.WHITE },
-    AssistantFadeText = { fg = colors.DIMMED },
-    AssistantError = { fg = colors.RED },
-    AssistantNote = { fg = colors.WHITE },
-    AssistantReady = { fg = colors.WHITE },
-    AssistantPassed = { fg = colors.GREEN },
-    AssistantRunning = { fg = colors.YELLOW },
-    AssistantFailed = { link = "AssistantError" },
-    AssistantKilled = { link = "AssistantError" },
-    AssistantCompiling = { link = "AssistantRunning" },
+    AssistantWindowBorder = {
+      fg = colors.SECONDARY,
+    },
+    AssistantWindow = {
+      bg = config.border and "" or colors.PRIMARY,
+    },
+    AssistantPrompt = {
+      bg = config.border and "" or colors.PRIMARY,
+    },
+    AssistantPromptBorder = {
+      fg = colors.SECONDARY,
+      bg = config.border and "" or colors.PRIMARY,
+    },
+    AssistantButton = {
+      bg = colors.SECONDARY,
+      fg = colors.WHITE,
+    },
+    AssistantButtonActive = {
+      bg = colors.ACCENT,
+      fg = colors.BLACK,
+    },
+    AssistantH1 = {
+      bold = true,
+      fg = colors.WHITE,
+    },
+    AssistantText = {
+      fg = colors.WHITE,
+    },
+    AssistantFadeText = {
+      fg = colors.DIMMED,
+    },
+    AssistantError = {
+      fg = colors.RED,
+    },
+    AssistantNote = {
+      fg = colors.WHITE,
+    },
+    AssistantReady = {
+      fg = colors.WHITE,
+    },
+    AssistantPassed = {
+      fg = colors.GREEN,
+    },
+    AssistantRunning = {
+      fg = colors.YELLOW,
+    },
+    AssistantFailed = {
+      link = "AssistantError",
+    },
+    AssistantKilled = {
+      link = "AssistantError",
+    },
+    AssistantCompiling = {
+      link = "AssistantRunning",
+    },
   }
 end
 
 local dynamic = {
-  AssistantFloatBorder = { link = "FloatBorder" },
-  AssistantNormalFloat = { link = "NormalFloat" },
-  AssistantButton = { link = "CursorLine" },
-  AssistantButtonActive = { link = "IncSearch" },
-  AssistantH1 = { bold = true },
-  AssistantText = { link = "@text" },
-  AssistantFadeText = { link = "NonText" },
-  AssistantError = { link = "DiagnosticError" },
-  AssistantNote = { link = "White" },
-  AssistantReady = { link = "DiagnosticInfo" },
-  AssistantPassed = { link = "DiagnosticOk" },
-  AssistantFailed = { link = "AssistantError" },
-  AssistantRunning = { link = "DiagnosticWarn" },
-  AssistantCompiling = { link = "AssistantRunning" },
-  AssistantKilled = { link = "AssistantError" },
+  AssistantWindowBorder = {
+    link = "FloatBorder",
+  },
+  AssistantWindow = {
+    link = "NormalFloat",
+  },
+  AssistantPrompt = {
+    link = "Text",
+  },
+  AssistantPromptBorder = {
+    link = "NonText",
+  },
+  AssistantButton = {
+    link = "CursorLine",
+  },
+  AssistantButtonActive = {
+    link = "IncSearch",
+  },
+  AssistantH1 = {
+    bold = true,
+  },
+  AssistantText = {
+    link = "@text",
+  },
+  AssistantFadeText = {
+    link = "NonText",
+  },
+  AssistantError = {
+    link = "DiagnosticError",
+  },
+  AssistantNote = {
+    link = "White",
+  },
+  AssistantReady = {
+    link = "DiagnosticInfo",
+  },
+  AssistantPassed = {
+    link = "DiagnosticOk",
+  },
+  AssistantFailed = {
+    link = "AssistantError",
+  },
+  AssistantRunning = {
+    link = "DiagnosticWarn",
+  },
+  AssistantCompiling = {
+    link = "AssistantRunning",
+  },
+  AssistantKilled = {
+    link = "AssistantError",
+  },
 }
 
 function M.load()

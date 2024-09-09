@@ -7,8 +7,11 @@ local AssistantWindow = {}
 
 ---@param state AssistantWindowState
 ---@return AssistantWindow
-function AssistantWindow.new(state)
-  return setmetatable({ state = state }, { __index = AssistantWindow })
+function AssistantWindow.new(state, callback)
+  return setmetatable({
+    state = state,
+    callback = callback,
+  }, { __index = AssistantWindow })
 end
 
 function AssistantWindow.opts(custom)
@@ -20,9 +23,7 @@ function AssistantWindow.opts(custom)
   opts.row = utils.row(0.7)
   opts.col = utils.col(0.5)
   opts.border = config.border
-
   vim.tbl_deep_extend("force", opts, custom or {})
-
   return opts
 end
 
@@ -31,11 +32,7 @@ function AssistantWindow:create()
     self.state.buf = vim.api.nvim_create_buf(false, true)
     self.state.win = vim.api.nvim_open_win(self.state.buf, true, self.state:get_config())
     self.state.is_open = true
-    vim.api.nvim_set_option_value(
-      "winhighlight",
-      "NormalFloat:AssistantNormalFloat,FloatBorder:AssistantFloatBorder",
-      { win = self.state.win }
-    )
+    self.callback(self.state.buf, self.state.win)
     emitter.emit("AssistantOpenWindow")
     emitter.emit("AssistantRender")
   end
