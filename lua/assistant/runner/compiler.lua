@@ -32,7 +32,6 @@ function M.compile(callback, index)
     end
 
     emitter.emit("AssistantRender")
-
     vim.fn.jobstart(vim.tbl_flatten({ command.main, command.args }), {
       stderr_buffered = true,
       on_stderr = function(_, data)

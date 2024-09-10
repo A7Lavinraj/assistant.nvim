@@ -1,26 +1,38 @@
-# Assistant.nvim
+# **Assistant.nvim**
 
-A light-weight competitive programming code tester.
+A simple and powerful neovim plugin for testing sample data for competitive programming platforms which build top of a world wide used browser extension **[Competitive Companion](https://github.com/jmerle/competitive-companion)**
 
-## Plugin UI
+![DEMO](./assets/screenshot-1.png)
+![DEMO](./assets/screenshot-2.png)
+![DEMO](./assets/screenshot-3.png)
+![DEMO](./assets/screenshot-4.png)
+![DEMO](./assets/screenshot-5.png)
+![DEMO](./assets/screenshot-6.png)
+![DEMO](./assets/screenshot-7.png)
 
-**Vscode like prompt**
-![screenshot 1](./screenshots/screenshot-1.png)
+<br />
 
-**Assistant.nvim Home**
-![screenshot 2](./screenshots/screenshot-2.png)
+# **Features**
 
-**Assistant.nvim RunTest**
-![screenshot 3](./screenshots/screenshot-3.png)
+- Blazingly fast.
+- Highly customizable.
+- Supports both environment and custom themes.
+- Easy to use.
 
-**Assistant.nvim EditTest**
-![screenshot 4](./screenshots/screenshot-4.png)
+<br />
 
-## Plugin in action
+> One important factor in competitive programming is Speed, make sure you don't compromise with that, while you using some fancy plugin or software.
 
-https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/33ba9be2-bb04-4974-8549-6ba736b5a799
+<br />
 
-## Setup with [Lazy.nvim](https://github.com/folke/lazy.nvim)
+# **Requirements**
+
+- **Neovim** >= 9.5
+- [Competitive companion Browser extension](https://github.com/jmerle/competitive-companion)
+
+<br />
+
+# **Setup with [Lazy.nvim](https://github.com/folke/lazy.nvim)**
 
 ```lua
 -- Example to setup for C++ and Python
@@ -32,59 +44,94 @@ https://github.com/A7Lavinraj/assistant.nvim/assets/107323410/33ba9be2-bb04-4974
             python = {
                 extension = "py",
                 compile = nil,
-                execute = { main = "python3", args = { "$FILENAME_WITH_EXTENSION" } },
+                execute = {
+                    main = "python3",
+                    args = { "$FILENAME_WITH_EXTENSION" }
+                },
             },
             cpp = {
                 extension = "cpp",
-                compile = { main = "g++", args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" } },
-                execute = { main = "./$FILENAME_WITHOUT_EXTENSION", args = nil },
+                compile = {
+                    main = "g++",
+                    args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" }
+                },
+                execute = {
+                    main = "./$FILENAME_WITHOUT_EXTENSION",
+                    args = nil
+                },
             },
         },
         time_limit = 5000,
         border = false -- border is OFF by default
+        theme = "dynamic" -- "gruvbox", "catppuccin" and "tokyonight" are also available
     }
 }
 ```
 
-## Important takeaways
+## Explaination of above code snippet
 
-This plugin doesn't show any sources for a problem if they are not setup properly in plugin configuration, look for basic setup mention above. plugin setup function accepts options for configuration:
+- First line points to github repository from where the plugin is get installed.
+- Second line is the dependency array for the plugin, In this case its [Dressing.nvim](https://github.com/stevearc/dressing.nvim)
+- Third line contains the options table to customize plugin:
+
+```sh
+g++ example.cpp -o example # {main} {arg1} {args2} {arg3}
+```
+
+Above code snippet is a command to compile a C++ file, If you take a closure look on the comment right infront of command you can guess `main = g++`, `arg1 = example.cpp`, `arg2 = -o` and `arg3 = example`, So if i want to extend the configuration for `Python`, I just need to add following code snippet to commands table.
 
 ```lua
-commands = {
-    python = { -- filetype (look down in the README.md to know how to get filetype of a file)
-        extension = "py", -- file extension for source file
-        compile = nil, -- nil for non compiled languages
-        execute = { main = "python3", args = { "$FILENAME_WITH_EXTENSION" } }, -- execution command
-    },
-    cpp = {
-        extension = "cpp",
-        compile = { main = "g++", args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" } }, -- table for compiled languages with contains main and args attributes
-        execute = { main = "./$FILENAME_WITHOUT_EXTENSION", args = nil },
+python = {
+    extension = "py", -- your prefered file extension for python file
+    compile = nil, -- since python code doesn't get compiled so pass a nil
+    execute = { -- {main} command and array of {args} as we saw earlier.
+        main = "python3",
+        args = { "$FILENAME_WITH_EXTENSION" }
     },
 },
 ```
 
-## Command to interact with plugin
+> key to the new table is **type of file you want to run**. In this case is `python`, you can get the correct filetype of file by just open that file inside neovim and type the following command.
 
-`AssistantToggle`: Toggles the plugin UI window
-
-## How to get the filetype of a file in neovim
-
-```vim
+```lua
 :lua print(vim.bo.filetype)
 ```
 
-## Keymappings
+- `time_limit` option is used to limit your code execution process to prevent infinite execution.
+- `border` option is used to enable borders.
+- `theme` option is used to change themes. there are only four options yet `gruvbox`, `catppuccin`, `tokyonight` and `dynamic`. `dynamic` option uses the current environment colorsheme.
 
-| keymap    | Description                                             |
-| --------- | ------------------------------------------------------- |
-| `q`       | Close window                                            |
-| `<Tab>`   | Go to next tab in cyclic manner                         |
-| `<Enter>` | Toggle testcase details                                 |
-| `r`       | Runs the testcase on which cursor is holded             |
-| `R`       | Runs all available testcases                            |
-| `c`       | Creates an empty testcase                               |
-| `d`       | Delete testcase on which cursor is hold                 |
-| `i`       | Open edit prompt for `input` on which cursor is holded  |
-| `e`       | Open edit prompt for `output` on which cursor is holded |
+<br />
+
+https://github.com/user-attachments/assets/993f3b53-e5e9-49d7-84bb-08cd2eb22ac3
+
+<br />
+
+In the above video guide you can see every feature that this plugin provides.
+
+- Sample fetching
+- Running testcases
+- Adding custom testcases
+
+There is only one command to interact with plugin `:AssistantToggle` which toggle the UI window of plugin and rest operations are done by keymappings.
+
+```lua
+ -- command to open plugin window
+:AssistantToggle
+
+-- prefered keymap for conciseness
+vim.keymap.set("n", "<leader>a", "<cmd>AssistantToggle<cr>", { desc = "Assistant window toggle" })
+```
+
+| Key     | Operation                                             |
+| ------- | ----------------------------------------------------- |
+| `Tab`   | Move between tabs in cyclic manner                    |
+| `Enter` | Toggle testcase details on which the cursor is holded |
+| `Esc`   | Close current window                                  |
+| `q`     | Close current window                                  |
+| `r`     | Run testcase on which the cursor is holded            |
+| `R`     | Run all available testcases                           |
+| `c`     | Create an empty testcase                              |
+| `d`     | Delete testcase on which the cursor is holded         |
+| `i`     | Open prompt window for updating input                 |
+| `e`     | Open prompt window for updating expected output       |
