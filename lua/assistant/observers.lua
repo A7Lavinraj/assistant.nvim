@@ -43,6 +43,7 @@ function M.load()
 
       if not previewer:is_win() then
         previewer:remove()
+        ui:remove()
       end
     end)
   )
