@@ -16,16 +16,7 @@ AssistantConfig.commands = {
     execute = { main = "./$FILENAME_WITHOUT_EXTENSION", args = nil },
   },
 }
-AssistantConfig.tabs = {
-  {
-    title = " 󰟍 Assistant.nvim ",
-    isActive = true,
-  },
-  -- {
-  --   title = "  Run Test ",
-  --   isActive = false,
-  -- },
-}
+
 AssistantConfig.time_limit = 5000
 
 function AssistantConfig.load(opts)

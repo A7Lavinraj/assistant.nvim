@@ -7,7 +7,6 @@ describe("Assistant Store", function()
     vim.cmd("edit main.cpp")
     store:init()
 
-    assert(store.TAB == 1)
     assert(store.CWD == vim.fn.expand("%:p:h"))
     assert(store.FILETYPE == vim.bo.filetype)
     assert(store.FILENAME_WITH_EXTENSION == vim.fn.expand("%:t"))
