@@ -1,27 +1,53 @@
 local M = {}
 
----@param ratio number
----@return number
+---@param ratio number | nil
+---@return number | nil
 function M.width(ratio)
+  if not ratio then
+    return nil
+  end
+
   return math.min(vim.o.columns, math.floor(vim.o.columns * ratio))
 end
 
----@param ratio number
----@return number
+---@param ratio number | nil
+---@return number | nil
 function M.height(ratio)
+  if not ratio then
+    return nil
+  end
+
   return math.min(vim.o.lines, math.floor(vim.o.lines * ratio))
 end
 
 ---@param ratio number
----@return number
-function M.row(ratio)
-  return math.floor((vim.o.lines - M.height(ratio)) / 2)
+---@param align "center" | "start" | "end" | nil
+---@return number | nil
+function M.row(ratio, align)
+  if align == "start" then
+    return math.floor(vim.o.lines - M.height(ratio))
+  elseif align == "end" then
+    return math.floor(vim.o.lines / 2)
+  elseif align == "center" then
+    return math.floor((vim.o.lines - M.height(ratio)) / 2)
+  else
+    return nil
+  end
 end
 
 ---@param ratio number
----@return number
-function M.col(ratio)
-  return math.floor((vim.o.columns - M.width(ratio)) / 2)
+---@param align "center" | "start" | "end" | nil
+---@return number | nil
+function M.col(ratio, align)
+  if align == "start" then
+    return math.floor(vim.o.columns - M.width(ratio))
+  elseif align == "end" then
+    return math.floor(vim.o.columns / 2)
+  elseif align == "center" then
+    return math.floor((vim.o.columns - M.width(ratio)) / 2)
+  else
+    return nil
+  end
 end
 
 ---@param path string | nil
@@ -99,6 +125,23 @@ function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, comm
   end
 
   return modified
+end
+
+---@param text AssistantText
+---@param str string
+---@param hl string
+---@param win number | nil
+---@return AssistantText | nil
+function M.text_center(text, str, hl, win)
+  if win and vim.api.nvim_win_is_valid(win) then
+    local config = vim.api.nvim_win_get_config(win)
+    text:nl(math.floor(config.height / 2))
+    text:append(string.rep(" ", math.ceil(config.width / 2) - math.ceil(#str / 2) - 4), "AssistantText")
+    text:append(str, hl)
+    return text
+  end
+
+  return nil
 end
 
 return M

@@ -1,8 +1,9 @@
 local Text = require("assistant.ui.text")
 local config = require("assistant.config")
+local constants = require("assistant.constants")
 local store = require("assistant.store")
+local utils = require("assistant.utils")
 local AssisstantTransformer = {}
-local MAX_RENDER_LIMIT = 1000
 
 ---@param a AssistantText
 ---@param b AssistantText
@@ -36,7 +37,7 @@ function AssisstantTransformer.tabs()
   return text
 end
 
-function AssisstantTransformer.problem()
+function AssisstantTransformer.header()
   local text = Text.new()
 
   if store.PROBLEM_DATA then
@@ -58,43 +59,6 @@ function AssisstantTransformer.problem()
     else
       text:append("Memory limit: Unknown", "AssistantFadeText")
     end
-
-    text:nl(2)
-
-    for index, test in ipairs(store.PROBLEM_DATA["tests"]) do
-      text:append(string.format(" SAMPLE #%d", index), "AssistantNote")
-      text:nl(2)
-      text:append("  INPUT", "AssistantFadeText")
-      text:nl()
-
-      local lines = vim.split(test.input, "\n")
-
-      for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
-        text:nl()
-        text:append("  " .. lines[i], "AssistantText")
-      end
-
-      if #lines > MAX_RENDER_LIMIT then
-        text:append("...Data is too large to render", "AssistantFadeText")
-      end
-
-      text:nl(2)
-      text:append("  EXPECTED", "AssistantFadeText")
-      text:nl()
-
-      lines = vim.split(test.output, "\n")
-
-      for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
-        text:nl()
-        text:append("  " .. lines[i], "AssistantText")
-      end
-
-      if #lines > MAX_RENDER_LIMIT then
-        text:append("...Data is too large to render", "AssistantFadeText")
-      end
-
-      text:nl()
-    end
   else
     text:nl()
     text:append("No sample found", "AssistantFadeText")
@@ -103,117 +67,124 @@ function AssisstantTransformer.problem()
   return text
 end
 
----@class Test
----@field input string
----@field output string
----@field stdout string
----@field stderr string
----@field status string
----@field start_at number
----@field end_at number
----@field group string
----@field expand boolean
-
 ---@return AssistantText
-function AssisstantTransformer.testcases()
-  local text = Text.new()
+function AssisstantTransformer.tests_list()
+  local text = Text.new():nl()
 
   if not (store.PROBLEM_DATA and store.PROBLEM_DATA["tests"]) then
-    text:nl()
-    text:append("No sample found", "AssistantFadeText")
+    text:append("No sample found", "AssistantFadeText"):nl()
   else
-    if store.COMPILE_STATUS.code and store.COMPILE_STATUS.code ~= 0 then
-      text:nl()
-      text:append("COMPILATION FAILED", "AssistantError")
+    for index, test in ipairs(store.PROBLEM_DATA["tests"]) do
+      text
+        :append(test.expand and "" or "", "AssistantNote")
+        :append(string.format("Testcase #%d:", index), "AssistantNote")
+
+      if store.COMPILE_STATUS.code and store.COMPILE_STATUS.code ~= 0 then
+        text:append("COMPILATION FAILED", "AssistantError")
+      else
+        if not test.status then
+          text:append("READY", "AssistantText")
+        elseif test.status == "PASSED" then
+          text:append("PASSED", "AssistantPassed")
+        elseif test.status == "FAILED" then
+          text:append("FAILED", "AssistantFailed")
+        elseif test.status == "COMPILING" then
+          text:append("COMPILING", "AssistantCompiling")
+        elseif test.status == "RUNNING" then
+          text:append("RUNNING", "AssistantRunning")
+        elseif test.status == "TIME LIMIT EXCEEDED" then
+          text:append("TIME LIMIT EXCEEDED", "AssistantFailed")
+        else
+          text:append("UNKNOWN", "AssistantFailed")
+        end
+      end
+
       text:nl(2)
+    end
+  end
 
-      for _, line in pairs(store.COMPILE_STATUS.error) do
-        text:append(line, "AssistantFadeText")
-        text:nl()
-      end
+  return text
+end
 
-      for i = 1, #store.PROBLEM_DATA["tests"] do
-        store.PROBLEM_DATA["tests"][i].status = "COMPILATION FAILED"
-        store.PROBLEM_DATA["tests"][i].group = "AssistantError"
-      end
+---@param tc_number number | nil
+---@param win number | nil
+---@return AssistantText
+function AssisstantTransformer.testcase(tc_number, win)
+  local text = Text.new()
+
+  if store.COMPILE_STATUS and store.COMPILE_STATUS.code ~= 0 and store.COMPILE_STATUS.error then
+    for _, line in ipairs(store.COMPILE_STATUS.error) do
+      text:append(line, "AssistantFadeText"):nl()
     end
 
-    for index, test in ipairs(store.PROBLEM_DATA["tests"]) do
-      text:nl()
-      text:append(test.expand and "" or "", "AssistantNote")
-      text:append(string.format("Testcase #%d:", index), "AssistantNote")
-      text:append(string.format("%s", test.status or "READY"), test.group or "AssistantReady")
+    return text
+  end
 
-      if test.start_at and test.end_at then
-        text:append(string.format("takes %.3f seconds", (test.end_at - test.start_at) / 1000), "AssistantFadeText")
+  if not tc_number then
+    return utils.text_center(text, "Hold the cursor on any testcase", "AssistantFadeText", win) or text
+  end
+
+  if store.PROBLEM_DATA and store.PROBLEM_DATA["tests"] then
+    local test = store.PROBLEM_DATA["tests"][tc_number]
+
+    if test.status ~= "RUNNING" then
+      text:nl()
+      text:append("  INPUT", "AssistantFadeText"):nl()
+      local lines = vim.split(test.input, "\n")
+
+      for i = 1, math.min(#lines, constants.MAX_RENDER_LIMIT) do
+        text:nl()
+        text:append("  " .. lines[i], "AssistantText")
+      end
+
+      if #lines > constants.MAX_RENDER_LIMIT then
+        text:append("...Data is too large to render", "AssistantFadeText")
       end
 
       text:nl()
+      text:append("  EXPECTED", "AssistantFadeText"):nl()
 
-      if test.expand and test.expand == true and test.status ~= "RUNNING" then
+      lines = vim.split(test.output, "\n")
+
+      for i = 1, math.min(#lines, constants.MAX_RENDER_LIMIT) do
         text:nl()
-        text:append("  INPUT", "AssistantFadeText")
+        text:append("  " .. lines[i], "AssistantText")
+      end
+
+      if #lines > constants.MAX_RENDER_LIMIT then
+        text:append("...Data is too large to render", "AssistantFadeText")
+      end
+
+      if test.stdout and test.stdout ~= "" then
         text:nl()
+        text:append("  STDOUT", "AssistantFadeText"):nl()
 
-        local lines = vim.split(test.input, "\n")
+        lines = vim.split(test.stdout, "\n")
 
-        for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
+        for i = 1, math.min(#lines, constants.MAX_RENDER_LIMIT) do
           text:nl()
           text:append("  " .. lines[i], "AssistantText")
         end
 
-        if #lines > MAX_RENDER_LIMIT then
+        if #lines > constants.MAX_RENDER_LIMIT then
           text:append("...Data is too large to render", "AssistantFadeText")
         end
+      end
 
-        text:nl(2)
-        text:append("  EXPECTED", "AssistantFadeText")
+      if test.stderr and test.stderr ~= "" then
         text:nl()
+        text:append("  STDERR", "AssistantFadeText"):nl()
 
-        lines = vim.split(test.output, "\n")
+        if test.stderr and test.stderr ~= "" then
+          lines = vim.split(test.stderr, "\n")
 
-        for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
-          text:nl()
-          text:append("  " .. lines[i], "AssistantText")
-        end
-
-        if #lines > MAX_RENDER_LIMIT then
-          text:append("...Data is too large to render", "AssistantFadeText")
-        end
-
-        if test.stdout and test.stdout ~= "" then
-          text:nl(2)
-          text:append("  STDOUT", "AssistantFadeText")
-          text:nl()
-
-          lines = vim.split(test.stdout, "\n")
-
-          for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
+          for i = 1, math.min(#lines, constants.MAX_RENDER_LIMIT) do
             text:nl()
             text:append("  " .. lines[i], "AssistantText")
           end
 
-          if #lines > MAX_RENDER_LIMIT then
+          if #lines > constants.MAX_RENDER_LIMIT then
             text:append("...Data is too large to render", "AssistantFadeText")
-          end
-        end
-
-        if test.stderr and test.stderr ~= "" then
-          text:nl()
-          text:append("  STDERR", "AssistantFadeText")
-          text:nl()
-
-          if test.stderr and test.stderr ~= "" then
-            lines = vim.split(test.stderr, "\n")
-
-            for i = 1, math.min(#lines, MAX_RENDER_LIMIT) do
-              text:nl()
-              text:append("  " .. lines[i], "AssistantText")
-            end
-
-            if #lines > MAX_RENDER_LIMIT then
-              text:append("...Data is too large to render", "AssistantFadeText")
-            end
           end
         end
       end

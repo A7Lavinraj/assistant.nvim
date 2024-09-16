@@ -4,6 +4,8 @@
 ---@field win number
 ---@field width_ratio number
 ---@field height_ratio number
+---@field row "center" | "start" | "end" | nil
+---@field col "center" | "start" | "end" | nil
 ---@field config table
 ---@field data table
 
@@ -30,3 +32,14 @@
 ---@field time_limit number
 ---@field border string
 ---@field theme string
+
+---@class Test
+---@field input string
+---@field output string
+---@field stdout string
+---@field stderr string
+---@field status string
+---@field start_at number
+---@field end_at number
+---@field group string
+---@field expand boolean

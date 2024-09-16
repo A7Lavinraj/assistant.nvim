@@ -1,4 +1,5 @@
 local config = require("assistant.config")
+local constants = require("assistant.constants")
 local emitter = require("assistant.emitter")
 local store = require("assistant.store")
 local utils = require("assistant.utils")
@@ -103,7 +104,9 @@ function M.execute(index)
         process.stdout:close()
       end
     else
-      test.stdout = test.stdout .. utils.get_stream_data(data)
+      if #test.stdout < constants.MAX_RENDER_LIMIT then
+        test.stdout = test.stdout .. utils.get_stream_data(data)
+      end
     end
   end)
   vim.loop.read_start(process.stderr, function(err, data)
@@ -116,7 +119,9 @@ function M.execute(index)
         process.stderr:close()
       end
     else
-      test.stderr = test.stderr .. utils.get_stream_data(data)
+      if #test.stderr < constants.MAX_RENDER_LIMIT then
+        test.stderr = test.stderr .. utils.get_stream_data(data)
+      end
     end
   end)
 end

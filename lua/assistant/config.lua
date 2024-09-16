@@ -21,10 +21,10 @@ AssistantConfig.tabs = {
     title = " 󰟍 Assistant.nvim ",
     isActive = true,
   },
-  {
-    title = "  Run Test ",
-    isActive = false,
-  },
+  -- {
+  --   title = "  Run Test ",
+  --   isActive = false,
+  -- },
 }
 AssistantConfig.time_limit = 5000
 
