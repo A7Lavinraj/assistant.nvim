@@ -5,10 +5,6 @@ A simple and powerful neovim plugin for testing sample data for competitive prog
 ![DEMO](./assets/screenshot-1.png)
 ![DEMO](./assets/screenshot-2.png)
 ![DEMO](./assets/screenshot-3.png)
-![DEMO](./assets/screenshot-4.png)
-![DEMO](./assets/screenshot-5.png)
-![DEMO](./assets/screenshot-6.png)
-![DEMO](./assets/screenshot-7.png)
 
 <br />
 
@@ -123,15 +119,14 @@ There is only one command to interact with plugin `:AssistantToggle` which toggl
 vim.keymap.set("n", "<leader>a", "<cmd>AssistantToggle<cr>", { desc = "Assistant window toggle" })
 ```
 
-| Key     | Operation                                             |
-| ------- | ----------------------------------------------------- |
-| `Tab`   | Move between tabs in cyclic manner                    |
-| `Enter` | Toggle testcase details on which the cursor is holded |
-| `Esc`   | Close current window                                  |
-| `q`     | Close current window                                  |
-| `r`     | Run testcase on which the cursor is holded            |
-| `R`     | Run all available testcases                           |
-| `c`     | Create an empty testcase                              |
-| `d`     | Delete testcase on which the cursor is holded         |
-| `i`     | Open prompt window for updating input                 |
-| `e`     | Open prompt window for updating expected output       |
+| Key   | Operation                                       |
+| ----- | ----------------------------------------------- |
+| `Tab` | Move between splits                             |
+| `Esc` | Close current window                            |
+| `q`   | Close current window                            |
+| `r`   | Run testcase on which the cursor is holded      |
+| `R`   | Run all available testcases                     |
+| `c`   | Create an empty testcase                        |
+| `d`   | Delete testcase on which the cursor is holded   |
+| `i`   | Open prompt window for updating input           |
+| `e`   | Open prompt window for updating expected output |

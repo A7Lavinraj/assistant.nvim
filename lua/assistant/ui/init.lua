@@ -27,7 +27,10 @@ local M = setmetatable({ access = false }, {
 })
 
 function M:render()
-  previewer:create(false)
+  if M.state.is_open then
+    previewer:create(false)
+  end
+
   renderer.render(self.state.buf, self.access, transformer.merge(transformer.header(), transformer.tests_list()))
 end
 
