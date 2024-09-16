@@ -99,6 +99,10 @@ python = {
 
 <br />
 
+https://github.com/user-attachments/assets/cf62cd9e-8b23-48be-86f5-c5ae24915b63
+
+<br />
+
 In the above video guide you can see every feature that this plugin provides.
 
 - Sample fetching
