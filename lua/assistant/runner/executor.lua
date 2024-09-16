@@ -35,15 +35,12 @@ function M.execute(index)
     if process.code == 0 then
       if test.end_at - test.start_at > config.time_limit then
         test.status = "TIME LIMIT EXCEEDED"
-        test.expand = true
         test.group = "AssistantKilled"
       elseif utils.compare(test.stdout, test.output) then
         test.status = "PASSED"
-        test.expand = false
         test.group = "AssistantPassed"
       else
         test.status = "FAILED"
-        test.expand = true
         test.group = "AssistantFailed"
       end
 

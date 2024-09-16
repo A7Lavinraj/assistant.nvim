@@ -26,6 +26,7 @@ function M.load()
     ui:resize()
     prompt:resize()
     previewer:resize()
+    ui:render()
   end)
   M.look(
     "QuitPre",

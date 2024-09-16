@@ -5,7 +5,6 @@ local AssistantStore = {}
 function AssistantStore.new()
   return setmetatable({
     CWD = nil,
-    TAB = 1,
     FILETYPE = nil,
     FILENAME_WITHOUT_EXTENSION = nil,
     FILENAME_WITH_EXTENSION = nil,
@@ -14,7 +13,6 @@ function AssistantStore.new()
 end
 
 function AssistantStore:init()
-  self.TAB = 1
   self.CWD = vim.fn.expand("%:p:h")
   self.FILETYPE = vim.bo.filetype
   self.FILENAME_WITHOUT_EXTENSION = vim.fn.expand("%:t:r")

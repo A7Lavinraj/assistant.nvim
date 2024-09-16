@@ -42,4 +42,3 @@
 ---@field start_at number
 ---@field end_at number
 ---@field group string
----@field expand boolean
