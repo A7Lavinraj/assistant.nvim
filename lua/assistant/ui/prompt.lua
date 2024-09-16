@@ -13,6 +13,9 @@ local M = setmetatable({ access = true }, {
       width = 0.3,
       style = "minimal",
       border = "single",
+      row = "center",
+      col = "center",
+      zindex = 100,
     }),
     function(_, win)
       vim.api.nvim_set_option_value(

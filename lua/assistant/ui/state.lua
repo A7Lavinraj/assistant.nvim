@@ -9,6 +9,8 @@ function AssistantWindowState.new(config)
     is_open = false,
     width_ratio = config.width,
     height_ratio = config.height,
+    row = config.row,
+    col = config.col,
     config = config,
     data = {},
   }, { __index = AssistantWindowState })
@@ -24,8 +26,8 @@ function AssistantWindowState:get_config()
   return vim.tbl_deep_extend("force", self.config, {
     height = utils.height(self.height_ratio),
     width = utils.width(self.width_ratio),
-    row = utils.row(self.height_ratio),
-    col = utils.col(self.width_ratio),
+    row = utils.row(self.height_ratio, self.row),
+    col = utils.col(self.width_ratio, self.col),
   })
 end
 

@@ -1,6 +1,7 @@
 local State = require("assistant.ui.state")
 local Window = require("assistant.ui.window")
 local config = require("assistant.config")
+local previewer = require("assistant.ui.previewer")
 local renderer = require("assistant.ui.renderer")
 local store = require("assistant.store")
 local transformer = require("assistant.ui.transformer")
@@ -10,8 +11,10 @@ local M = setmetatable({ access = false }, {
     State.new({
       relative = "editor",
       style = "minimal",
-      width = 0.5,
+      width = 0.6,
       height = 0.7,
+      row = "center",
+      col = "center",
       border = config.border,
     }),
     function(_, win)
@@ -24,12 +27,13 @@ local M = setmetatable({ access = false }, {
   ),
 })
 
-function M:render_tab()
-  if store.TAB == 1 then
-    renderer.render(self.state.buf, self.access, transformer.merge(transformer.tabs(), transformer.problem()))
-  elseif store.TAB == 2 then
-    renderer.render(self.state.buf, self.access, transformer.merge(transformer.tabs(), transformer.testcases()))
-  end
+function M:render()
+  previewer:create(false)
+  renderer.render(
+    self.state.buf,
+    self.access,
+    transformer.merge(transformer.tabs(), transformer.merge(transformer.header(), transformer.tests_list()))
+  )
 end
 
 return M

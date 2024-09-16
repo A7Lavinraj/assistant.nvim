@@ -1,7 +1,3 @@
-local config = require("assistant.config")
-local emitter = require("assistant.emitter")
-local utils = require("assistant.utils")
-
 ---@class AssistantWindow
 local AssistantWindow = {}
 
@@ -14,27 +10,17 @@ function AssistantWindow.new(state, callback)
   }, { __index = AssistantWindow })
 end
 
-function AssistantWindow.opts(custom)
-  local opts = {}
-  opts.relative = "editor"
-  opts.style = "minimal"
-  opts.width = utils.width(0.5)
-  opts.height = utils.height(0.7)
-  opts.row = utils.row(0.7)
-  opts.col = utils.col(0.5)
-  opts.border = config.border
-  vim.tbl_deep_extend("force", opts, custom or {})
-  return opts
-end
+---@param enter boolean | nil
+function AssistantWindow:create(enter)
+  if enter == nil then
+    enter = true
+  end
 
-function AssistantWindow:create()
   if not self.state.is_open then
     self.state.buf = vim.api.nvim_create_buf(false, true)
-    self.state.win = vim.api.nvim_open_win(self.state.buf, true, self.state:get_config())
+    self.state.win = vim.api.nvim_open_win(self.state.buf, enter, self.state:get_config())
     self.state.is_open = true
     self.callback(self.state.buf, self.state.win)
-    emitter.emit("AssistantOpenWindow")
-    emitter.emit("AssistantRender")
   end
 end
 

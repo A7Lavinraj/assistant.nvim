@@ -1,5 +1,5 @@
-local config = require("assistant.config")
 local emitter = require("assistant.emitter")
+local previewer = require("assistant.ui.previewer")
 local prompt = require("assistant.ui.prompt")
 local runner = require("assistant.runner")
 local store = require("assistant.store")
@@ -10,14 +10,15 @@ local M = {}
 function M.load()
   ui:on_key("n", "q", function()
     ui:remove()
+    previewer:remove()
+  end)
+  previewer:on_key("n", "q", function()
+    ui:remove()
+    previewer:remove()
   end)
   ui:on_key("n", "<esc>", function()
     ui:remove()
-  end)
-  ui:on_key("n", "<tab>", function()
-    store.TAB = store.TAB % #config.tabs + 1
-
-    emitter.emit("AssistantRender")
+    previewer:remove()
   end)
   ui:on_key("n", "<enter>", function()
     local current_line = vim.api.nvim_get_current_line()
@@ -36,10 +37,6 @@ function M.load()
     end
   end)
   ui:on_key("n", "r", function()
-    if store.TAB ~= 2 then
-      return
-    end
-
     local current_line = vim.api.nvim_get_current_line()
     local number = current_line:match("#(%d+):")
 
@@ -48,17 +45,9 @@ function M.load()
     end
   end)
   ui:on_key("n", "R", function()
-    if store.TAB ~= 2 then
-      return
-    end
-
     runner.run_all()
   end)
   ui:on_key("n", "c", function()
-    if store.TAB ~= 2 then
-      return
-    end
-
     if not store.PROBLEM_DATA then
       store.PROBLEM_DATA = { tests = {} }
     end
@@ -67,10 +56,6 @@ function M.load()
     emitter.emit("AssistantRender")
   end)
   ui:on_key("n", "d", function()
-    if store.TAB ~= 2 then
-      return
-    end
-
     local current_line = vim.api.nvim_get_current_line()
     local number = current_line:match("Testcase #(%d+): %a+")
 
@@ -80,10 +65,6 @@ function M.load()
     end
   end)
   ui:on_key("n", "i", function()
-    if store.TAB ~= 2 then
-      return
-    end
-
     local current_line = vim.api.nvim_get_current_line()
     local number = current_line:match("Testcase #(%d+): %a+")
 
@@ -92,16 +73,18 @@ function M.load()
     end
   end)
   ui:on_key("n", "e", function()
-    if store.TAB ~= 2 then
-      return
-    end
-
     local current_line = vim.api.nvim_get_current_line()
     local number = current_line:match("Testcase #(%d+): %a+")
 
     if number then
       prompt:open(tonumber(number), "output")
     end
+  end)
+  ui:on_key("n", "<Tab>", function()
+    vim.fn.win_gotoid(previewer.state.win)
+  end)
+  previewer:on_key("n", "<Tab>", function()
+    vim.fn.win_gotoid(ui.state.win)
   end)
 end
 
