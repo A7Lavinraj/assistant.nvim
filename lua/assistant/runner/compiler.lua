@@ -5,6 +5,14 @@ local utils = require("assistant.utils")
 
 local M = {}
 
+-- (Compile Function):
+-- takes `callback` and `index` parameters.
+-- spwan a process using `jobstart()` to compile the code.
+-- if no command were found using `interpolate` utility callback gets invoked.
+-- if code doesn't get compiled then no invokation of callback occurs.
+
+---@param callback function
+---@param index number
 function M.compile(callback, index)
   if not store.PROBLEM_DATA then
     return

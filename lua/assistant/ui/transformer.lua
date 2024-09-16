@@ -1,13 +1,14 @@
 local Text = require("assistant.ui.text")
-local constants = require("assistant.constants")
+local const = require("assistant.constants")
 local store = require("assistant.store")
 local utils = require("assistant.utils")
-local AssisstantTransformer = {}
+
+local M = {}
 
 ---@param a AssistantText
 ---@param b AssistantText
 ---@return AssistantText
-function AssisstantTransformer.merge(a, b)
+function M.merge(a, b)
   local text = Text.new()
   text.lines = a.lines
 
@@ -18,7 +19,7 @@ function AssisstantTransformer.merge(a, b)
   return text
 end
 
-function AssisstantTransformer.header()
+function M.header()
   local text = Text.new():nl():append(" 󰟍 Assistant.nvim ", "AssistantButtonActive"):nl(2)
   local data = store.PROBLEM_DATA
 
@@ -26,7 +27,7 @@ function AssisstantTransformer.header()
     text:nl():append(string.format("%s", data["name"] or "Untitled"), "AssistantH1"):nl(2)
 
     if data["timeLimit"] then
-      text:append(string.format("Time limit: %.2f seconds", data["timeLimit"] / 1000), "AssistantFadeText")
+      text:append(string.format("Time limit: %.2f seconds,", data["timeLimit"] / 1000), "AssistantFadeText")
     else
       text:append("Time limit: Unknown,", "AssistantFadeText")
     end
@@ -44,7 +45,7 @@ function AssisstantTransformer.header()
 end
 
 ---@return AssistantText
-function AssisstantTransformer.tests_list()
+function M.tests_list()
   local text = Text.new():nl()
 
   if not (store.PROBLEM_DATA and store.PROBLEM_DATA["tests"]) then
@@ -73,6 +74,10 @@ function AssisstantTransformer.tests_list()
         end
       end
 
+      if test.start_at and test.end_at then
+        text:append(string.format("takes: %.3f", (test.end_at - test.start_at) / 1000), "AssistantFadeText")
+      end
+
       text:nl(2)
     end
   end
@@ -83,7 +88,7 @@ end
 ---@param tc_number number | nil
 ---@param win number | nil
 ---@return AssistantText
-function AssisstantTransformer.testcase(tc_number, win)
+function M.testcase(tc_number, win)
   local text = Text.new()
   local status = store.COMPILE_STATUS
 
@@ -108,22 +113,22 @@ function AssisstantTransformer.testcase(tc_number, win)
       text:nl():append("  INPUT", "AssistantFadeText"):nl()
       local lines = vim.split(test.input, "\n")
 
-      for i = 1, math.min(#lines, constants.MAX_RENDER_LIMIT) do
+      for i = 1, math.min(#lines, const.MAX_RENDER_LIMIT) do
         text:nl():append("  " .. lines[i], "AssistantText")
       end
 
-      if #lines > constants.MAX_RENDER_LIMIT then
+      if #lines > const.MAX_RENDER_LIMIT then
         text:append("...Data is too large to render", "AssistantFadeText")
       end
 
       text:nl():append("  EXPECTED", "AssistantFadeText"):nl()
       lines = vim.split(test.output, "\n")
 
-      for i = 1, math.min(#lines, constants.MAX_RENDER_LIMIT) do
+      for i = 1, math.min(#lines, const.MAX_RENDER_LIMIT) do
         text:nl():append("  " .. lines[i], "AssistantText")
       end
 
-      if #lines > constants.MAX_RENDER_LIMIT then
+      if #lines > const.MAX_RENDER_LIMIT then
         text:append("...Data is too large to render", "AssistantFadeText")
       end
 
@@ -131,11 +136,11 @@ function AssisstantTransformer.testcase(tc_number, win)
         text:nl():append("  STDOUT", "AssistantFadeText"):nl()
         lines = vim.split(test.stdout, "\n")
 
-        for i = 1, math.min(#lines, constants.MAX_RENDER_LIMIT) do
+        for i = 1, math.min(#lines, const.MAX_RENDER_LIMIT) do
           text:nl():append("  " .. lines[i], "AssistantText")
         end
 
-        if #lines > constants.MAX_RENDER_LIMIT then
+        if #lines > const.MAX_RENDER_LIMIT then
           text:append("...Data is too large to render", "AssistantFadeText")
         end
       end
@@ -146,11 +151,11 @@ function AssisstantTransformer.testcase(tc_number, win)
         if test.stderr and test.stderr ~= "" then
           lines = vim.split(test.stderr, "\n")
 
-          for i = 1, math.min(#lines, constants.MAX_RENDER_LIMIT) do
+          for i = 1, math.min(#lines, const.MAX_RENDER_LIMIT) do
             text:nl():append("  " .. lines[i], "AssistantText")
           end
 
-          if #lines > constants.MAX_RENDER_LIMIT then
+          if #lines > const.MAX_RENDER_LIMIT then
             text:nl():append("...Data is too large to render", "AssistantFadeText")
           end
         end
@@ -161,4 +166,4 @@ function AssisstantTransformer.testcase(tc_number, win)
   return text
 end
 
-return AssisstantTransformer
+return M
