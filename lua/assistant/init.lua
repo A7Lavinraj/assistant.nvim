@@ -5,11 +5,11 @@ local M = {}
 ---@param opts AssistantConfig
 function M.setup(opts)
   loader.load({
+    { name = "ui.themes" },
     { name = "config", opts = opts },
     { name = "observers" },
-    { name = "server" },
     { name = "commands" },
-    { name = "ui.themes" },
+    { name = "server" },
   })
 end
 
