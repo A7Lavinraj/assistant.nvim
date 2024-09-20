@@ -1,9 +1,7 @@
 local config = require("assistant.config")
-local emitter = require("assistant.emitter")
+local emit = require("assistant.emitter")
 local store = require("assistant.store")
 local utils = require("assistant.utils")
-
-local M = {}
 
 -- (Compile Function):
 -- takes `callback` and `index` parameters.
@@ -12,8 +10,8 @@ local M = {}
 -- if code doesn't get compiled then no invokation of callback occurs.
 
 ---@param callback function
----@param index number
-function M.compile(callback, index)
+---@param index number?
+return function(callback, index)
   if not store.PROBLEM_DATA then
     return
   end
@@ -24,7 +22,7 @@ function M.compile(callback, index)
     config.commands[store.FILETYPE].compile
   )
   store.COMPILE_STATUS = { code = nil, error = nil }
-  emitter.emit("AssistantRender")
+  emit("AssistantRender")
 
   if not command then
     callback()
@@ -39,7 +37,8 @@ function M.compile(callback, index)
       end
     end
 
-    emitter.emit("AssistantRender")
+    emit("AssistantRender")
+    ---@diagnostic disable-next-line: deprecated
     vim.fn.jobstart(vim.tbl_flatten({ command.main, command.args }), {
       stderr_buffered = true,
       on_stderr = function(_, data)
@@ -51,11 +50,9 @@ function M.compile(callback, index)
         if store.COMPILE_STATUS.code == 0 then
           callback()
         else
-          emitter.emit("AssistantRender")
+          emit("AssistantRender")
         end
       end,
     })
   end
 end
-
-return M
