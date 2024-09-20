@@ -35,8 +35,13 @@
 ---@field PROBLEM_DATA? table
 ---@field init function
 
+---@class Command
+---@field extension? string
+---@field compile? {main:string,args:table<string>}
+---@field execute? {main:string,args:table<string>}
+
 ---@class AssistantConfig
----@field commands {extension:string,compile:{main:string,args:table<string>}?,execute:{main:string,args:table<string>}?}[]
+---@field commands Command[]
 ---@field time_limit? number
 ---@field border? (string|string[])
 ---@field theme? string
