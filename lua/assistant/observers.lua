@@ -19,7 +19,7 @@ function M.load()
   M.look("QuitPre", nil, ui.quite)
   M.look("BufEnter", "*.*", function(buf)
     if vim.fn.fnamemodify(buf.match, ":.") ~= store.FILENAME_WITH_EXTENSION then
-      store:init()
+      store.init()
     end
   end)
   M.look("CursorMoved", nil, function(event)
