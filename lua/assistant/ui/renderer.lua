@@ -1,9 +1,7 @@
-local M = {}
-
 ---@param buf number
 ---@param access boolean
 ---@param text AssistantText
-function M.render(buf, access, text)
+return function(buf, access, text)
   local lines = {}
 
   for _, row in pairs(text.lines) do
@@ -41,5 +39,3 @@ function M.render(buf, access, text)
     end
   end
 end
-
-return M

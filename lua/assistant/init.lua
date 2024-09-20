@@ -6,9 +6,10 @@ local M = {}
 function M.setup(opts)
   loader.load({
     { name = "config", opts = opts },
-    { name = "observers" },
+    -- { name = "observers" },
     { name = "server" },
     { name = "commands" },
+    { name = "ui.themes" },
   })
 end
 

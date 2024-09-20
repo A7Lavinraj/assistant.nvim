@@ -21,32 +21,28 @@ function M.height(ratio)
 end
 
 ---@param ratio number
----@param align "center" | "start" | "end" | nil
+---@param align "center" | "start" | "end"
 ---@return number | nil
 function M.row(ratio, align)
   if align == "start" then
-    return math.floor(vim.o.lines - M.height(ratio))
+    return math.floor(vim.o.lines / 2 - M.height(ratio))
   elseif align == "end" then
     return math.floor(vim.o.lines / 2)
-  elseif align == "center" then
-    return math.floor((vim.o.lines - M.height(ratio)) / 2)
   else
-    return nil
+    return math.floor(vim.o.lines / 2 - M.height(ratio) / 2)
   end
 end
 
 ---@param ratio number
----@param align "center" | "start" | "end" | nil
+---@param align "center" | "start" | "end"
 ---@return number | nil
 function M.col(ratio, align)
   if align == "start" then
-    return math.floor(vim.o.columns - M.width(ratio))
+    return math.floor(vim.o.columns / 2 - M.width(ratio))
   elseif align == "end" then
     return math.floor(vim.o.columns / 2)
-  elseif align == "center" then
-    return math.floor((vim.o.columns - M.width(ratio)) / 2)
   else
-    return nil
+    return math.floor(vim.o.columns / 2 - M.width(ratio) / 2)
   end
 end
 
