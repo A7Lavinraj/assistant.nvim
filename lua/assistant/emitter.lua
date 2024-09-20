@@ -1,7 +1,3 @@
-local M = {}
-
-function M.emit(pattern)
+return function(pattern)
   vim.cmd("doautocmd User " .. pattern)
 end
-
-return M

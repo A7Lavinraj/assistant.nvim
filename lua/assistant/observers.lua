@@ -1,6 +1,4 @@
 local mappings = require("assistant.mappings")
-local previewer = require("assistant.ui.previewer")
-local prompt = require("assistant.ui.prompt")
 local store = require("assistant.store")
 local themes = require("assistant.ui.themes")
 local ui = require("assistant.ui")
@@ -14,53 +12,25 @@ end
 
 function M.load()
   M.group = vim.api.nvim_create_augroup("Assistant", { clear = true })
-  M.look("User", "AssistantOpenWindow", mappings.load)
+  M.look("User", "AssistantMainUIOpen", mappings.load)
   M.look("ColorScheme", nil, themes.load)
-  M.look("User", "AssistantCompiled", function()
-    ui:render()
-  end)
-  M.look("User", "AssistantRender", function()
-    ui:render()
-  end)
-  M.look("VimResized", nil, function()
-    ui:resize()
-    prompt:resize()
-    previewer:resize()
-    ui:render()
-  end)
-  M.look(
-    "QuitPre",
-    nil,
-    vim.schedule_wrap(function()
-      if not ui:is_win() then
-        ui:remove()
-        previewer:remove()
-      end
-
-      if not prompt:is_win() then
-        prompt:close()
-      end
-
-      if not previewer:is_win() then
-        previewer:remove()
-        ui:remove()
-      end
-    end)
-  )
+  M.look("User", "AssistantRender", ui.render)
+  M.look("VimResized", nil, ui.resize)
+  M.look("QuitPre", nil, ui.quite)
   M.look("BufEnter", "*.*", function(buf)
     if vim.fn.fnamemodify(buf.match, ":.") ~= store.FILENAME_WITH_EXTENSION then
       store:init()
     end
   end)
   M.look("CursorMoved", nil, function(event)
-    if ui:is_win() and ui.state.buf == event.buf then
+    if ui.main:is_win() and ui.main.buf == event.buf then
       local current_line = vim.api.nvim_get_current_line()
       local number = tonumber(current_line:match("Testcase #(%d+): %a+"))
 
       if number then
-        previewer:preview(number)
+        ui.preview(number)
       else
-        previewer:preview(nil)
+        ui.preview(nil)
       end
     end
   end)
