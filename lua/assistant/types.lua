@@ -1,44 +1,27 @@
----@class AssistantWindowState
----@field is_open boolean
----@field buf number
----@field win number
----@field width_ratio number
----@field height_ratio number
----@field row "center" | "start" | "end" | nil
----@field col "center" | "start" | "end" | nil
----@field config table
----@field data table
-
 ---@class AssistantWindow
----@field state AssistantWindowState
----@field callback function(buf: number, win: number): void
+---@field win number?
+---@field buf number?
+---@field h_ratio number
+---@field w_ratio number
+---@field h_align "center" | "start" | "end"
+---@field v_align "center" | "start" | "end"
+---@field config table
+---@field buf_opts table?
+---@field win_opts table?
+---@field enter boolean
+---@field access boolean
+
+---@class AssistantWindow.Opts
+---@field config table?
+---@field h_ratio number
+---@field w_ratio number
+---@field h_align "center" | "start" | "end"
+---@field v_align "center" | "start" | "end"
+---@field buf_opts table?
+---@field win_opts table?
+---@field enter boolean
+---@field access boolean
 
 ---@class AssistantText
 ---@field padding number
 ---@field lines {str:string, hl:string}[][]
-
----@class AssistantPrompt
----@field buf number
----@field win number
----@field tcnumber number
-
----@class Command
----@field extension string
----@field compile {main:string, args:table<string>} | nil
----@field execute {main:string, args:table<string>} | nil
-
----@class AssistantConfig
----@field commands table<Command>
----@field time_limit number
----@field border string
----@field theme string
-
----@class Test
----@field input string
----@field output string
----@field stdout string
----@field stderr string
----@field status string
----@field start_at number
----@field end_at number
----@field group string

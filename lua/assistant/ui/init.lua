@@ -1,37 +1,49 @@
-local State = require("assistant.ui.state")
 local Window = require("assistant.ui.window")
 local config = require("assistant.config")
-local previewer = require("assistant.ui.previewer")
-local renderer = require("assistant.ui.renderer")
-local transformer = require("assistant.ui.transformer")
+local M = {}
 
-local M = setmetatable({ access = false }, {
-  __index = Window.new(
-    State.new({
-      relative = "editor",
-      style = "minimal",
-      width = 0.6,
-      height = 0.7,
-      row = "center",
-      col = "center",
-      border = config.border,
-    }),
-    function(_, win)
-      vim.api.nvim_set_option_value(
-        "winhighlight",
-        "NormalFloat:AssistantWindow,FloatBorder:AssistantWindowBorder",
-        { win = win }
-      )
-    end
-  ),
+M.main = Window.new({
+  h_ratio = 0.7,
+  w_ratio = 0.3,
+  h_align = "start",
+  v_align = "center",
+  enter = true,
+  access = false,
+  config = {
+    relative = "editor",
+    style = "minimal",
+    border = config.border,
+  },
+  win_opts = {
+    winhighlight = "NormalFloat:AssistantWindow,FloatBorder:AssistantWindowBorder",
+  },
 })
 
-function M:render()
-  if M.state.is_open then
-    previewer:create(false)
-  end
+M.prev = Window.new({
+  h_ratio = 0.7,
+  w_ratio = 0.3,
+  h_align = "end",
+  v_align = "center",
+  enter = false,
+  access = false,
+  config = {
+    relative = "editor",
+    style = "minimal",
+    border = config.border,
+  },
+  win_opts = {
+    winhighlight = "NormalFloat:AssistantWindow,FloatBorder:AssistantWindowBorder",
+  },
+})
 
-  renderer.render(self.state.buf, self.access, transformer.merge(transformer.header(), transformer.tests_list()))
+function M.toggle()
+  if M.main.is_open and M.prev.is_open then
+    M.main:remove()
+    M.prev:remove()
+  else
+    M.main:create()
+    M.prev:create()
+  end
 end
 
 return M
