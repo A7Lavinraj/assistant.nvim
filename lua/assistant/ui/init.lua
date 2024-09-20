@@ -1,7 +1,9 @@
+local Text = require("assistant.ui.text")
 local Window = require("assistant.ui.window")
 local config = require("assistant.config")
 local emit = require("assistant.emitter")
 local rend = require("assistant.ui.renderer")
+local store = require("assistant.store")
 local tran = require("assistant.ui.transformer")
 local M = {}
 
@@ -40,7 +42,7 @@ M.prev = Window.new({
 })
 
 M.prompt = Window.new({
-  h_ratio = 0.2,
+  h_ratio = 0.3,
   w_ratio = 0.2,
   h_align = "center",
   v_align = "center",
@@ -55,11 +57,6 @@ M.prompt = Window.new({
     winhighlight = "NormalFloat:AssistantWindow,FloatBorder:AssistantWindowBorder",
   },
 })
-
----@param tc_number number | nil
-function M.preview(tc_number)
-  rend(M.prev.buf, M.prev.access, tran.testcase(tc_number, M.prev.win))
-end
 
 function M.create()
   M.main:create()
@@ -97,6 +94,37 @@ end
 
 function M.render()
   rend(M.main.buf, M.main.access, tran.merge(tran.header(), tran.tests_list()))
+end
+
+function M.preview(tc_number)
+  rend(M.prev.buf, M.prev.access, tran.testcase(tc_number, M.prev.win))
+end
+
+function M.input(tc_number, field)
+  M.prompt.tc_number = tc_number
+  M.prompt.field = field
+  M.prompt:create()
+  local data = Text.new(0)
+  local test = vim.split(store.PROBLEM_DATA["tests"][M.prompt.tc_number][M.prompt.field], "\n")
+
+  if store.PROBLEM_DATA then
+    for index, segment in ipairs(test) do
+      data:append(segment, "AssistantText")
+
+      if index ~= #test then
+        data:nl()
+      end
+    end
+
+    rend(M.prompt.buf, M.prompt.access, data)
+  end
+
+  M.prompt:on_key("n", "q", function()
+    M.prompt:remove()
+  end)
+  M.prompt:on_key("n", "<esc>", function()
+    M.prompt:remove()
+  end)
 end
 
 return M

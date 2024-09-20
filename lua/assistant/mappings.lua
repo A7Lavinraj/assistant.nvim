@@ -43,7 +43,7 @@ function M.load()
     local number = current_line:match("Testcase #(%d+): %a+")
 
     if number then
-      ui.prompt:open(tonumber(number), "input")
+      ui.input(tonumber(number), "input")
     end
   end)
   ui.main:on_key("n", "e", function()
