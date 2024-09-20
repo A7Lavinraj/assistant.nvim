@@ -1,7 +1,7 @@
 ---@diagnostic disable: undefined-field, undefined-global
 
 local Text = require("assistant.ui.text")
-local renderer = require("assistant.ui.renderer")
+local rend = require("assistant.ui.renderer")
 
 local function get_random_string()
   local LENGTH = math.random(1, 100)
@@ -19,7 +19,7 @@ describe("Assistant Renderer", function()
     local text = Text.new()
     local content = get_random_string()
     text:append(content, "AssistantFadeText")
-    renderer.render(0, false, text)
+    rend(0, false, text)
 
     assert(table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), "") == string.rep(" ", text.padding) .. content)
   end)
