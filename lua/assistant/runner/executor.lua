@@ -1,12 +1,10 @@
 local config = require("assistant.config")
 local constants = require("assistant.constants")
-local emitter = require("assistant.emitter")
+local emit = require("assistant.emitter")
 local store = require("assistant.store")
 local utils = require("assistant.utils")
 
-local M = {}
-
-function M.execute(index)
+return function(index)
   local process = {
     stdin = vim.loop.new_pipe(),
     stdout = vim.loop.new_pipe(),
@@ -45,7 +43,7 @@ function M.execute(index)
       end
 
       vim.schedule(function()
-        emitter.emit("AssistantRender")
+        emit("AssistantRender")
       end)
     end
 
@@ -71,7 +69,7 @@ function M.execute(index)
   test.start_at = vim.loop.now()
   test.end_at = test.start_at
   vim.schedule(function()
-    emitter.emit("AssistantRender")
+    emit("AssistantRender")
   end)
   process.timer:start(config.time_limit, 0, function()
     if not process.timer:is_active() then
@@ -122,5 +120,3 @@ function M.execute(index)
     end
   end)
 end
-
-return M
