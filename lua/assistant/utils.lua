@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field
 local M = {}
 
 ---@param ratio number | nil
@@ -53,7 +54,7 @@ function M.fetch(path)
     return nil
   end
 
-  local fd = vim.loop.fs_open(path, "r", 438)
+  local fd = vim.uv.fs_open(path, "r", 438)
 
   if not fd then
     return nil

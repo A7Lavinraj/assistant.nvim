@@ -6,7 +6,7 @@ local store = require("assistant.store")
 describe("Assistant Prompt", function()
   it("can be edit test data", function()
     vim.cmd("edit foo.cpp")
-    store:init()
+    store.init()
 
     if not store.PROBLEM_DATA then
       return

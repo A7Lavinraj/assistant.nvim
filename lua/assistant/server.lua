@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field
 local config = require("assistant.config")
 
 local M = {}
@@ -39,7 +40,6 @@ function M.store_problem(chunk)
 end
 
 function M.load()
-  ---@diagnostic disable: undefined-field
   local server = vim.loop.new_tcp()
 
   server:bind("127.0.0.1", 10043)
