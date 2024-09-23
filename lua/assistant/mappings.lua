@@ -51,7 +51,7 @@ function M.load()
     local number = current_line:match("Testcase #(%d+): %a+")
 
     if number then
-      ui.prompt:open(tonumber(number), "output")
+      ui.input(tonumber(number), "output")
     end
   end)
   ui.main:on_key("n", "<Tab>", function()
