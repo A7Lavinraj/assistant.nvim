@@ -86,8 +86,15 @@ function M.resize()
   end
 end
 
+function M.update_test()
+  store.PROBLEM_DATA["tests"][M.prompt.tc_number][M.prompt.field] =
+    table.concat(vim.api.nvim_buf_get_lines(M.prompt.buf, 0, -1, false), "\n")
+end
+
 function M.quite(e)
-  if e.buf ~= M.prompt.buf then
+  if e.buf == M.prompt.buf then
+    M.prompt:remove()
+  else
     M.remove()
   end
 end
@@ -120,9 +127,11 @@ function M.input(tc_number, field)
   end
 
   M.prompt:on_key("n", "q", function()
+    M.update_test()
     M.prompt:remove()
   end)
   M.prompt:on_key("n", "<esc>", function()
+    M.update_test()
     M.prompt:remove()
   end)
 end
