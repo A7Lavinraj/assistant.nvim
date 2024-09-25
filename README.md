@@ -87,7 +87,11 @@ python = {
 },
 ```
 
+<br />
+
 > key to the new table is **type of file you want to run**. In this case is `python`, you can get the correct filetype of file by just open that file inside neovim and type the following command.
+
+<br />
 
 ```lua
 :lua print(vim.bo.filetype)
