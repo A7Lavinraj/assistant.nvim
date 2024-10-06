@@ -105,8 +105,8 @@ function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, comm
 
   local function replace(filename)
     return filename
-      :gsub("%$FILENAME_WITH_EXTENSION", FILENAME_WITH_EXTENSION)
-      :gsub("%$FILENAME_WITHOUT_EXTENSION", FILENAME_WITHOUT_EXTENSION)
+        :gsub("%$FILENAME_WITH_EXTENSION", FILENAME_WITH_EXTENSION)
+        :gsub("%$FILENAME_WITHOUT_EXTENSION", FILENAME_WITHOUT_EXTENSION)
   end
 
   local modified = vim.deepcopy(command)
@@ -139,6 +139,52 @@ function M.text_center(text, str, hl, win)
   end
 
   return nil
+end
+
+---@param array table
+---@param value number
+---@return number|nil
+function M.prev(array, value)
+  local low, high = 1, #array
+
+  while low ~= high do
+    local mid = math.floor((low + high) / 2)
+
+    if array[mid] < value then
+      low = mid + 1
+    else
+      high = mid
+    end
+  end
+
+  if low - 1 <= 0 then
+    return nil
+  end
+
+  return array[low - 1]
+end
+
+---@param array table
+---@param value number
+---@return number|nil
+function M.next(array, value)
+  local low, high = 1, #array
+
+  while low ~= high do
+    local mid = math.floor((low + high) / 2)
+
+    if array[mid] <= value then
+      low = mid + 1
+    else
+      high = mid
+    end
+  end
+
+  if low > #array then
+    return nil
+  end
+
+  return array[low]
 end
 
 return M

@@ -33,6 +33,7 @@
 ---@field FILENAME_WITH_EXTENSION? string
 ---@field COMPILE_STATUS? {code:nil,error:nil}
 ---@field PROBLEM_DATA? table
+---@field CHECKPOINTS table
 ---@field init function
 
 ---@class Command

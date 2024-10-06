@@ -1,6 +1,7 @@
 local emit = require("assistant.emitter")
 local runner = require("assistant.runner")
 local store = require("assistant.store")
+local utils = require("assistant.utils")
 local ui = require("assistant.ui")
 
 local M = {}
@@ -59,6 +60,22 @@ function M.load()
   end)
   ui.prev:on_key("n", "<Tab>", function()
     vim.fn.win_gotoid(ui.main.win)
+  end)
+  ui.main:on_key("n", "n", function()
+    local pos = vim.api.nvim_win_get_cursor(ui.main.win)
+    local new = utils.next(store.CHECKPOINTS, pos[1])
+
+    if new then
+      vim.api.nvim_win_set_cursor(ui.main.win, { new, pos[2] })
+    end
+  end)
+  ui.main:on_key("n", "p", function()
+    local pos = vim.api.nvim_win_get_cursor(ui.main.win)
+    local new = utils.prev(store.CHECKPOINTS, pos[1])
+
+    if new then
+      vim.api.nvim_win_set_cursor(ui.main.win, { new, pos[2] })
+    end
   end)
 end
 
