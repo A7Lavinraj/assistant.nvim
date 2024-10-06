@@ -7,7 +7,7 @@ local M = {
   FILENAME_WITHOUT_EXTENSION = nil,
   FILENAME_WITH_EXTENSION = nil,
   COMPILE_STATUS = { code = nil, error = nil },
-  CHECKPOINTS = {}
+  CHECKPOINTS = {},
 }
 
 function M.init()

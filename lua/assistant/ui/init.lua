@@ -88,7 +88,7 @@ end
 
 function M.update_test()
   store.PROBLEM_DATA["tests"][M.prompt.tc_number][M.prompt.field] =
-      table.concat(vim.api.nvim_buf_get_lines(M.prompt.buf, 0, -1, false), "\n")
+    table.concat(vim.api.nvim_buf_get_lines(M.prompt.buf, 0, -1, false), "\n")
 end
 
 function M.quite(e)

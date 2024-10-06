@@ -1,8 +1,8 @@
 local emit = require("assistant.emitter")
 local runner = require("assistant.runner")
 local store = require("assistant.store")
-local utils = require("assistant.utils")
 local ui = require("assistant.ui")
+local utils = require("assistant.utils")
 
 local M = {}
 

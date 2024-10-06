@@ -134,3 +134,5 @@ vim.keymap.set("n", "<leader>a", "<cmd>AssistantToggle<cr>", { desc = "Assistant
 | `d`   | Delete testcase on which the cursor is holded   |
 | `i`   | Open prompt window for updating input           |
 | `e`   | Open prompt window for updating expected output |
+| `n`   | Move to next available testcase                 |
+| `p`   | Move to previous available testcase             |
