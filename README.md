@@ -58,7 +58,7 @@ A simple and powerful neovim plugin for testing sample data for competitive prog
             },
         },
         time_limit = 5000,
-        border = false -- border is OFF by default
+        border = false, -- border is OFF by default
         theme = "dynamic" -- "gruvbox", "catppuccin" and "tokyonight" are also available
     }
 }
