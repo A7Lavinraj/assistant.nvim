@@ -1,3 +1,9 @@
+## 2.2.0 (2024-10-07)
+
+### Added
+
+- Set cursor on renders
+
 ## 2.1.0 (2024-10-06)
 
 ### Added
