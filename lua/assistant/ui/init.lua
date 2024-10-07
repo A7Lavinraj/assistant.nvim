@@ -51,7 +51,7 @@ M.prompt = Window.new({
   config = {
     relative = "editor",
     style = "minimal",
-    border = config.border,
+    border = config.border or "single",
   },
   win_opts = {
     winhighlight = "NormalFloat:AssistantWindow,FloatBorder:AssistantWindowBorder",
@@ -107,6 +107,10 @@ function M.render()
     if line:match("Testcase #(%d+): %a+") then
       table.insert(store.CHECKPOINTS, i)
     end
+  end
+
+  if #store.CHECKPOINTS ~= 0 and (not vim.api.nvim_get_current_line():match("Testcase #%d+: %a+")) then
+    vim.api.nvim_win_set_cursor(M.main.win, { store.CHECKPOINTS[1], 1 })
   end
 end
 
