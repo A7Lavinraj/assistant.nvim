@@ -1,3 +1,9 @@
+## 2.2.1 (2024-10-12)
+
+### Fixed
+
+- Fixed error message for `vim.api.nvim_get_current_line` when buffer not available
+
 ## 2.2.0 (2024-10-07)
 
 ### Added
