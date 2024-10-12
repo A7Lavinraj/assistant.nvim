@@ -87,8 +87,10 @@ function M.resize()
 end
 
 function M.update_test()
-  store.PROBLEM_DATA["tests"][M.prompt.tc_number][M.prompt.field] =
-    table.concat(vim.api.nvim_buf_get_lines(M.prompt.buf, 0, -1, false), "\n")
+  if M.prompt:is_buf() then
+    store.PROBLEM_DATA["tests"][M.prompt.tc_number][M.prompt.field] =
+        table.concat(vim.api.nvim_buf_get_lines(M.prompt.buf, 0, -1, false), "\n")
+  end
 end
 
 function M.quite(e)
@@ -103,9 +105,11 @@ function M.render()
   rend(M.main.buf, M.main.access, tran.merge(tran.header(), tran.tests_list()))
   store.CHECKPOINTS = {}
 
-  for i, line in ipairs(vim.api.nvim_buf_get_lines(M.main.buf, 0, -1, false)) do
-    if line:match("Testcase #(%d+): %a+") then
-      table.insert(store.CHECKPOINTS, i)
+  if M.main:is_buf() then
+    for i, line in ipairs(vim.api.nvim_buf_get_lines(M.main.buf, 0, -1, false)) do
+      if line:match("Testcase #(%d+): %a+") then
+        table.insert(store.CHECKPOINTS, i)
+      end
     end
   end
 
