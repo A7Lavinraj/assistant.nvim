@@ -26,7 +26,7 @@ end
 ---@return number | nil
 function M.row(ratio, align)
   if align == "start" then
-    return math.floor(vim.o.lines / 2 - M.height(ratio))
+    return math.floor(vim.o.lines / 2 - M.height(ratio)) - 1
   elseif align == "end" then
     return math.floor(vim.o.lines / 2)
   else
@@ -39,7 +39,7 @@ end
 ---@return number | nil
 function M.col(ratio, align)
   if align == "start" then
-    return math.floor(vim.o.columns / 2 - M.width(ratio))
+    return math.floor(vim.o.columns / 2 - M.width(ratio)) - 1
   elseif align == "end" then
     return math.floor(vim.o.columns / 2)
   else
@@ -105,8 +105,8 @@ function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, comm
 
   local function replace(filename)
     return filename
-      :gsub("%$FILENAME_WITH_EXTENSION", FILENAME_WITH_EXTENSION)
-      :gsub("%$FILENAME_WITHOUT_EXTENSION", FILENAME_WITHOUT_EXTENSION)
+        :gsub("%$FILENAME_WITH_EXTENSION", FILENAME_WITH_EXTENSION)
+        :gsub("%$FILENAME_WITHOUT_EXTENSION", FILENAME_WITHOUT_EXTENSION)
   end
 
   local modified = vim.deepcopy(command)
