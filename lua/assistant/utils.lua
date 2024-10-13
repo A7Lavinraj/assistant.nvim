@@ -105,8 +105,8 @@ function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, comm
 
   local function replace(filename)
     return filename
-        :gsub("%$FILENAME_WITH_EXTENSION", FILENAME_WITH_EXTENSION)
-        :gsub("%$FILENAME_WITHOUT_EXTENSION", FILENAME_WITHOUT_EXTENSION)
+      :gsub("%$FILENAME_WITH_EXTENSION", FILENAME_WITH_EXTENSION)
+      :gsub("%$FILENAME_WITHOUT_EXTENSION", FILENAME_WITHOUT_EXTENSION)
   end
 
   local modified = vim.deepcopy(command)

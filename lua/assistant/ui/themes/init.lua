@@ -70,7 +70,7 @@ end
 
 local dynamic = {
   AssistantWindowBorder = {
-    link = "FloatBorder",
+    link = "Comment",
   },
   AssistantWindow = {
     link = "NormalFloat",
@@ -79,7 +79,7 @@ local dynamic = {
     link = "Text",
   },
   AssistantPromptBorder = {
-    link = "NonText",
+    link = "Comment",
   },
   AssistantButton = {
     link = "CursorLine",

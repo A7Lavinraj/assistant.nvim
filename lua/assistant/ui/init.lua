@@ -17,7 +17,7 @@ M.main = Window.new({
   config = {
     relative = "editor",
     style = "minimal",
-    border = config.border,
+    border = config.border and { "╭", "─", "─", "│", "─", "─", "╰", "│" },
   },
   win_opts = {
     winhighlight = "NormalFloat:AssistantWindow,FloatBorder:AssistantWindowBorder",
@@ -34,7 +34,7 @@ M.prev = Window.new({
   config = {
     relative = "editor",
     style = "minimal",
-    border = config.border,
+    border = config.border and { "─", "─", "╮", "│", "╯", "─", "─", "│" },
   },
   win_opts = {
     winhighlight = "NormalFloat:AssistantWindow,FloatBorder:AssistantWindowBorder",
@@ -51,10 +51,10 @@ M.prompt = Window.new({
   config = {
     relative = "editor",
     style = "minimal",
-    border = config.border or "single",
+    border = config.border and { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
   },
   win_opts = {
-    winhighlight = "NormalFloat:AssistantWindow,FloatBorder:AssistantWindowBorder",
+    winhighlight = "NormalFloat:AssistantWindow,FloatBorder:AssistantPromptBorder",
   },
 })
 

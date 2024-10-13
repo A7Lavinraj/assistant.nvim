@@ -44,5 +44,5 @@
 ---@class AssistantConfig
 ---@field commands Command[]
 ---@field time_limit? number
----@field border? (string|string[])
+---@field border? boolean
 ---@field theme? string
