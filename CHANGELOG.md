@@ -1,3 +1,9 @@
+## 2.2.2 (2024-10-13)
+
+### Fixed
+
+- Fixed border overlaping of `main` and `prev`
+
 ## 2.2.1 (2024-10-12)
 
 ### Fixed
