@@ -1,3 +1,9 @@
+## 2.2.3 (2024-10-14)
+
+### Fixed
+
+- handle empty testcase array for `next` and `prev` method
+
 ## 2.2.2 (2024-10-13)
 
 ### Fixed
