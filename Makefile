@@ -1,5 +1,5 @@
 fmt:
-	stylua lua/ tests/ --config-path=.stylua.toml
+	stylua lua/ tests/ --config-path=./.stylua.toml
 
 lint:
 	luacheck lua/ tests/ --globals vim

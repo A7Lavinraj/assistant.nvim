@@ -145,6 +145,10 @@ end
 ---@param value number
 ---@return number|nil
 function M.prev(array, value)
+  if #array == 0 then
+    return nil
+  end
+
   local low, high = 1, #array
 
   while low ~= high do
@@ -168,6 +172,10 @@ end
 ---@param value number
 ---@return number|nil
 function M.next(array, value)
+  if #array == 0 then
+    return nil
+  end
+
   local low, high = 1, #array
 
   while low ~= high do
