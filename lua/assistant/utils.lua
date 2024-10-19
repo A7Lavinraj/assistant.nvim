@@ -26,11 +26,11 @@ end
 ---@return number | nil
 function M.row(ratio, align)
   if align == "start" then
-    return math.floor(vim.o.lines / 2 - M.height(ratio)) - 1
+    return math.floor(vim.o.lines / 2 - M.height(ratio))
   elseif align == "end" then
     return math.floor(vim.o.lines / 2)
   else
-    return math.floor(vim.o.lines / 2 - M.height(ratio) / 2)
+    return math.floor((vim.o.lines - M.height(ratio)) / 2)
   end
 end
 
@@ -39,11 +39,11 @@ end
 ---@return number | nil
 function M.col(ratio, align)
   if align == "start" then
-    return math.floor(vim.o.columns / 2 - M.width(ratio)) - 1
+    return math.floor(vim.o.columns / 2 - M.width(ratio))
   elseif align == "end" then
     return math.floor(vim.o.columns / 2)
   else
-    return math.floor(vim.o.columns / 2 - M.width(ratio) / 2)
+    return math.floor((vim.o.columns - M.width(ratio)) / 2)
   end
 end
 

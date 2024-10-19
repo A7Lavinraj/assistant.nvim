@@ -13,10 +13,10 @@ end
 function M.load()
   M.group = vim.api.nvim_create_augroup("Assistant", { clear = true })
   M.look("User", "AssistantMainUIOpen", mappings.load)
+  M.look("WinClosed", nil, ui.quite)
   M.look("ColorScheme", nil, themes.load)
   M.look("User", "AssistantRender", ui.render)
   M.look("VimResized", nil, ui.resize)
-  M.look("QuitPre", nil, ui.quite)
   M.look("BufEnter", "*.*", function(buf)
     if vim.fn.fnamemodify(buf.match, ":.") ~= store.FILENAME_WITH_EXTENSION then
       store.init()
