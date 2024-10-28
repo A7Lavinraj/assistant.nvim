@@ -7,7 +7,9 @@ jobs:
     name: StyLua
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
       - name: Lint with stylua
         uses: JohnnyMorganz/stylua-action@v3
         with:
@@ -18,18 +20,23 @@ jobs:
     name: Luacheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout codebase
+        uses: actions/checkout@v4
+
       - name: Prepare
         run: |
           sudo apt-get update
           sudo apt-get install luarocks -y
           sudo luarocks install luacheck
+
       - name: Run Luacheck
         run: luacheck lua/ --globals vim
   tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout codebase
+        uses: actions/checkout@v3
+
       - name: Install Neovim
         shell: bash
         run: |
@@ -39,6 +46,7 @@ jobs:
           chmod a+x ./nvim.appimage
           ./nvim.appimage --appimage-extract
           echo "/tmp/nvim/squashfs-root/usr/bin/" >> $GITHUB_PATH
+
       - name: Run Tests
         run: |
           nvim --version
