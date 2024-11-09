@@ -9,7 +9,6 @@ function M.setup(opts)
     { name = "ui.themes" },
     { name = "observers" },
     { name = "commands" },
-    { name = "server" },
   })
 end
 
