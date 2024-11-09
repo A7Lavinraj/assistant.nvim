@@ -50,5 +50,4 @@ jobs:
       - name: Run Tests
         run: |
           nvim --version
-          [ ! -d tests ] && exit 0
-          nvim --headless -u tests/init.lua -c "PlenaryBustedDirectory tests/ {minimal_init = 'tests/init.lua', sequential = true}"
+          nvim --headless -u __config__/init.lua -c "PlenaryBustedDirectory lua"

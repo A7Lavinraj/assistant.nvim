@@ -5,6 +5,6 @@ lint:
 	luacheck lua/ tests/ --globals vim
 
 test:
-	nvim --headless -u "tests/init.lua" -c "PlenaryBustedDirectory tests {minimal_init = 'tests/init.lua', sequential = true}"
+	nvim --headless -c "PlenaryBustedDirectory lua"
 
 all: fmt lint test
