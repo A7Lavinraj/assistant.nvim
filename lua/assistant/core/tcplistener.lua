@@ -1,4 +1,4 @@
-local fs = require("assistant.core.file-system").new()
+local fs = require("assistant.core.filesystem").new()
 
 ---@class TCPListener
 ---@field server uv.uv_tcp_t?
