@@ -35,11 +35,11 @@ function TCPListener:start()
 end
 
 function TCPListener:stop()
-  if not self.client:is_closing() then
+  if self.client and not self.client:is_closing() then
     self.client:close()
   end
 
-  if not self.server:is_closing() then
+  if self.server and not self.server:is_closing() then
     self.server:close()
   end
 end
