@@ -6,7 +6,10 @@ local fs = require("assistant.core.filesystem").new()
 local TCPListener = {}
 
 function TCPListener.new()
-  return setmetatable({ server = nil, client = nil }, { __index = TCPListener })
+  local self = setmetatable({}, { __index = TCPListener })
+  self.server = nil
+  self.client = nil
+  return self
 end
 
 function TCPListener:start()
