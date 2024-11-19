@@ -1,3 +1,4 @@
+local maps = require("assistant.mappings")
 local ui = require("assistant.ui")
 
 local M = {}
@@ -10,6 +11,7 @@ end
 function M.load()
   M.group = vim.api.nvim_create_augroup("Assistant", { clear = true })
   M.look("VimResized", nil, ui.resize)
+  M.look("User", "AssistantViewOpen", maps.load)
 end
 
 return M

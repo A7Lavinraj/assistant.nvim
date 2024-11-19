@@ -1,6 +1,9 @@
 local Float = require("assistant.ui.float")
+local emit = require("assistant.emitter")
 
 local M = {}
+M.is_open = false
+M.current_window = 1
 local WIN_HIGHLIGHTS = {
   "NormalFloat:AssistantFloat",
   "FloatBorder:AssistantFloatBorder",
@@ -9,7 +12,7 @@ local WIN_HIGHLIGHTS = {
 ---@type vim.api.keyset.win_config
 local SHARED_WIN_CONFIG = {
   relative = "editor",
-  border = "single",
+  border = "rounded",
   style = "minimal",
   title_pos = "center",
 }
@@ -110,11 +113,57 @@ function M.resize()
   end
 end
 
-function M.toggle()
+function M.open()
   for i = 1, 2 do
     for j = 1, 2 do
-      M.view[i][j]:toggle()
+      if not M.view[i][j]:is_win() then
+        M.view[i][j]:create()
+      end
     end
+  end
+
+  M.is_open = true
+  emit("AssistantViewOpen")
+end
+
+function M.close()
+  for i = 1, 2 do
+    for j = 1, 2 do
+      if M.view[i][j]:is_win() then
+        M.view[i][j]:remove()
+      end
+    end
+  end
+
+  M.is_open = false
+  emit("AssistantViewClose")
+end
+
+function M.toggle()
+  if M.is_open then
+    M.close()
+  else
+    M.open()
+  end
+end
+
+function M.move()
+  M.current_window = M.current_window % 4 + 1
+
+  if M.current_window == 1 then
+    vim.fn.win_gotoid(M.view[1][1].win)
+  end
+
+  if M.current_window == 2 then
+    vim.fn.win_gotoid(M.view[1][2].win)
+  end
+
+  if M.current_window == 3 then
+    vim.fn.win_gotoid(M.view[2][1].win)
+  end
+
+  if M.current_window == 4 then
+    vim.fn.win_gotoid(M.view[2][2].win)
   end
 end
 
