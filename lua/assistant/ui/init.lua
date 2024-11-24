@@ -1,5 +1,6 @@
 local Float = require("assistant.ui.float")
 local emit = require("assistant.emitter")
+local store = require("assistant.store")
 
 local M = {}
 M.is_open = false
@@ -58,7 +59,7 @@ function M.get_conf(i, j)
   end
 
   if i == 2 and j == 1 then
-    conf.title = " [3] LOGS "
+    conf.title = " [3] STATS "
     conf.height = wh - math.ceil(wh * 0.8)
     conf.width = math.ceil(ww * 0.5)
     conf.row = rr + math.ceil(wh * 0.8) + 1
@@ -85,6 +86,9 @@ for i = 1, 2 do
     table.insert(M.view[i], Float.new())
     M.view[i][j]:init({
       enter = i == 1 and j == 1,
+      bopts = {
+        modifiable = false,
+      },
       wopts = {
         winhighlight = table.concat(WIN_HIGHLIGHTS, ","),
       },
@@ -114,6 +118,8 @@ function M.resize()
 end
 
 function M.open()
+  store.init()
+
   for i = 1, 2 do
     for j = 1, 2 do
       if not M.view[i][j]:is_win() then

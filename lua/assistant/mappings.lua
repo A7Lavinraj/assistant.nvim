@@ -6,10 +6,7 @@ function M.load()
 end
 
 function M.unload()
-  vim.keymap.del("n", "1")
-  vim.keymap.del("n", "2")
-  vim.keymap.del("n", "3")
-  vim.keymap.del("n", "4")
+  vim.keymap.del("n", "<TAB>")
 end
 
 return M

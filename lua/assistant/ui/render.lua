@@ -55,8 +55,79 @@ end
 
 function AssistantRender:home()
   local content = Text.new()
-  content:append(store.PROBLEM_DATA["name"], "AssistantH1")
-  self:render(self.view.home.buf, content)
+  content:append(store.PROBLEM_DATA["name"], "AssistantH1"):nl(2)
+
+  for i = 1, #store.PROBLEM_DATA["tests"] do
+    content:append(string.format("Testcase #%d ", i), "AssistantText")
+  end
+
+  self:render(self.view[1][1].buf, content)
+end
+
+function AssistantRender:stats()
+  local content = Text.new()
+
+  if store.is_server_running or true then
+    content:append("SERVER ", "AssistantGreen"):nl(2)
+  else
+    content:append("SERVER ", "AssistantRed"):nl(2)
+  end
+
+  self:render(self.view[2][1].buf, content)
+end
+
+---@param id number?
+function AssistantRender:input(id)
+  if not id then
+    return
+  end
+
+  local content = Text.new()
+  local testcase = store.PROBLEM_DATA["tests"][id]
+  content:append("Input", "AssistantH1"):nl(2)
+
+  for _, line in ipairs(vim.split(testcase.input, "\n")) do
+    if line then
+      content:append(line, "AssistantText"):nl()
+    end
+  end
+
+  content:append("Expect", "AssistantH1"):nl(2)
+
+  for _, line in ipairs(vim.split(testcase.output, "\n")) do
+    if line then
+      content:append(line, "AssistantText"):nl()
+    end
+  end
+
+  self:render(self.view[1][2].buf, content)
+end
+
+---@param id number?
+function AssistantRender:output(id)
+  if not id then
+    return
+  end
+
+  local content = Text.new()
+  local testcase = store.PROBLEM_DATA["tests"][id]
+  content:append("Stdout", "AssistantH1"):nl(2)
+
+  for _, line in ipairs(vim.split(testcase.stdout or "...", "\n")) do
+    if line then
+      content:append(line, "AssistantText"):nl()
+    end
+  end
+
+  content:nl():append("Stderr", "AssistantH1"):nl(2)
+
+  for _, line in ipairs(vim.split(testcase.stderr or "...", "\n")) do
+    if line then
+      content:append(line, "AssistantText"):nl()
+    end
+  end
+
+  self:render(self.view[2][2].buf, content)
 end
 
 return AssistantRender

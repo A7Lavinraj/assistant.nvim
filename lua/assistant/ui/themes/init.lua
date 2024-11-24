@@ -10,6 +10,19 @@ local dynamic = {
   AssistantFloatTitle = {
     link = "IncSearch",
   },
+  AssistantH1 = {
+    fg = "#ffffff",
+    bold = true,
+  },
+  AssistantText = {
+    link = "NavicText",
+  },
+  AssistantGreen = {
+    link = "String",
+  },
+  AssistantRed = {
+    link = "Error",
+  },
 }
 
 function M.load()

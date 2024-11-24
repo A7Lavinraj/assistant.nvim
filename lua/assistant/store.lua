@@ -8,6 +8,7 @@ local M = {
   FILENAME_WITH_EXTENSION = nil,
   COMPILE_STATUS = { code = nil, error = nil },
   CHECKPOINTS = {},
+  is_server_running = false,
 }
 
 function M.init()
