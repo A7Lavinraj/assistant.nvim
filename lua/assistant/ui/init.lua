@@ -4,19 +4,6 @@ local store = require("assistant.store")
 
 local M = {}
 M.is_open = false
-M.current_window = 1
-local WIN_HIGHLIGHTS = {
-  "NormalFloat:AssistantFloat",
-  "FloatBorder:AssistantFloatBorder",
-  "FloatTitle:AssistantFloatTitle",
-}
----@type vim.api.keyset.win_config
-local SHARED_WIN_CONFIG = {
-  relative = "editor",
-  border = "rounded",
-  style = "minimal",
-  title_pos = "center",
-}
 
 ---@return number, number
 function M.get_view_port()
@@ -74,7 +61,12 @@ function M.get_conf(i, j)
     conf.col = cr + math.ceil(ww * 0.5) + 1
   end
 
-  return vim.tbl_deep_extend("force", SHARED_WIN_CONFIG, conf)
+  return vim.tbl_deep_extend("force", {
+    relative = "editor",
+    border = "rounded",
+    style = "minimal",
+    title_pos = "center",
+  }, conf)
 end
 
 ---@alias AssistantView AssistantFloat[][]
@@ -86,14 +78,18 @@ for i = 1, 2 do
     table.insert(M.view[i], Float.new())
     M.view[i][j]:init({
       enter = i == 1 and j == 1,
-      bopts = {
-        modifiable = false,
-      },
-      wopts = {
-        winhighlight = table.concat(WIN_HIGHLIGHTS, ","),
-      },
       conf = M.get_conf(i, j),
     })
+
+    M.view[i][j]:wo(
+      "winhighlight",
+      table.concat({
+        "NormalFloat:AssistantFloat",
+        "FloatBorder:AssistantFloatBorder",
+        "FloatTitle:AssistantFloatTitle",
+      }, ",")
+    )
+    M.view[i][j]:bo("modifiable", false)
   end
 end
 
@@ -153,24 +149,43 @@ function M.toggle()
   end
 end
 
-function M.move()
-  M.current_window = M.current_window % 4 + 1
+M.winx = 1
+M.winy = 1
 
-  if M.current_window == 1 then
-    vim.fn.win_gotoid(M.view[1][1].win)
+function M.move_left()
+  if M.winx == 1 then
+    return
   end
 
-  if M.current_window == 2 then
-    vim.fn.win_gotoid(M.view[1][2].win)
+  M.winx = 1
+  vim.fn.win_gotoid(M.view[M.winy][M.winx].win)
+end
+
+function M.move_right()
+  if M.winx == 2 then
+    return
   end
 
-  if M.current_window == 3 then
-    vim.fn.win_gotoid(M.view[2][1].win)
+  M.winx = 2
+  vim.fn.win_gotoid(M.view[M.winy][M.winx].win)
+end
+
+function M.move_up()
+  if M.winy == 1 then
+    return
   end
 
-  if M.current_window == 4 then
-    vim.fn.win_gotoid(M.view[2][2].win)
+  M.winy = 1
+  vim.fn.win_gotoid(M.view[M.winy][M.winx].win)
+end
+
+function M.move_down()
+  if M.winy == 2 then
+    return
   end
+
+  M.winy = 2
+  vim.fn.win_gotoid(M.view[M.winy][M.winx].win)
 end
 
 return M

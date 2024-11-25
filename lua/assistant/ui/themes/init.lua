@@ -25,7 +25,7 @@ local dynamic = {
   },
 }
 
-function M.load()
+function M.init()
   for group, value in pairs(dynamic) do
     vim.api.nvim_set_hl(0, group, value)
   end

@@ -14,18 +14,12 @@ function AssistantFloat:init(opts)
   self.conf = opts.conf or self.conf
 end
 
----@param opts table?
-function AssistantFloat:wo(opts)
-  for opt, val in pairs(opts or {}) do
-    vim.api.nvim_set_option_value(opt, val, { win = self.win })
-  end
+function AssistantFloat:wo(key, value)
+  vim.api.nvim_set_option_value(key, value, { win = self.win })
 end
 
----@param opts table?
-function AssistantFloat:bo(opts)
-  for opt, val in pairs(opts or {}) do
-    vim.api.nvim_set_option_value(opt, val, { buf = self.buf })
-  end
+function AssistantFloat:bo(key, value)
+  vim.api.nvim_set_option_value(key, value, { buf = self.buf })
 end
 
 ---@return boolean
@@ -53,8 +47,6 @@ function AssistantFloat:create()
   if not self.is_open then
     self.buf = vim.api.nvim_create_buf(false, true)
     self.win = vim.api.nvim_open_win(self.buf, self.enter, self.conf)
-    self:wo(self.wopts)
-    self:bo(self.bopts)
     self.is_open = true
   end
 end

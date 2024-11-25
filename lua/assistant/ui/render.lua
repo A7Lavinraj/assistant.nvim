@@ -55,10 +55,15 @@ end
 
 function AssistantRender:home()
   local content = Text.new()
+
+  if not store.PROBLEM_DATA then
+    return
+  end
+
   content:append(store.PROBLEM_DATA["name"], "AssistantH1"):nl(2)
 
   for i = 1, #store.PROBLEM_DATA["tests"] do
-    content:append(string.format("Testcase #%d ", i), "AssistantText")
+    content:append(string.format("testcase #%d ", i), "AssistantText")
   end
 
   self:render(self.view[1][1].buf, content)
@@ -67,7 +72,7 @@ end
 function AssistantRender:stats()
   local content = Text.new()
 
-  if store.is_server_running or true then
+  if store.is_server_running then
     content:append("SERVER ", "AssistantGreen"):nl(2)
   else
     content:append("SERVER ", "AssistantRed"):nl(2)
