@@ -17,6 +17,14 @@ function M.load()
     maps.load()
     render:home()
     render:stats()
+
+    for i = 1, 2 do
+      for j = 1, 2 do
+        M.look("WinClosed", nil, ui.close, {
+          buffer = ui.view[i][j].buf,
+        })
+      end
+    end
   end)
   M.look("User", "AssistantViewClose", maps.unload)
   M.look("CursorMoved", nil, function()
