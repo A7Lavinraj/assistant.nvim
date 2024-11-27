@@ -23,8 +23,6 @@ function AssistantConfig.init(opts)
   if opts then
     AssistantConfig.commands = vim.tbl_deep_extend("force", AssistantConfig.commands, opts.commands or {})
     AssistantConfig.time_limit = opts.time_limit or AssistantConfig.time_limit
-    AssistantConfig.border = opts.border
-    AssistantConfig.theme = opts.theme
   end
 end
 
