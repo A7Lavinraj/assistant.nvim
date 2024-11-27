@@ -72,4 +72,34 @@ function FileSystem:save(chunk)
   end
 end
 
+---@param path string | nil
+---@return table | nil
+function FileSystem:fetch(path)
+  if not path then
+    return nil
+  end
+
+  local fd = vim.uv.fs_open(path, "r", 438)
+
+  if not fd then
+    return nil
+  end
+
+  local stat = vim.loop.fs_fstat(fd)
+
+  if not stat then
+    return nil
+  end
+
+  local data = vim.loop.fs_read(fd, stat.size, 0)
+
+  if (not data) or (data:gsub("\r\n", "\n") == "") then
+    return nil
+  end
+
+  vim.loop.fs_close(fd)
+
+  return vim.json.decode(data)
+end
+
 return FileSystem
