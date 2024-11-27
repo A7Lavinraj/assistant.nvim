@@ -1,54 +1,8 @@
 local config = require("assistant.config")
-local constants = require("assistant.constants")
 local emit = require("assistant.emitter")
 local store = require("assistant.store")
-
----@param received string
----@return string
-local function get_stream_data(received)
-  return table.concat(vim.split(string.gsub(received, "\r\n", "\n"), "\n", { plain = true }), "\n")
-end
-
----@param stdout string
----@param expected string
----@return boolean
-local function compare(stdout, expected)
-  local function process_str(str)
-    return (str or ""):gsub("\n", " "):gsub("%s+", " "):gsub("^%s", ""):gsub("%s$", "")
-  end
-
-  return process_str(stdout) == process_str(expected)
-end
-
----@param FILENAME_WITH_EXTENSION string | nil
----@param FILENAME_WITHOUT_EXTENSION string | nil
----@param command table | nil
----@return table | nil
-local function interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, command)
-  if not command then
-    return nil
-  end
-
-  local function replace(filename)
-    return filename
-      :gsub("%$FILENAME_WITH_EXTENSION", FILENAME_WITH_EXTENSION)
-      :gsub("%$FILENAME_WITHOUT_EXTENSION", FILENAME_WITHOUT_EXTENSION)
-  end
-
-  local modified = vim.deepcopy(command)
-
-  if modified.main then
-    modified.main = replace(modified.main)
-  end
-
-  if modified.args then
-    for i = 1, #command.args do
-      modified.args[i] = replace(command.args[i])
-    end
-  end
-
-  return modified
-end
+local utils = require("assistant.utils")
+local MAX_RENDER_LIMIT = 1000
 
 return function(index)
   local process = {
@@ -58,7 +12,7 @@ return function(index)
     timer = vim.loop.new_timer(),
   }
 
-  local command = interpolate(
+  local command = utils.interpolate(
     store.FILENAME_WITH_EXTENSION,
     store.FILENAME_WITHOUT_EXTENSION,
     config.commands[store.FILETYPE].execute
@@ -81,7 +35,7 @@ return function(index)
       if test.end_at - test.start_at > config.time_limit then
         test.status = "TIME LIMIT EXCEEDED"
         test.group = "AssistantKilled"
-      elseif compare(test.stdout, test.output) then
+      elseif utils.compare(test.stdout, test.output) then
         test.status = "PASSED"
         test.group = "AssistantPassed"
       else
@@ -147,8 +101,8 @@ return function(index)
         process.stdout:close()
       end
     else
-      if #test.stdout < constants.MAX_RENDER_LIMIT then
-        test.stdout = test.stdout .. get_stream_data(data)
+      if #test.stdout < MAX_RENDER_LIMIT then
+        test.stdout = test.stdout .. utils.get_stream_data(data)
       end
     end
   end)
@@ -162,8 +116,8 @@ return function(index)
         process.stderr:close()
       end
     else
-      if #test.stderr < constants.MAX_RENDER_LIMIT then
-        test.stderr = test.stderr .. get_stream_data(data)
+      if #test.stderr < MAX_RENDER_LIMIT then
+        test.stderr = test.stderr .. utils.get_stream_data(data)
       end
     end
   end)

@@ -1,5 +1,6 @@
 local Render = require("assistant.ui.render")
 local maps = require("assistant.mappings")
+local runner = require("assistant.runner")
 local ui = require("assistant.ui")
 local render = Render.new(ui.view)
 local M = {}
@@ -53,6 +54,10 @@ M.cmds = {
 
         for i = 1, 2 do
           for j = 1, 2 do
+            if i == 1 and j == 1 then
+              maps.set("n", "r", runner.run_unique, ui.view[i][j].buf)
+            end
+
             maps.set("n", "<c-h>", ui.move_left, ui.view[i][j].buf)
             maps.set("n", "<c-l>", ui.move_right, ui.view[i][j].buf)
             maps.set("n", "<c-k>", ui.move_up, ui.view[i][j].buf)

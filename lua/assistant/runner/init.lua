@@ -4,8 +4,16 @@ local store = require("assistant.store")
 
 local M = {}
 
-function M.run_unique(index)
+function M.run_unique()
+  local current_line = vim.api.nvim_get_current_line()
+  local index = tonumber(current_line:match("testcase #(%d+)%s+"))
+
+  if not index then
+    return
+  end
+
   local test = store.PROBLEM_DATA["tests"][index]
+
   compile(function()
     test.status = "RUNNING"
     test.group = "AssistantRunning"
