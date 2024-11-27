@@ -60,8 +60,6 @@ function AssistantRender:home()
     return
   end
 
-  content:append(store.PROBLEM_DATA["name"], "AssistantH1"):nl(2)
-
   for i = 1, #store.PROBLEM_DATA["tests"] do
     content:append(string.format("testcase #%d ", i), "AssistantText")
   end
