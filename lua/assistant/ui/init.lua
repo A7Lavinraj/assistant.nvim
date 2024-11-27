@@ -30,7 +30,12 @@ function M.get_conf(i, j)
   local conf = {}
 
   if i == 1 and j == 1 then
-    conf.title = " [1] HOME "
+    conf.title = " UNTITLED "
+
+    if store.PROBLEM_DATA then
+      conf.title = " " .. store.PROBLEM_DATA["name"] .. " "
+    end
+
     conf.height = math.ceil(wh * 0.8)
     conf.width = math.ceil(ww * 0.5)
     conf.row = rr - 1
@@ -38,7 +43,7 @@ function M.get_conf(i, j)
   end
 
   if i == 1 and j == 2 then
-    conf.title = " [2] INPUT "
+    conf.title = " INPUT "
     conf.height = math.ceil(wh * 0.5)
     conf.width = ww - math.ceil(ww * 0.5)
     conf.row = rr - 1
@@ -46,7 +51,7 @@ function M.get_conf(i, j)
   end
 
   if i == 2 and j == 1 then
-    conf.title = " [3] STATS "
+    conf.title = " STATS "
     conf.height = wh - math.ceil(wh * 0.8)
     conf.width = math.ceil(ww * 0.5)
     conf.row = rr + math.ceil(wh * 0.8) + 1
@@ -54,7 +59,7 @@ function M.get_conf(i, j)
   end
 
   if i == 2 and j == 2 then
-    conf.title = " [4] OUTPUT "
+    conf.title = " OUTPUT "
     conf.height = wh - math.ceil(wh * 0.5)
     conf.width = ww - math.ceil(ww * 0.5)
     conf.row = rr + math.ceil(wh * 0.5) + 1
@@ -76,11 +81,7 @@ M.view = { {}, {} }
 for i = 1, 2 do
   for j = 1, 2 do
     table.insert(M.view[i], Float.new())
-    M.view[i][j]:init({
-      enter = i == 1 and j == 1,
-      conf = M.get_conf(i, j),
-    })
-
+    M.view[i][j]:init({ enter = i == 1 and j == 1 })
     M.view[i][j]:wo(
       "winhighlight",
       table.concat({
@@ -103,14 +104,6 @@ function M.resize()
       end
     end
   end
-
-  for i = 1, 2 do
-    for j = 1, 2 do
-      if M.view[i][j]:is_win() then
-        M.view[i][j]:create()
-      end
-    end
-  end
 end
 
 function M.open()
@@ -119,6 +112,7 @@ function M.open()
   for i = 1, 2 do
     for j = 1, 2 do
       if not M.view[i][j]:is_win() then
+        M.view[i][j].conf = M.get_conf(i, j)
         M.view[i][j]:create()
       end
     end
