@@ -90,7 +90,6 @@ for i = 1, 2 do
         "FloatTitle:AssistantFloatTitle",
       }, ",")
     )
-    M.view[i][j]:bo("modifiable", false)
   end
 end
 
@@ -114,6 +113,7 @@ function M.open()
       if not M.view[i][j]:is_win() then
         M.view[i][j].conf = M.get_conf(i, j)
         M.view[i][j]:create()
+        M.view[i][j]:bo("modifiable", false)
       end
     end
   end
