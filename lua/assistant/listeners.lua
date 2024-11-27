@@ -1,8 +1,6 @@
-local Render = require("assistant.ui.render")
 local maps = require("assistant.mappings")
 local runner = require("assistant.runner")
 local ui = require("assistant.ui")
-local render = Render.new(ui.view)
 local M = {}
 
 M.ids = {}
@@ -16,8 +14,8 @@ M.cmds = {
         local number = tonumber(current_line:match("testcase #(%d+)%s+"))
 
         if number then
-          render:input(number)
-          render:output(number)
+          ui.render:input(number)
+          ui.render:output(number)
         end
       end,
     },
@@ -50,12 +48,13 @@ M.cmds = {
     opts = {
       pattern = "AssistantViewOpen",
       callback = function()
-        render:home()
+        ui.render:home()
 
         for i = 1, 2 do
           for j = 1, 2 do
             if i == 1 and j == 1 then
               maps.set("n", "r", runner.run_unique, ui.view[i][j].buf)
+              maps.set("n", "R", runner.run_all, ui.view[i][j].buf)
             end
 
             maps.set("n", "<c-h>", ui.move_left, ui.view[i][j].buf)

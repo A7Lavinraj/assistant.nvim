@@ -8,7 +8,7 @@ local dynamic = {
     link = "Conceal",
   },
   AssistantFloatTitle = {
-    link = "IncSearch",
+    link = "CursorLineNr",
   },
   AssistantH1 = {
     fg = "#ffffff",
@@ -22,6 +22,9 @@ local dynamic = {
   },
   AssistantRed = {
     link = "Error",
+  },
+  AssistantYellow = {
+    link = "WarningMsg",
   },
 }
 

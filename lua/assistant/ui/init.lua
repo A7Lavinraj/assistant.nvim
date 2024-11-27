@@ -1,4 +1,5 @@
 local Float = require("assistant.ui.float")
+local Render = require("assistant.ui.render")
 local emit = require("assistant.emitter")
 local store = require("assistant.store")
 
@@ -92,6 +93,8 @@ for i = 1, 2 do
     )
   end
 end
+
+M.render = Render.new(M.view)
 
 function M.resize()
   for i = 1, 2 do

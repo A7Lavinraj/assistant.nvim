@@ -60,8 +60,20 @@ function AssistantRender:home()
     return
   end
 
-  for i = 1, #store.PROBLEM_DATA["tests"] do
+  for i, test in ipairs(store.PROBLEM_DATA["tests"]) do
     content:append(string.format("testcase #%d ", i), "AssistantText")
+
+    if test.status == "PASSED" then
+      content:append(test.status, "AssistantGreen")
+    end
+
+    if test.status == "FAILED" then
+      content:append(test.status, "AssistantRed")
+    end
+
+    if test.status == "RUNNING" or test.status == "COMPILING" then
+      content:append(test.status, "AssistantYellow")
+    end
   end
 
   self.render(self.view[1][1].buf, content)
@@ -113,20 +125,25 @@ function AssistantRender:output(id)
   end
 
   local content = Text.new()
-  local testcase = store.PROBLEM_DATA["tests"][id]
-  content:append("Stdout", "AssistantH1"):nl(2)
+  local tc = store.PROBLEM_DATA["tests"][id]
 
-  for _, line in ipairs(vim.split(testcase.stdout or "...", "\n")) do
-    if line then
-      content:append(line, "AssistantText"):nl()
+  if tc.stdout ~= "" then
+    content:append("Stdout", "AssistantH1"):nl(2)
+
+    for _, line in ipairs(vim.split(tc.stdout or "...", "\n")) do
+      if line then
+        content:append(line, "AssistantText"):nl()
+      end
     end
   end
 
-  content:nl():append("Stderr", "AssistantH1"):nl(2)
+  if tc.stderr ~= "" then
+    content:nl():append("Stderr", "AssistantH1"):nl(2)
 
-  for _, line in ipairs(vim.split(testcase.stderr or "...", "\n")) do
-    if line then
-      content:append(line, "AssistantText"):nl()
+    for _, line in ipairs(vim.split(tc.stderr or "...", "\n")) do
+      if line then
+        content:append(line, "AssistantText"):nl()
+      end
     end
   end
 

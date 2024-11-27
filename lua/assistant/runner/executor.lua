@@ -1,6 +1,6 @@
 local config = require("assistant.config")
-local emit = require("assistant.emitter")
 local store = require("assistant.store")
+local ui = require("assistant.ui")
 local utils = require("assistant.utils")
 local MAX_RENDER_LIMIT = 1000
 
@@ -44,7 +44,7 @@ return function(index)
       end
 
       vim.schedule(function()
-        emit("AssistantRender")
+        ui.render:home()
       end)
     end
 
@@ -70,7 +70,7 @@ return function(index)
   test.start_at = vim.loop.now()
   test.end_at = test.start_at
   vim.schedule(function()
-    emit("AssistantRender")
+    ui.render:home()
   end)
   process.timer:start(config.time_limit, 0, function()
     if not process.timer:is_active() then

@@ -1,13 +1,7 @@
 local config = require("assistant.config")
-local emit = require("assistant.emitter")
 local store = require("assistant.store")
+local ui = require("assistant.ui")
 local utils = require("assistant.utils")
-
--- (Compile Function):
--- takes `callback` and `index` parameters.
--- spwan a process using `jobstart()` to compile the code.
--- if no command were found using `interpolate` utility callback gets invoked.
--- if code doesn't get compiled then no invokation of callback occurs.
 
 ---@param callback function
 ---@param index number?
@@ -22,7 +16,7 @@ return function(callback, index)
     config.commands[store.FILETYPE].compile
   )
   store.COMPILE_STATUS = { code = nil, error = nil }
-  emit("AssistantRender")
+  ui.render:home()
 
   if not command then
     callback()
@@ -37,7 +31,7 @@ return function(callback, index)
       end
     end
 
-    emit("AssistantRender")
+    ui.render:home()
     ---@diagnostic disable-next-line: deprecated
     vim.fn.jobstart(vim.tbl_flatten({ command.main, command.args }), {
       stderr_buffered = true,
@@ -50,7 +44,7 @@ return function(callback, index)
         if store.COMPILE_STATUS.code == 0 then
           callback()
         else
-          emit("AssistantRender")
+          ui.render:home()
         end
       end,
     })
