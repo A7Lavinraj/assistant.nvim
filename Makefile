@@ -1,8 +1,8 @@
 fmt:
-	stylua lua/ tests/ --config-path=./.stylua.toml
+	stylua lua --config-path=./.stylua.toml
 
 lint:
-	luacheck lua/ tests/ --globals vim
+	luacheck lua --globals vim describe it assert
 
 test:
 	nvim --headless -c "PlenaryBustedDirectory lua"

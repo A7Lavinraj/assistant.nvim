@@ -20,7 +20,7 @@ function M.init()
   M.COMPILE_STATUS = { code = nil, error = nil }
 
   if M.FILENAME_WITHOUT_EXTENSION and M.CWD then
-    M.PROBLEM_DATA = fs:fetch(string.format("%s/.ast/%s.json", M.CWD, M.FILENAME_WITHOUT_EXTENSION))
+    M.PROBLEM_DATA = fs.fetch(string.format("%s/.ast/%s.json", M.CWD, M.FILENAME_WITHOUT_EXTENSION))
   end
 end
 

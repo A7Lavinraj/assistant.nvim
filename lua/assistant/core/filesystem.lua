@@ -5,14 +5,14 @@ function FileSystem.new()
   return setmetatable({}, { __index = FileSystem })
 end
 
-function FileSystem:__init__()
+function FileSystem.__init__()
   if vim.fn.isdirectory(".ast") == 0 then
     vim.fn.mkdir(".ast")
   end
 end
 
 ---@param filename string
-function FileSystem:create(filename)
+function FileSystem.create(filename)
   local sources = {}
 
   for key, _ in pairs(config.commands) do
@@ -30,7 +30,7 @@ end
 ---@param path string
 ---@param mode string
 ---@return string?
-function FileSystem:read(path, mode)
+function FileSystem.read(path, mode)
   local fd, _ = vim.uv.fs_open(path, mode, 438)
 
   if not fd then
@@ -46,7 +46,7 @@ end
 
 ---@param path string
 ---@param bytes string
-function FileSystem:write(path, bytes)
+function FileSystem.write(path, bytes)
   local fd, _ = vim.uv.fs_open(path, "w", 438)
 
   if not fd then
@@ -60,21 +60,21 @@ end
 
 ---@param chunk string
 function FileSystem:save(chunk)
-  self:__init__()
+  self.__init__()
   chunk = string.match(chunk, "^.+\r\n(.+)$")
   local data = vim.json.decode(chunk)
 
   if data.languages.java.taskClass then
     vim.schedule(function()
-      self:write(string.format("%s/.ast/%s.json", vim.fn.expand("%:p:h"), data.languages.java.taskClass), chunk)
-      self:create(data.languages.java.taskClass)
+      self.write(string.format("%s/.ast/%s.json", vim.fn.expand("%:p:h"), data.languages.java.taskClass), chunk)
+      self.create(data.languages.java.taskClass)
     end)
   end
 end
 
 ---@param path string | nil
 ---@return table | nil
-function FileSystem:fetch(path)
+function FileSystem.fetch(path)
   if not path then
     return nil
   end

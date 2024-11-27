@@ -13,7 +13,7 @@ end
 
 ---@param buf number
 ---@param text AssistantText
-function AssistantRender:render(buf, text)
+function AssistantRender.render(buf, text)
   local lines = {}
   local access = vim.api.nvim_get_option_value("modifiable", { buf = buf })
 
@@ -64,7 +64,7 @@ function AssistantRender:home()
     content:append(string.format("testcase #%d ", i), "AssistantText")
   end
 
-  self:render(self.view[1][1].buf, content)
+  self.render(self.view[1][1].buf, content)
 end
 
 function AssistantRender:stats()
@@ -76,7 +76,7 @@ function AssistantRender:stats()
     content:append("SERVER ", "AssistantRed"):nl(2)
   end
 
-  self:render(self.view[2][1].buf, content)
+  self.render(self.view[2][1].buf, content)
 end
 
 ---@param id number?
@@ -103,7 +103,7 @@ function AssistantRender:input(id)
     end
   end
 
-  self:render(self.view[1][2].buf, content)
+  self.render(self.view[1][2].buf, content)
 end
 
 ---@param id number?
@@ -130,7 +130,7 @@ function AssistantRender:output(id)
     end
   end
 
-  self:render(self.view[2][2].buf, content)
+  self.render(self.view[2][2].buf, content)
 end
 
 return AssistantRender
