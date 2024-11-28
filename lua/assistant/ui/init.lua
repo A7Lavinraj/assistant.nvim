@@ -1,7 +1,7 @@
 local Float = require("assistant.ui.float")
 local Render = require("assistant.ui.render")
-local emit = require("assistant.emitter")
 local store = require("assistant.store")
+local utils = require("assistant.utils")
 
 local M = {}
 M.is_open = false
@@ -122,7 +122,7 @@ function M.open()
   end
 
   M.is_open = true
-  emit("AssistantViewOpen")
+  utils.emit("AssistantViewOpen")
 end
 
 function M.close()
@@ -135,7 +135,7 @@ function M.close()
   end
 
   M.is_open = false
-  emit("AssistantViewClose")
+  utils.emit("AssistantViewClose")
 end
 
 function M.toggle()

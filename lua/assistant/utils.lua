@@ -47,4 +47,9 @@ function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, comm
   return modified
 end
 
+---@param pattern string
+function M.emit(pattern)
+  vim.cmd("doautocmd User " .. pattern)
+end
+
 return M
