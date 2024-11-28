@@ -117,6 +117,10 @@ function M.open()
         M.view[i][j].conf = M.get_conf(i, j)
         M.view[i][j]:create()
         M.view[i][j]:bo("modifiable", false)
+
+        if i == 1 and j == 1 then
+          M.view[i][j]:wo("cursorline", true)
+        end
       end
     end
   end
