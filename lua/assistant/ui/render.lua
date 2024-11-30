@@ -75,7 +75,9 @@ function AssistantRender:home()
       content:append(test.status, "AssistantYellow")
     end
 
-    content:nl()
+    if i ~= #store.PROBLEM_DATA["tests"] then
+      content:nl()
+    end
   end
 
   self.render(self.view[1][1].buf, content)
