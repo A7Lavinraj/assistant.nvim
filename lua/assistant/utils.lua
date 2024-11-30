@@ -52,4 +52,16 @@ function M.emit(pattern)
   vim.cmd("doautocmd User " .. pattern)
 end
 
+---@return number, number
+function M.get_view_port()
+  local vh = vim.o.lines - vim.o.cmdheight
+  local vw = vim.o.columns
+
+  if vim.o.laststatus ~= 0 then
+    vh = vh - 1
+  end
+
+  return vh, vw
+end
+
 return M

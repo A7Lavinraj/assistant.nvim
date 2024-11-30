@@ -6,24 +6,12 @@ local utils = require("assistant.utils")
 local M = {}
 M.is_open = false
 
----@return number, number
-function M.get_view_port()
-  local vh = vim.o.lines - vim.o.cmdheight
-  local vw = vim.o.columns
-
-  if vim.o.laststatus ~= 0 then
-    vh = vh - 1
-  end
-
-  return vh, vw
-end
-
 --TODO: fix overflow ui for very small window
 ---@param i number
 ---@param j number
 ---@return vim.api.keyset.win_config
 function M.get_conf(i, j)
-  local vh, vw = M.get_view_port()
+  local vh, vw = utils.get_view_port()
   local wh = math.ceil(vh * 0.7) - 2
   local ww = math.ceil(vw * 0.7) - 2
   local rr = math.ceil(vh * 0.5) - math.ceil(wh * 0.5) - 1
