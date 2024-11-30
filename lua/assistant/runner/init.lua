@@ -50,4 +50,18 @@ function M.create_test()
   end
 end
 
+function M.remove_test()
+  local current_line = vim.api.nvim_get_current_line()
+  local index = tonumber(current_line:match("testcase #(%d+)%s+"))
+
+  if not index then
+    return
+  end
+
+  if store.PROBLEM_DATA then
+    table.remove(store.PROBLEM_DATA["tests"], index)
+    ui.render:home()
+  end
+end
+
 return M

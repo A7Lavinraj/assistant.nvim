@@ -1,4 +1,5 @@
 local maps = require("assistant.mappings")
+local prompt = require("assistant.ui.prompt")
 local runner = require("assistant.runner")
 local ui = require("assistant.ui")
 local M = {}
@@ -23,7 +24,10 @@ M.cmds = {
   {
     event = "VimResized",
     opts = {
-      callback = ui.resize,
+      callback = function()
+        ui.resize()
+        prompt.resize()
+      end,
     },
   },
   {
@@ -37,6 +41,10 @@ M.cmds = {
               goto done
             end
           end
+        end
+
+        if event.buf == prompt.float.buf then
+          prompt.hide()
         end
 
         ::done::
@@ -56,6 +64,9 @@ M.cmds = {
               maps.set("n", "r", runner.run_unique, ui.view[i][j].buf)
               maps.set("n", "R", runner.run_all, ui.view[i][j].buf)
               maps.set("n", "c", runner.create_test, ui.view[i][j].buf)
+              maps.set("n", "d", runner.remove_test, ui.view[i][j].buf)
+              maps.set("n", "i", prompt.hide_and_save_input, ui.view[i][j].buf)
+              maps.set("n", "e", prompt.hide_and_save_expect, ui.view[i][j].buf)
             end
 
             maps.set("n", "<c-h>", ui.move_left, ui.view[i][j].buf)
