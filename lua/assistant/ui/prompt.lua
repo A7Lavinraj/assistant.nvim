@@ -39,6 +39,7 @@ function M.hide_and_save_input()
       local lines = vim.api.nvim_buf_get_lines(M.float.buf, 0, -1, false)
       M.hide()
       store.PROBLEM_DATA["tests"][index].input = table.concat(lines, "\n")
+      store.write()
     end,
   })
 end
@@ -67,6 +68,7 @@ function M.hide_and_save_expect()
       local lines = vim.api.nvim_buf_get_lines(M.float.buf, 0, -1, false)
       M.hide()
       store.PROBLEM_DATA["tests"][index].output = table.concat(lines, "\n")
+      store.write()
     end,
   })
 end

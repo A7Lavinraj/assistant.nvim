@@ -45,6 +45,7 @@ return function(index)
 
       vim.schedule(function()
         ui.render:home()
+        store.write()
       end)
     end
 

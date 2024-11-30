@@ -12,7 +12,7 @@ local M = {
   fs = fs.new(),
 }
 
-function M.init()
+function M.fetch()
   M.CWD = vim.fn.expand("%:p:h")
   M.FILETYPE = vim.bo.filetype
   M.FILENAME_WITHOUT_EXTENSION = vim.fn.expand("%:t:r")
@@ -21,6 +21,12 @@ function M.init()
 
   if M.FILENAME_WITHOUT_EXTENSION and M.CWD then
     M.PROBLEM_DATA = fs.fetch(string.format("%s/.ast/%s.json", M.CWD, M.FILENAME_WITHOUT_EXTENSION))
+  end
+end
+
+function M.write()
+  if M.FILENAME_WITHOUT_EXTENSION and M.CWD then
+    fs.write(string.format("%s/.ast/%s.json", M.CWD, M.FILENAME_WITHOUT_EXTENSION), vim.json.encode(M.PROBLEM_DATA))
   end
 end
 

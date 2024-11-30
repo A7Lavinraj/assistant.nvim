@@ -24,7 +24,7 @@
 ---@field COMPILE_STATUS {code:nil,error:nil}?
 ---@field PROBLEM_DATA table?
 ---@field CHECKPOINTS table
----@field init function
+---@field fetch function
 
 ---@class Command
 ---@field extension string?

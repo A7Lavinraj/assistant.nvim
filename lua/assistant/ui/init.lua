@@ -97,7 +97,7 @@ function M.resize()
 end
 
 function M.open()
-  store.init()
+  store.fetch()
 
   for i = 1, 2 do
     for j = 1, 2 do

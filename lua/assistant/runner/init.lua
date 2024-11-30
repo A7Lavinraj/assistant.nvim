@@ -46,6 +46,7 @@ end
 function M.create_test()
   if store.PROBLEM_DATA then
     table.insert(store.PROBLEM_DATA["tests"], {})
+    store.write()
     ui.render:home()
   end
 end
@@ -60,6 +61,7 @@ function M.remove_test()
 
   if store.PROBLEM_DATA then
     table.remove(store.PROBLEM_DATA["tests"], index)
+    store.write()
     ui.render:home()
   end
 end
