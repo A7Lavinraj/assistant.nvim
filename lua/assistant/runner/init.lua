@@ -1,6 +1,7 @@
 local compile = require("assistant.runner.compiler")
 local execute = require("assistant.runner.executor")
 local store = require("assistant.store")
+local ui = require("assistant.ui")
 
 local M = {}
 
@@ -40,6 +41,13 @@ function M.run_all()
       execute(i)
     end
   end)
+end
+
+function M.create_test()
+  if store.PROBLEM_DATA then
+    table.insert(store.PROBLEM_DATA["tests"], {})
+    ui.render:home()
+  end
 end
 
 return M

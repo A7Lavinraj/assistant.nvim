@@ -74,6 +74,8 @@ function AssistantRender:home()
     if test.status == "RUNNING" or test.status == "COMPILING" then
       content:append(test.status, "AssistantYellow")
     end
+
+    content:nl()
   end
 
   self.render(self.view[1][1].buf, content)
@@ -98,20 +100,24 @@ function AssistantRender:input(id)
   end
 
   local content = Text.new()
-  local testcase = store.PROBLEM_DATA["tests"][id]
-  content:append("Input", "AssistantH1"):nl(2)
+  local tc = store.PROBLEM_DATA["tests"][id]
+  if tc.input then
+    content:append("Input", "AssistantH1"):nl(2)
 
-  for _, line in ipairs(vim.split(testcase.input, "\n")) do
-    if line then
-      content:append(line, "AssistantText"):nl()
+    for _, line in ipairs(vim.split(tc.input or "", "\n")) do
+      if line then
+        content:append(line, "AssistantText"):nl()
+      end
     end
   end
 
-  content:append("Expect", "AssistantH1"):nl(2)
+  if tc.output then
+    content:append("Expect", "AssistantH1"):nl(2)
 
-  for _, line in ipairs(vim.split(testcase.output, "\n")) do
-    if line then
-      content:append(line, "AssistantText"):nl()
+    for _, line in ipairs(vim.split(tc.output or "", "\n")) do
+      if line then
+        content:append(line, "AssistantText"):nl()
+      end
     end
   end
 
@@ -127,20 +133,20 @@ function AssistantRender:output(id)
   local content = Text.new()
   local tc = store.PROBLEM_DATA["tests"][id]
 
-  if tc.stdout ~= "" then
+  if tc.stdout and tc.stdout ~= "" then
     content:append("Stdout", "AssistantH1"):nl(2)
 
-    for _, line in ipairs(vim.split(tc.stdout or "...", "\n")) do
+    for _, line in ipairs(vim.split(tc.stdout, "\n")) do
       if line then
         content:append(line, "AssistantText"):nl()
       end
     end
   end
 
-  if tc.stderr ~= "" then
+  if tc.stderr and tc.stderr ~= "" then
     content:nl():append("Stderr", "AssistantH1"):nl(2)
 
-    for _, line in ipairs(vim.split(tc.stderr or "...", "\n")) do
+    for _, line in ipairs(vim.split(tc.stderr, "\n")) do
       if line then
         content:append(line, "AssistantText"):nl()
       end

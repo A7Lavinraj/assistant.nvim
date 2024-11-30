@@ -55,6 +55,7 @@ M.cmds = {
             if i == 1 and j == 1 then
               maps.set("n", "r", runner.run_unique, ui.view[i][j].buf)
               maps.set("n", "R", runner.run_all, ui.view[i][j].buf)
+              maps.set("n", "c", runner.create_test, ui.view[i][j].buf)
             end
 
             maps.set("n", "<c-h>", ui.move_left, ui.view[i][j].buf)
