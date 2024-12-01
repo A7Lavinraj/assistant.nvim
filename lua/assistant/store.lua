@@ -26,7 +26,7 @@ end
 
 function M.write()
   if M.FILENAME_WITHOUT_EXTENSION and M.CWD then
-    fs.write(string.format("%s/.ast/%s.json", M.CWD, M.FILENAME_WITHOUT_EXTENSION), vim.json.encode(M.PROBLEM_DATA))
+    fs:write(string.format("%s/.ast/%s.json", M.CWD, M.FILENAME_WITHOUT_EXTENSION), vim.json.encode(M.PROBLEM_DATA))
   end
 end
 

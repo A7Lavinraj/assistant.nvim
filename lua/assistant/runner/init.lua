@@ -44,11 +44,14 @@ function M.run_all()
 end
 
 function M.create_test()
-  if store.PROBLEM_DATA then
-    table.insert(store.PROBLEM_DATA["tests"], {})
-    store.write()
-    ui.render:home()
+  if not store.PROBLEM_DATA then
+    store.PROBLEM_DATA = {}
+    store.PROBLEM_DATA["tests"] = {}
   end
+
+  table.insert(store.PROBLEM_DATA["tests"], {})
+  store.write()
+  ui.render:home()
 end
 
 function M.remove_test()

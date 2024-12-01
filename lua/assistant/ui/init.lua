@@ -21,10 +21,15 @@ function M.get_conf(i, j)
   if i == 1 and j == 1 then
     conf.title = " UNTITLED "
 
-    if store.PROBLEM_DATA then
-      conf.title = " " .. store.PROBLEM_DATA["name"] .. " "
+    if not store.PROBLEM_DATA then
+      store.PROBLEM_DATA = {}
     end
 
+    if not store.PROBLEM_DATA["name"] then
+      store.PROBLEM_DATA["name"] = vim.fn.expand("%:t")
+    end
+
+    conf.title = " " .. store.PROBLEM_DATA["name"] .. " "
     conf.height = math.ceil(wh * 0.8)
     conf.width = math.ceil(ww * 0.5)
     conf.row = rr - 1

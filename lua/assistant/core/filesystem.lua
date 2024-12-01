@@ -46,7 +46,8 @@ end
 
 ---@param path string
 ---@param bytes string
-function FileSystem.write(path, bytes)
+function FileSystem:write(path, bytes)
+  self.__init__()
   local fd, _ = vim.uv.fs_open(path, "w", 438)
 
   if not fd then
@@ -66,7 +67,7 @@ function FileSystem:save(chunk)
 
   if data.languages.java.taskClass then
     vim.schedule(function()
-      self.write(string.format("%s/.ast/%s.json", vim.fn.expand("%:p:h"), data.languages.java.taskClass), chunk)
+      self:write(string.format("%s/.ast/%s.json", vim.fn.expand("%:p:h"), data.languages.java.taskClass), chunk)
       self.create(data.languages.java.taskClass)
     end)
   end

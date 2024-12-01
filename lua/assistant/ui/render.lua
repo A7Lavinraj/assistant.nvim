@@ -57,7 +57,11 @@ function AssistantRender:home()
   local content = Text.new()
 
   if not store.PROBLEM_DATA then
-    return
+    store.PROBLEM_DATA = {}
+  end
+
+  if not store.PROBLEM_DATA["tests"] then
+    store.PROBLEM_DATA["tests"] = {}
   end
 
   for i, test in ipairs(store.PROBLEM_DATA["tests"]) do
