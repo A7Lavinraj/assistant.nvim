@@ -6,14 +6,6 @@ function AssistantFloat.new()
   return setmetatable({}, { __index = AssistantFloat })
 end
 
----@param opts AssistantFloat.opts
-function AssistantFloat:init(opts)
-  self.enter = opts.enter or self.enter
-  self.bopts = opts.bopts or self.bopts
-  self.wopts = opts.wopts or self.wopts
-  self.conf = opts.conf or self.conf
-end
-
 function AssistantFloat:wo(key, value)
   vim.api.nvim_set_option_value(key, value, { win = self.win })
 end

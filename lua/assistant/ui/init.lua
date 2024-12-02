@@ -1,136 +1,94 @@
 local Float = require("assistant.ui.float")
-local Render = require("assistant.ui.render")
 local store = require("assistant.store")
 local utils = require("assistant.utils")
 
 local M = {}
+M.home = setmetatable({}, { __index = Float })
+M.input = setmetatable({}, { __index = Float })
+M.output = setmetatable({}, { __index = Float })
+M.prompt = setmetatable({}, { __index = Float })
+M.popup = setmetatable({}, { __index = Float })
+M.view_config = {
+  relative = "editor",
+  style = "minimal",
+  border = "rounded",
+  title_pos = "center",
+}
+M.view_hi = "NormalFloat:AssistantFloat,FloatBorder:AssistantFloatBorder,FloatTitle:AssistantFloatTitle"
 M.is_open = false
 
 --TODO: fix overflow ui for very small window
----@param i number
----@param j number
----@return vim.api.keyset.win_config
-function M.get_conf(i, j)
+function M.update_layout()
   local vh, vw = utils.get_view_port()
   local wh = math.ceil(vh * 0.7) - 2
   local ww = math.ceil(vw * 0.7) - 2
   local rr = math.ceil(vh * 0.5) - math.ceil(wh * 0.5) - 1
   local cr = math.ceil(vw * 0.5) - math.ceil(ww * 0.5) - 1
-  local conf = {}
 
-  if i == 1 and j == 1 then
-    conf.title = " UNTITLED "
-
-    if not store.PROBLEM_DATA then
-      store.PROBLEM_DATA = {}
-    end
-
-    if not store.PROBLEM_DATA["name"] then
-      store.PROBLEM_DATA["name"] = vim.fn.expand("%:t")
-    end
-
-    conf.title = " " .. store.PROBLEM_DATA["name"] .. " "
-    conf.height = math.ceil(wh * 0.8)
-    conf.width = math.ceil(ww * 0.5)
-    conf.row = rr - 1
-    conf.col = cr - 1
+  if not store.PROBLEM_DATA then
+    store.PROBLEM_DATA = {}
   end
 
-  if i == 1 and j == 2 then
-    conf.title = " INPUT "
-    conf.height = math.ceil(wh * 0.5)
-    conf.width = ww - math.ceil(ww * 0.5)
-    conf.row = rr - 1
-    conf.col = cr + math.ceil(ww * 0.5) + 1
+  if not store.PROBLEM_DATA["name"] then
+    store.PROBLEM_DATA["name"] = vim.fn.expand("%:t")
   end
 
-  if i == 2 and j == 1 then
-    conf.title = " STATS "
-    conf.height = wh - math.ceil(wh * 0.8)
-    conf.width = math.ceil(ww * 0.5)
-    conf.row = rr + math.ceil(wh * 0.8) + 1
-    conf.col = cr - 1
+  M.home.conf.title = " " .. store.PROBLEM_DATA["name"] .. " "
+  M.home.conf.height = wh
+  M.home.conf.width = math.ceil(ww * 0.5)
+  M.home.conf.row = rr - 1
+  M.home.conf.col = cr - 1
+  M.home.conf = vim.tbl_extend("force", M.home.conf, M.view_config)
+
+  M.input.conf.title = " INPUT "
+  M.input.conf.height = math.ceil(wh * 0.5)
+  M.input.conf.width = ww - math.ceil(ww * 0.5)
+  M.input.conf.row = rr - 1
+  M.input.conf.col = cr + math.ceil(ww * 0.5) + 1
+  M.input.conf = vim.tbl_extend("force", M.input.conf, M.view_config)
+
+  M.output.conf.title = " OUTPUT "
+  M.output.conf.height = wh - math.ceil(wh * 0.5)
+  M.output.conf.width = ww - math.ceil(ww * 0.5)
+  M.output.conf.row = rr + math.ceil(wh * 0.5) + 1
+  M.output.conf.col = cr + math.ceil(ww * 0.5) + 1
+  M.output.conf = vim.tbl_extend("force", M.output.conf, M.view_config)
+
+  if M.home:is_win() then
+    vim.api.nvim_win_set_config(M.home.win, M.home.conf)
   end
 
-  if i == 2 and j == 2 then
-    conf.title = " OUTPUT "
-    conf.height = wh - math.ceil(wh * 0.5)
-    conf.width = ww - math.ceil(ww * 0.5)
-    conf.row = rr + math.ceil(wh * 0.5) + 1
-    conf.col = cr + math.ceil(ww * 0.5) + 1
+  if M.input:is_win() then
+    vim.api.nvim_win_set_config(M.input.win, M.input.conf)
   end
 
-  return vim.tbl_deep_extend("force", {
-    relative = "editor",
-    border = "rounded",
-    style = "minimal",
-    title_pos = "center",
-  }, conf)
-end
-
----@alias AssistantView AssistantFloat[][]
----@type AssistantView
-M.view = { {}, {} }
-
-for i = 1, 2 do
-  for j = 1, 2 do
-    table.insert(M.view[i], Float.new())
-    M.view[i][j]:init({ enter = i == 1 and j == 1 })
-    M.view[i][j]:wo(
-      "winhighlight",
-      table.concat({
-        "NormalFloat:AssistantFloat",
-        "FloatBorder:AssistantFloatBorder",
-        "FloatTitle:AssistantFloatTitle",
-      }, ",")
-    )
+  if M.output:is_win() then
+    vim.api.nvim_win_set_config(M.output.win, M.output.conf)
   end
-end
 
-M.render = Render.new(M.view)
+  if M.prompt:is_win() then
+    vim.api.nvim_win_set_config(M.prompt.win, M.prompt.conf)
+  end
 
-function M.resize()
-  for i = 1, 2 do
-    for j = 1, 2 do
-      if M.view[i][j]:is_win() then
-        local conf = M.get_conf(i, j)
-        M.view[i][j]:init({ conf = conf })
-        vim.api.nvim_win_set_config(M.view[i][j].win, conf)
-      end
-    end
+  if M.popup:is_win() then
+    vim.api.nvim_win_set_config(M.popup.win, M.popup.conf)
   end
 end
 
 function M.open()
   store.fetch()
-
-  for i = 1, 2 do
-    for j = 1, 2 do
-      if not M.view[i][j]:is_win() then
-        M.view[i][j].conf = M.get_conf(i, j)
-        M.view[i][j]:create()
-        M.view[i][j]:bo("modifiable", false)
-
-        if i == 1 and j == 1 then
-          M.view[i][j]:wo("cursorline", true)
-        end
-      end
-    end
-  end
-
+  M.update_layout()
+  M.home:create()
+  M.input:create()
+  M.output:create()
   M.is_open = true
   utils.emit("AssistantViewOpen")
 end
 
 function M.close()
-  for i = 1, 2 do
-    for j = 1, 2 do
-      if M.view[i][j]:is_win() then
-        M.view[i][j]:remove()
-      end
-    end
-  end
-
+  M.home:remove()
+  M.input:remove()
+  M.output:remove()
   M.is_open = false
   utils.emit("AssistantViewClose")
 end
@@ -143,43 +101,36 @@ function M.toggle()
   end
 end
 
-M.winx = 1
-M.winy = 1
-
 function M.move_left()
-  if M.winx == 1 then
-    return
-  end
+  local buf = vim.api.nvim_get_current_buf()
 
-  M.winx = 1
-  vim.fn.win_gotoid(M.view[M.winy][M.winx].win)
+  if buf == M.input.buf or buf == M.output.buf then
+    vim.fn.win_gotoid(M.home.win)
+  end
 end
 
 function M.move_right()
-  if M.winx == 2 then
-    return
-  end
+  local buf = vim.api.nvim_get_current_buf()
 
-  M.winx = 2
-  vim.fn.win_gotoid(M.view[M.winy][M.winx].win)
+  if buf == M.home.buf then
+    vim.fn.win_gotoid(M.input.win)
+  end
 end
 
 function M.move_up()
-  if M.winy == 1 then
-    return
-  end
+  local buf = vim.api.nvim_get_current_buf()
 
-  M.winy = 1
-  vim.fn.win_gotoid(M.view[M.winy][M.winx].win)
+  if buf == M.output.buf then
+    vim.fn.win_gotoid(M.input.win)
+  end
 end
 
 function M.move_down()
-  if M.winy == 2 then
-    return
-  end
+  local buf = vim.api.nvim_get_current_buf()
 
-  M.winy = 2
-  vim.fn.win_gotoid(M.view[M.winy][M.winx].win)
+  if buf == M.input.buf then
+    vim.fn.win_gotoid(M.output.win)
+  end
 end
 
 return M
