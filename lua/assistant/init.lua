@@ -15,6 +15,7 @@ function M.setup(opts)
     { name = "config", opts = opts },
     { name = "ui.groups" },
     { name = "listeners" },
+    { name = "core.tcplistener" },
   })
 end
 
