@@ -125,4 +125,9 @@ function M.render(buf, text)
   end
 end
 
+---@return number?
+function M.get_current_line_number()
+  return tonumber(vim.api.nvim_get_current_line():match("testcase #(%d+)%s+"))
+end
+
 return M
