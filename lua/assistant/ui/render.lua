@@ -1,5 +1,6 @@
 local Text = require("assistant.ui.text")
 local store = require("assistant.store")
+local utils = require("assistant.utils")
 
 ---@class AssistantRender
 ---@field view AssistantView
@@ -79,6 +80,15 @@ function AssistantRender:home()
       content:append(test.status, "AssistantYellow")
     end
 
+    if
+      test.status == "PASSED"
+      or test.status == "FAILED"
+      or test.status == "COMPILATION ERROR"
+      or test.status == "TIME LIMIT EXCEEDED"
+    then
+      content:append(string.format("takes %.3fs", (test.end_at - test.start_at) * 0.001), "AssistantDimText")
+    end
+
     if i ~= #store.PROBLEM_DATA["tests"] then
       content:nl()
     end
@@ -110,20 +120,34 @@ function AssistantRender:input(id)
   if tc.input then
     content:append("Input", "AssistantH1"):nl(2)
 
-    for _, line in ipairs(vim.split(tc.input or "", "\n")) do
+    for _, line in ipairs(utils.slice_first_n_lines(tc.input or "", 100)) do
       if line then
         content:append(line, "AssistantText"):nl()
       end
+    end
+
+    content:nl()
+    local _, cnt = string.gsub(tc.stdout or "", "\n", "")
+
+    if cnt > 100 then
+      content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
     end
   end
 
   if tc.output then
     content:append("Expect", "AssistantH1"):nl(2)
 
-    for _, line in ipairs(vim.split(tc.output or "", "\n")) do
+    for _, line in ipairs(utils.slice_first_n_lines(tc.output or "", 100)) do
       if line then
         content:append(line, "AssistantText"):nl()
       end
+    end
+
+    content:nl()
+    local _, cnt = string.gsub(tc.stdout or "", "\n", "")
+
+    if cnt > 100 then
+      content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
     end
   end
 
@@ -142,20 +166,34 @@ function AssistantRender:output(id)
   if tc.stdout and tc.stdout ~= "" then
     content:append("Stdout", "AssistantH1"):nl(2)
 
-    for _, line in ipairs(vim.split(tc.stdout, "\n")) do
+    for _, line in ipairs(utils.slice_first_n_lines(tc.stdout, 100)) do
       if line then
         content:append(line, "AssistantText"):nl()
       end
+    end
+
+    content:nl()
+    local _, cnt = string.gsub(tc.stdout or "", "\n", "")
+
+    if cnt > 100 then
+      content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
     end
   end
 
   if tc.stderr and tc.stderr ~= "" then
     content:nl():append("Stderr", "AssistantH1"):nl(2)
 
-    for _, line in ipairs(vim.split(tc.stderr, "\n")) do
+    for _, line in ipairs(utils.slice_first_n_lines(tc.stderr, 100)) do
       if line then
         content:append(line, "AssistantText"):nl()
       end
+    end
+
+    content:nl()
+    local _, cnt = string.gsub(tc.stderr or "", "\n", "")
+
+    if cnt > 100 then
+      content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
     end
   end
 

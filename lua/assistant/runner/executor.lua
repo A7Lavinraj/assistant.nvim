@@ -2,7 +2,7 @@ local config = require("assistant.config")
 local store = require("assistant.store")
 local ui = require("assistant.ui")
 local utils = require("assistant.utils")
-local MAX_RENDER_LIMIT = 1000
+local MAX_RENDER_LIMIT = 100
 
 return function(index)
   local process = {
@@ -90,7 +90,7 @@ return function(index)
     end
   end)
 
-  vim.loop.write(process.stdin, test.input)
+  vim.loop.write(process.stdin, test.input or "")
   vim.loop.shutdown(process.stdin)
   vim.loop.read_start(process.stdout, function(err, data)
     if err or not data then
@@ -102,9 +102,7 @@ return function(index)
         process.stdout:close()
       end
     else
-      if #test.stdout < MAX_RENDER_LIMIT then
-        test.stdout = test.stdout .. utils.get_stream_data(data)
-      end
+      test.stdout = test.stdout .. utils.get_stream_data(data)
     end
   end)
   vim.loop.read_start(process.stderr, function(err, data)
@@ -117,9 +115,7 @@ return function(index)
         process.stderr:close()
       end
     else
-      if #test.stderr < MAX_RENDER_LIMIT then
-        test.stderr = test.stderr .. utils.get_stream_data(data)
-      end
+      test.stderr = test.stderr .. utils.get_stream_data(data)
     end
   end)
 end

@@ -26,6 +26,9 @@ local dynamic = {
   AssistantYellow = {
     link = "WarningMsg",
   },
+  AssistantDimText = {
+    link = "Comment",
+  },
 }
 
 function M.init()

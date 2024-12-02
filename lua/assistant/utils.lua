@@ -64,4 +64,23 @@ function M.get_view_port()
   return vh, vw
 end
 
+---@param str string
+---@param n number
+---@return table<string>
+function M.slice_first_n_lines(str, n)
+  local lines = {}
+
+  for line in str:gmatch("[^\n]*") do
+    if line ~= "" then
+      table.insert(lines, line)
+    end
+
+    if #lines == n then
+      break
+    end
+  end
+
+  return lines
+end
+
 return M
