@@ -43,7 +43,7 @@ return function(index)
       end
 
       vim.schedule(function()
-        ui.render:home()
+        ui.render_home()
         store.write()
       end)
     end
@@ -70,7 +70,7 @@ return function(index)
   test.start_at = vim.loop.now()
   test.end_at = test.start_at
   vim.schedule(function()
-    ui.render:home()
+    ui.render_home()
   end)
   process.timer:start(config.time_limit, 0, function()
     if not process.timer:is_active() then

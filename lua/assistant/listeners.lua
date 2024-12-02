@@ -1,8 +1,7 @@
 local maps = require("assistant.mappings")
-local prompt = require("assistant.ui.prompt")
 local runner = require("assistant.runner")
-local server = require("assistant.core.tcplistener").new()
 local ui = require("assistant.ui")
+local utils = require("assistant.utils")
 local M = {}
 
 M.ids = {}
@@ -12,12 +11,11 @@ M.cmds = {
     event = "CursorMoved",
     opts = {
       callback = function()
-        local current_line = vim.api.nvim_get_current_line()
-        local number = tonumber(current_line:match("testcase #(%d+)%s+"))
+        local number = utils.get_current_line_number()
 
         if number then
-          ui.render:input(number)
-          ui.render:output(number)
+          ui.render_input(number)
+          ui.render_output(number)
         end
       end,
     },
@@ -25,30 +23,16 @@ M.cmds = {
   {
     event = "VimResized",
     opts = {
-      callback = function()
-        ui.resize()
-        prompt.resize()
-      end,
+      callback = ui.update_layout,
     },
   },
   {
     event = "WinClosed",
     opts = {
       callback = function(event)
-        for i = 1, 2 do
-          for j = 1, 2 do
-            if event.buf == ui.view[i][j].buf then
-              ui.close()
-              goto done
-            end
-          end
+        if vim.tbl_contains({ ui.home.buf, ui.input.buf, ui.output.buf }, event.buf) then
+          ui.close()
         end
-
-        if event.buf == prompt.float.buf then
-          prompt.hide()
-        end
-
-        ::done::
       end,
     },
   },
@@ -57,29 +41,22 @@ M.cmds = {
     opts = {
       pattern = "AssistantViewOpen",
       callback = function()
-        ui.render:home()
-        ui.render:stats()
+        ui.render_home()
 
-        for i = 1, 2 do
-          for j = 1, 2 do
-            if i == 1 and j == 1 then
-              maps.set("n", "r", runner.run_unique, ui.view[i][j].buf)
-              maps.set("n", "R", runner.run_all, ui.view[i][j].buf)
-              maps.set("n", "c", runner.create_test, ui.view[i][j].buf)
-              maps.set("n", "d", runner.remove_test, ui.view[i][j].buf)
-              maps.set("n", "i", prompt.hide_and_save_input, ui.view[i][j].buf)
-              maps.set("n", "e", prompt.hide_and_save_expect, ui.view[i][j].buf)
-              maps.set("n", "s", function()
-                server:toggle()
-              end, ui.view[i][j].buf)
-            end
+        -- Utility keys
+        maps.set("n", "r", runner.run_unique, ui.home.buf)
+        maps.set("n", "R", runner.run_all, ui.home.buf)
+        maps.set("n", "c", runner.create_test, ui.home.buf)
+        maps.set("n", "d", runner.remove_test, ui.home.buf)
+        maps.set("n", "i", ui.prompt_hide_and_save_input, ui.home.buf)
+        maps.set("n", "e", ui.prompt_hide_and_save_expect, ui.home.buf)
 
-            maps.set("n", "<c-h>", ui.move_left, ui.view[i][j].buf)
-            maps.set("n", "<c-l>", ui.move_right, ui.view[i][j].buf)
-            maps.set("n", "<c-k>", ui.move_up, ui.view[i][j].buf)
-            maps.set("n", "<c-j>", ui.move_down, ui.view[i][j].buf)
-          end
-        end
+        -- Navigation keys
+        maps.set("n", "<c-l>", ui.move_right, ui.home.buf)
+        maps.set("n", "<c-j>", ui.move_down, ui.input.buf)
+        maps.set("n", "<c-h>", ui.move_left, ui.input.buf)
+        maps.set("n", "<c-k>", ui.move_up, ui.output.buf)
+        maps.set("n", "<c-h>", ui.move_left, ui.output.buf)
       end,
     },
   },
@@ -87,15 +64,9 @@ M.cmds = {
     event = "BufEnter",
     opts = {
       callback = function(event)
-        for i = 1, 2 do
-          for j = 1, 2 do
-            if event.buf == ui.view[i][j].buf then
-              return
-            end
-          end
+        if not vim.tbl_contains({ ui.home.buf, ui.input.buf, ui.output.buf, ui.prompt.buf }, event.buf) then
+          ui.close()
         end
-
-        ui.close()
       end,
     },
   },

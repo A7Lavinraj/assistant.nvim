@@ -16,7 +16,7 @@ return function(callback, index)
     config.commands[store.FILETYPE].compile
   )
   store.COMPILE_STATUS = { code = nil, error = nil }
-  ui.render:home()
+  ui.render_home()
 
   if not command then
     callback()
@@ -31,7 +31,7 @@ return function(callback, index)
       end
     end
 
-    ui.render:home()
+    ui.render_home()
     ---@diagnostic disable-next-line: deprecated
     vim.fn.jobstart(vim.tbl_flatten({ command.main, command.args }), {
       stderr_buffered = true,
@@ -44,7 +44,7 @@ return function(callback, index)
         if store.COMPILE_STATUS.code == 0 then
           callback()
         else
-          ui.render:home()
+          ui.render_home()
         end
       end,
     })

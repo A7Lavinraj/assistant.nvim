@@ -1,24 +1,18 @@
 local Float = require("assistant.ui.float")
-local Text = require("assistant.text")
+local Text = require("assistant.ui.text")
+local maps = require("assistant.mappings")
 local store = require("assistant.store")
 local utils = require("assistant.utils")
 
 local M = {}
-M.home = setmetatable({}, { __index = Float })
+M.is_open = false
+M.home = setmetatable({ enter = true }, { __index = Float })
 M.input = setmetatable({}, { __index = Float })
 M.output = setmetatable({}, { __index = Float })
-M.prompt = setmetatable({}, { __index = Float })
-M.popup = setmetatable({}, { __index = Float })
-M.view_config = {
-  relative = "editor",
-  style = "minimal",
-  border = "rounded",
-  title_pos = "center",
-}
-M.view_hi = "NormalFloat:AssistantFloat,FloatBorder:AssistantFloatBorder,FloatTitle:AssistantFloatTitle"
-M.is_open = false
+M.prompt = setmetatable({ enter = true }, { __index = Float })
+M.view_config = { relative = "editor", style = "minimal", border = "rounded", title_pos = "center" }
 
---TODO: fix overflow ui for very small window
+-- TODO: fix overflow ui for very small window
 function M.update_layout()
   local vh, vw = utils.get_view_port()
   local wh = math.ceil(vh * 0.7) - 2
@@ -31,30 +25,48 @@ function M.update_layout()
   end
 
   if not store.PROBLEM_DATA["name"] then
-    store.PROBLEM_DATA["name"] = vim.fn.expand("%:t")
+    local name = vim.fn.expand("%:t")
+
+    if name == "" then
+      store.PROBLEM_DATA["name"] = "UNTITLED"
+    else
+      store.PROBLEM_DATA["name"] = name
+    end
   end
 
-  M.home.conf.title = " " .. store.PROBLEM_DATA["name"] .. " "
-  M.home.conf.height = wh
-  M.home.conf.width = math.ceil(ww * 0.5)
-  M.home.conf.row = rr - 1
-  M.home.conf.col = cr - 1
-  M.home.conf = vim.tbl_extend("force", M.home.conf, M.view_config)
+  -- update view config
+  M.home.conf = vim.tbl_deep_extend("force", {
+    title = " " .. store.PROBLEM_DATA["name"] .. " ",
+    height = math.ceil(vh * 0.7),
+    width = math.ceil(ww * 0.5),
+    row = rr - 1,
+    col = cr - 1,
+  }, M.view_config)
 
-  M.input.conf.title = " INPUT "
-  M.input.conf.height = math.ceil(wh * 0.5)
-  M.input.conf.width = ww - math.ceil(ww * 0.5)
-  M.input.conf.row = rr - 1
-  M.input.conf.col = cr + math.ceil(ww * 0.5) + 1
-  M.input.conf = vim.tbl_extend("force", M.input.conf, M.view_config)
+  M.input.conf = vim.tbl_deep_extend("force", {
+    title = " INPUT ",
+    height = math.ceil(wh * 0.5),
+    width = ww - math.ceil(ww * 0.5),
+    row = rr - 1,
+    col = cr + math.ceil(ww * 0.5) + 1,
+  }, M.view_config)
 
-  M.output.conf.title = " OUTPUT "
-  M.output.conf.height = wh - math.ceil(wh * 0.5)
-  M.output.conf.width = ww - math.ceil(ww * 0.5)
-  M.output.conf.row = rr + math.ceil(wh * 0.5) + 1
-  M.output.conf.col = cr + math.ceil(ww * 0.5) + 1
-  M.output.conf = vim.tbl_extend("force", M.output.conf, M.view_config)
+  M.output.conf = vim.tbl_deep_extend("force", {
+    title = " OUTPUT ",
+    height = wh - math.ceil(wh * 0.5),
+    width = ww - math.ceil(ww * 0.5),
+    row = rr + math.ceil(wh * 0.5) + 1,
+    col = cr + math.ceil(ww * 0.5) + 1,
+  }, M.view_config)
 
+  M.prompt.conf = vim.tbl_deep_extend("force", {
+    height = math.floor(vh * 0.5),
+    width = math.floor(vw * 0.5),
+    row = math.floor(vh * 0.5) - math.floor(vh * 0.25),
+    col = math.floor(vw * 0.5) - math.floor(vw * 0.25),
+  }, M.view_config)
+
+  -- apply view config
   if M.home:is_win() then
     vim.api.nvim_win_set_config(M.home.win, M.home.conf)
   end
@@ -70,12 +82,9 @@ function M.update_layout()
   if M.prompt:is_win() then
     vim.api.nvim_win_set_config(M.prompt.win, M.prompt.conf)
   end
-
-  if M.popup:is_win() then
-    vim.api.nvim_win_set_config(M.popup.win, M.popup.conf)
-  end
 end
 
+-- Render text for home section
 function M.render_home()
   if not M.home:is_buf() then
     return
@@ -123,6 +132,7 @@ function M.render_home()
   utils.render(M.home.buf, content)
 end
 
+-- Render text for `input` section by testcase `id` as parameter
 ---@param id number?
 function M.render_input(id)
   if not id then
@@ -168,6 +178,7 @@ function M.render_input(id)
   utils.render(M.input.buf, content)
 end
 
+-- Render output section by testcase `id` as parameter
 ---@param id number?
 function M.render_output(id)
   if not id then
@@ -214,6 +225,7 @@ function M.render_output(id)
   utils.render(M.output.buf, content)
 end
 
+-- Open Assistant.nvim UI
 function M.open()
   store.fetch()
   M.update_layout()
@@ -224,6 +236,7 @@ function M.open()
   utils.emit("AssistantViewOpen")
 end
 
+-- Close Assistant.nvim UI
 function M.close()
   M.home:remove()
   M.input:remove()
@@ -232,6 +245,7 @@ function M.close()
   utils.emit("AssistantViewClose")
 end
 
+-- Toggle Open and Close functionality of UI
 function M.toggle()
   if M.is_open then
     M.close()
@@ -240,6 +254,7 @@ function M.toggle()
   end
 end
 
+-- Focus available left window
 function M.move_left()
   local buf = vim.api.nvim_get_current_buf()
 
@@ -248,6 +263,7 @@ function M.move_left()
   end
 end
 
+-- Focus available right window
 function M.move_right()
   local buf = vim.api.nvim_get_current_buf()
 
@@ -256,6 +272,7 @@ function M.move_right()
   end
 end
 
+-- Focus available up window
 function M.move_up()
   local buf = vim.api.nvim_get_current_buf()
 
@@ -264,12 +281,88 @@ function M.move_up()
   end
 end
 
+-- Focus available down window
 function M.move_down()
   local buf = vim.api.nvim_get_current_buf()
 
   if buf == M.input.buf then
     vim.fn.win_gotoid(M.output.win)
   end
+end
+
+-- Hide prompt window and save text contain in it as `input` block
+function M.prompt_hide_and_save_input()
+  local current_line = vim.api.nvim_get_current_line()
+  local index = tonumber(current_line:match("testcase #(%d+)%s+"))
+
+  if not index then
+    return
+  end
+
+  M.prompt.conf.title = " edit INPUT "
+  M.prompt_show({
+    pre = function()
+      if store.PROBLEM_DATA["tests"][index].input then
+        vim.api.nvim_buf_set_lines(
+          M.prompt.buf,
+          0,
+          -1,
+          false,
+          vim.split(store.PROBLEM_DATA["tests"][index].input, "\n")
+        )
+      end
+    end,
+    post = function()
+      local lines = vim.api.nvim_buf_get_lines(M.prompt.buf, 0, -1, false)
+      M.prompt_hide()
+      store.PROBLEM_DATA["tests"][index].input = table.concat(lines, "\n")
+      store.write()
+    end,
+  })
+end
+
+-- Hide prompt window and save text contain in it as `expect` block
+function M.prompt_hide_and_save_expect()
+  local current_line = vim.api.nvim_get_current_line()
+  local index = tonumber(current_line:match("testcase #(%d+)%s+"))
+
+  if not index then
+    return
+  end
+
+  M.prompt.conf.title = " edit OUTPUT "
+  M.prompt_show({
+    pre = function()
+      if store.PROBLEM_DATA["tests"][index].output then
+        vim.api.nvim_buf_set_lines(
+          M.prompt.buf,
+          0,
+          -1,
+          false,
+          vim.split(store.PROBLEM_DATA["tests"][index].output, "\n")
+        )
+      end
+    end,
+    post = function()
+      local lines = vim.api.nvim_buf_get_lines(M.prompt.buf, 0, -1, false)
+      M.prompt_hide()
+      store.PROBLEM_DATA["tests"][index].output = table.concat(lines, "\n")
+      store.write()
+    end,
+  })
+end
+
+-- Hide the prompt window without saving the text inside it
+function M.prompt_hide()
+  M.prompt:remove()
+end
+
+-- Opens the prompt window with `pre` and `post` actions supported
+---@param opts {pre:function,post:function}
+function M.prompt_show(opts)
+  M.prompt:create()
+  opts.pre()
+  maps.set("n", "<m-cr>", opts.post, M.prompt.buf)
 end
 
 return M
