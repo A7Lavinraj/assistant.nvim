@@ -1,6 +1,7 @@
 local maps = require("assistant.mappings")
 local prompt = require("assistant.ui.prompt")
 local runner = require("assistant.runner")
+local server = require("assistant.core.tcplistener").new()
 local ui = require("assistant.ui")
 local M = {}
 
@@ -57,6 +58,7 @@ M.cmds = {
       pattern = "AssistantViewOpen",
       callback = function()
         ui.render:home()
+        ui.render:stats()
 
         for i = 1, 2 do
           for j = 1, 2 do
@@ -67,6 +69,9 @@ M.cmds = {
               maps.set("n", "d", runner.remove_test, ui.view[i][j].buf)
               maps.set("n", "i", prompt.hide_and_save_input, ui.view[i][j].buf)
               maps.set("n", "e", prompt.hide_and_save_expect, ui.view[i][j].buf)
+              maps.set("n", "s", function()
+                server:toggle()
+              end, ui.view[i][j].buf)
             end
 
             maps.set("n", "<c-h>", ui.move_left, ui.view[i][j].buf)
@@ -75,6 +80,22 @@ M.cmds = {
             maps.set("n", "<c-j>", ui.move_down, ui.view[i][j].buf)
           end
         end
+      end,
+    },
+  },
+  {
+    event = "BufEnter",
+    opts = {
+      callback = function(event)
+        for i = 1, 2 do
+          for j = 1, 2 do
+            if event.buf == ui.view[i][j].buf then
+              return
+            end
+          end
+        end
+
+        ui.close()
       end,
     },
   },

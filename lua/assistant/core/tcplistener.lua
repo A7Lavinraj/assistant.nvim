@@ -1,14 +1,18 @@
 local fs = require("assistant.core.filesystem").new()
+local store = require("assistant.store")
+local ui = require("assistant.ui")
 
 ---@class TCPListener
 ---@field server uv.uv_tcp_t?
 ---@field client uv.uv_tcp_t?
+---@field state boolean
 local TCPListener = {}
 
 function TCPListener.new()
   local self = setmetatable({}, { __index = TCPListener })
   self.server = nil
   self.client = nil
+  self.state = false
   return self
 end
 
@@ -35,6 +39,10 @@ function TCPListener:start()
       end
     end)
   end)
+
+  store.is_server_running = true
+  self.state = true
+  ui.render:stats()
 end
 
 function TCPListener:stop()
@@ -44,6 +52,18 @@ function TCPListener:stop()
 
   if self.server and not self.server:is_closing() then
     self.server:close()
+  end
+
+  store.is_server_running = false
+  self.state = false
+  ui.render:stats()
+end
+
+function TCPListener:toggle()
+  if self.state then
+    self:stop()
+  else
+    self:start()
   end
 end
 

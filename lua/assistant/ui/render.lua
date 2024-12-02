@@ -101,9 +101,9 @@ function AssistantRender:stats()
   local content = Text.new()
 
   if store.is_server_running then
-    content:append("SERVER ", "AssistantGreen"):nl(2)
+    content:append(" SERVER [ON]", "AssistantGreen"):nl(2)
   else
-    content:append("SERVER ", "AssistantRed"):nl(2)
+    content:append(" SERVER [OFF]", "AssistantRed"):nl(2)
   end
 
   self.render(self.view[2][1].buf, content)

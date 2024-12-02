@@ -2,7 +2,6 @@ local config = require("assistant.config")
 local store = require("assistant.store")
 local ui = require("assistant.ui")
 local utils = require("assistant.utils")
-local MAX_RENDER_LIMIT = 100
 
 return function(index)
   local process = {
