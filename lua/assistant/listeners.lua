@@ -33,6 +33,14 @@ M.cmds = {
         if vim.tbl_contains({ ui.home.buf, ui.input.buf, ui.output.buf }, event.buf) then
           ui.close()
         end
+
+        if event.buf == ui.prompt.buf then
+          ui.prompt_hide()
+        end
+
+        if event.buf == ui.popup.buf then
+          ui.popup_hide()
+        end
       end,
     },
   },
@@ -42,6 +50,11 @@ M.cmds = {
       pattern = "AssistantViewOpen",
       callback = function()
         ui.render_home()
+
+        -- default options
+        ui.home:bo("modifiable", false)
+        ui.input:bo("modifiable", false)
+        ui.output:bo("modifiable", false)
 
         -- Utility keys
         maps.set("n", "r", runner.run_unique, ui.home.buf)
@@ -64,7 +77,9 @@ M.cmds = {
     event = "BufEnter",
     opts = {
       callback = function(event)
-        if not vim.tbl_contains({ ui.home.buf, ui.input.buf, ui.output.buf, ui.prompt.buf }, event.buf) then
+        if
+          not vim.tbl_contains({ ui.home.buf, ui.input.buf, ui.output.buf, ui.prompt.buf, ui.popup.buf }, event.buf)
+        then
           ui.close()
         end
       end,

@@ -10,6 +10,7 @@ M.home = setmetatable({ enter = true }, { __index = Float })
 M.input = setmetatable({}, { __index = Float })
 M.output = setmetatable({}, { __index = Float })
 M.prompt = setmetatable({ enter = true }, { __index = Float })
+M.popup = setmetatable({ enter = true }, { __index = Float })
 M.view_config = { relative = "editor", style = "minimal", border = "rounded", title_pos = "center" }
 
 -- TODO: fix overflow ui for very small window
@@ -66,6 +67,13 @@ function M.update_layout()
     col = math.floor(vw * 0.5) - math.floor(vw * 0.25),
   }, M.view_config)
 
+  M.popup.conf = vim.tbl_deep_extend("force", {
+    height = math.floor(vh * 0.5),
+    width = math.floor(vw * 0.5),
+    row = math.floor(vh * 0.5) - math.floor(vh * 0.25),
+    col = math.floor(vw * 0.5) - math.floor(vw * 0.25),
+  }, M.view_config)
+
   -- apply view config
   if M.home:is_win() then
     vim.api.nvim_win_set_config(M.home.win, M.home.conf)
@@ -92,35 +100,18 @@ function M.render_home()
 
   local content = Text.new()
 
-  if not store.PROBLEM_DATA then
-    store.PROBLEM_DATA = {}
-  end
+  for i, test in ipairs(store.PROBLEM_DATA["tests"] or {}) do
+    if store.COMPILE_STATUS.code and store.COMPILE_STATUS.code ~= 0 then
+      test.status = "COMPILATION ERROR"
+      test.group = "AssistantRed"
+      test.start_at = nil
+      test.end_at = nil
+    end
 
-  if not store.PROBLEM_DATA["tests"] then
-    store.PROBLEM_DATA["tests"] = {}
-  end
-
-  for i, test in ipairs(store.PROBLEM_DATA["tests"]) do
     content:append(string.format("testcase #%d ", i), "AssistantText")
+    content:append(test.status or "", test.group or "AssistantText")
 
-    if test.status == "PASSED" then
-      content:append(test.status, "AssistantGreen")
-    end
-
-    if test.status == "FAILED" then
-      content:append(test.status, "AssistantRed")
-    end
-
-    if test.status == "RUNNING" or test.status == "COMPILING" then
-      content:append(test.status, "AssistantYellow")
-    end
-
-    if
-      test.status == "PASSED"
-      or test.status == "FAILED"
-      or test.status == "COMPILATION ERROR"
-      or test.status == "TIME LIMIT EXCEEDED"
-    then
+    if test.start_at and test.end_at then
       content:append(string.format("takes %.3fs", (test.end_at - test.start_at) * 0.001), "AssistantDimText")
     end
 
@@ -130,6 +121,16 @@ function M.render_home()
   end
 
   utils.render(M.home.buf, content)
+
+  if store.COMPILE_STATUS.code and store.COMPILE_STATUS.code ~= 0 then
+    local error = Text.new()
+
+    for _, line in ipairs(store.COMPILE_STATUS.error) do
+      error:append(line, "AssistantDimText"):nl()
+    end
+
+    M.popup_show(error)
+  end
 end
 
 -- Render text for `input` section by testcase `id` as parameter
@@ -363,6 +364,19 @@ function M.prompt_show(opts)
   M.prompt:create()
   opts.pre()
   maps.set("n", "<m-cr>", opts.post, M.prompt.buf)
+end
+
+function M.popup_hide()
+  M.popup:remove()
+end
+
+---@param text AssistantText
+function M.popup_show(text)
+  M.popup.conf.title = " ERROR (Press q to exit) "
+  M.popup:create()
+  M.popup:bo("modifiable", false)
+  utils.render(0, text)
+  maps.set("n", "q", M.popup_hide, M.popup.buf)
 end
 
 return M
