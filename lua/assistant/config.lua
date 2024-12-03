@@ -1,22 +1,7 @@
 ---@class AssistantConfig
 local AssistantConfig = {}
 
-AssistantConfig.commands = {
-  python = {
-    extension = "py",
-    compile = nil,
-    execute = { main = "python3", args = { "$FILENAME_WITH_EXTENSION" } },
-  },
-  cpp = {
-    extension = "cpp",
-    compile = {
-      main = "g++",
-      args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
-    },
-    execute = { main = "./$FILENAME_WITHOUT_EXTENSION", args = nil },
-  },
-}
-
+AssistantConfig.commands = {}
 AssistantConfig.time_limit = 5000
 
 function AssistantConfig.init(opts)

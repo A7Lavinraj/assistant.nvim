@@ -38,7 +38,7 @@
 
 <br />
 
->One important factor in competitive programming is Speed, make sure you don't compromise with that, while using some fancy plugin or software.
+> One important factor in competitive programming is Speed, make sure you don't compromise with that, while using some fancy plugin or software.
 
 <br />
 
@@ -56,8 +56,10 @@
 {
     "A7lavinraj/assistant.nvim",
     dependencies = { "stevearc/dressing.nvim" }, -- optional but recommended
-    opts = { -- you can also pass opts as {}, cpp and python are supported by default
-        commands = {
+    lazy = false,
+    keys = {{ "<leader>a", "<cmd>AssistantToggle<cr>", desc = "Toggle Assistant.nvim window" }},
+    opts = {
+        commands = { -- starters setup for `cpp` and `python3`
             python = {
                 extension = "py",
                 compile = nil,
@@ -110,7 +112,7 @@ python = {
 
 <br />
 
->key to the new table is **type of file you want to run**. In this case is `python`, you can get the correct filetype of file by just open that file inside neovim and type the following command.
+> key to the new table is **type of file you want to run**. In this case is `python`, you can get the correct filetype of file by just open that file inside neovim and type the following command.
 
 <br />
 
@@ -124,42 +126,25 @@ python = {
 
 <br />
 
-https://github.com/user-attachments/assets/cf62cd9e-8b23-48be-86f5-c5ae24915b63
-
-<br />
-
-In the above video guide you can see every feature that this plugin provides.
-
-- :page_facing_up: Sample fetching
-- :rocket: Running testcases
-- :memo: Adding custom testcases
-
-<br />
-
->There is only one command to interact with plugin <span style="font-weight: bold; color: lightgray;">AssistantToggle</span> which toggle the UI window of plugin and rest operations are done by keymappings.
+> There is only one command to interact with plugin <span style="font-weight: bold; color: lightgray;">AssistantToggle</span> which toggle the UI window of plugin and rest operations are done by keymappings.
 
 <br />
 
 ```lua
  -- command to open and close plugin window
 :AssistantToggle
-
--- prefered keymap for conciseness
-vim.keymap.set("n", "<leader>a", "<cmd>AssistantToggle<cr>", { desc = "Assistant window toggle" })
 ```
 
 <br />
 
-| Key   | Operation                                       |
-| ----- | ----------------------------------------------- |
-| `Tab` | Move between splits                             |
-| `Esc` | Close current window                            |
-| `q`   | Close current window                            |
-| `r`   | Run testcase on which the cursor is holded      |
-| `R`   | Run all available testcases                     |
-| `c`   | Create an empty testcase                        |
-| `d`   | Delete testcase on which the cursor is holded   |
-| `i`   | Open prompt window for updating input           |
-| `e`   | Open prompt window for updating expected output |
-| `n`   | Move to next available testcase                 |
-| `p`   | Move to previous available testcase             |
+| Key     | Operation                                                 |
+| ------- | --------------------------------------------------------- |
+| `r`     | Run testcase on which the cursor is holded                |
+| `R`     | Run all available testcases                               |
+| `c`     | Create an empty testcase                                  |
+| `d`     | Delete testcase on which the cursor is holded             |
+| `i`     | Open prompt window for updating input                     |
+| `<c-l>` | Navigate to available right window otherwise close the UI |
+| `<c-k>` | Navigate to available up window otherwise close the UI    |
+| `<c-h>` | Navigate to available left window otherwise close the UI  |
+| `<c-j>` | Navigate to available down window otherwise close the UI  |
