@@ -2,8 +2,52 @@ local config = require("assistant.config")
 local store = require("assistant.store")
 local ui = require("assistant.ui")
 local utils = require("assistant.utils")
+local M = {}
 
-return function(index)
+---@param callback function
+function M.compile(callback)
+  if not store.PROBLEM_DATA then
+    return
+  end
+
+  local command = utils.interpolate(
+    store.FILENAME_WITH_EXTENSION,
+    store.FILENAME_WITHOUT_EXTENSION,
+    config.commands[store.FILETYPE].compile
+  )
+  store.COMPILE_STATUS = { code = nil, error = nil }
+
+  if not command then
+    callback()
+  else
+    for i = 1, #store.PROBLEM_DATA["tests"] do
+      store.PROBLEM_DATA["tests"][i].status = "COMPILING"
+      store.PROBLEM_DATA["tests"][i].group = "AssistantYellow"
+    end
+
+    ui.render_home()
+    ---@diagnostic disable-next-line: deprecated
+    vim.fn.jobstart(vim.tbl_flatten({ command.main, command.args }), {
+      stderr_buffered = true,
+      on_stderr = function(_, data)
+        store.COMPILE_STATUS.error = data
+      end,
+      on_exit = function(_, code)
+        store.COMPILE_STATUS.code = code
+
+        if store.COMPILE_STATUS.code == 0 then
+          callback()
+        else
+          ui.render_home()
+          store.write()
+        end
+      end,
+    })
+  end
+end
+
+---@param index number
+function M.execute(index)
   local process = {
     stdin = vim.loop.new_pipe(),
     stdout = vim.loop.new_pipe(),
@@ -28,23 +72,23 @@ return function(index)
     stdio = { process.stdin, process.stdout, process.stderr },
   }, function(code, signal)
     process.code, process.signal = code, signal
-    store.PROBLEM_DATA["tests"][index].end_at = vim.loop.now()
+    test.end_at = vim.loop.now()
 
     if process.code == 0 then
       if test.end_at - test.start_at > config.time_limit then
         test.status = "TIME LIMIT EXCEEDED"
-        test.group = "AssistantKilled"
+        test.group = "AssistantRed"
       elseif utils.compare(test.stdout, test.output) then
         test.status = "PASSED"
-        test.group = "AssistantPassed"
+        test.group = "AssistantGreen"
       else
         test.status = "FAILED"
-        test.group = "AssistantFailed"
+        test.group = "AssistantRed"
       end
 
       vim.schedule(function()
-        ui.render_home()
         store.write()
+        ui.render_home()
       end)
     end
 
@@ -66,9 +110,11 @@ return function(index)
   end)
 
   test.status = "RUNNING"
-  test.group = "AssistantRunning"
+  test.group = "AssistantYellow"
   test.start_at = vim.loop.now()
   test.end_at = test.start_at
+  test.stdout = ""
+  test.stderr = ""
   vim.schedule(function()
     ui.render_home()
   end)
@@ -118,3 +164,47 @@ return function(index)
     end
   end)
 end
+
+function M.run_unique()
+  local index = utils.get_current_line_number()
+
+  if not index then
+    return
+  end
+
+  M.compile(function()
+    M.execute(index)
+  end)
+end
+
+function M.run_all()
+  M.compile(function()
+    for i = 1, #store.PROBLEM_DATA["tests"] do
+      M.execute(i)
+    end
+  end)
+end
+
+function M.create_test()
+  store.PROBLEM_DATA = store.PROBLEM_DATA or {}
+  store.PROBLEM_DATA["tests"] = store.PROBLEM_DATA["tests"] or {}
+  table.insert(store.PROBLEM_DATA["tests"], {})
+  store.write()
+  ui.render_home()
+end
+
+function M.remove_test()
+  local current_line = vim.api.nvim_get_current_line()
+  local index = tonumber(current_line:match("testcase #(%d+)%s+"))
+
+  if not index then
+    return
+  end
+
+  if store.PROBLEM_DATA then
+    table.remove(store.PROBLEM_DATA["tests"], index)
+    ui.render_home()
+  end
+end
+
+return M
