@@ -26,8 +26,7 @@ function M.compile(callback)
     end
 
     ui.render_home()
-    ---@diagnostic disable-next-line: deprecated
-    vim.fn.jobstart(vim.tbl_flatten({ command.main, command.args }), {
+    vim.fn.jobstart(vim.iter({ command.main, command.args }):flatten():totable(), {
       stderr_buffered = true,
       on_stderr = function(_, data)
         store.COMPILE_STATUS.error = data
