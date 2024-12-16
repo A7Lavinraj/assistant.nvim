@@ -121,43 +121,42 @@ end
 -- Render text for `input` section by testcase `id` as parameter
 ---@param id number?
 function M.render_input(id)
-  if not id then
-    return
-  end
-
   local content = Text.new()
-  local tc = state.get_test_by_id(id)
-  if tc.input then
-    content:append("Input", "AssistantH1"):nl(2)
 
-    for _, line in ipairs(utils.slice_first_n_lines(tc.input or "", 100)) do
-      if line then
-        content:append(line, "AssistantText"):nl()
+  if id ~= nil then
+    local tc = state.get_test_by_id(id)
+    if tc.input then
+      content:append("Input", "AssistantH1"):nl(2)
+
+      for _, line in ipairs(utils.slice_first_n_lines(tc.input or "", 100)) do
+        if line then
+          content:append(line, "AssistantText"):nl()
+        end
+      end
+
+      content:nl()
+      local _, cnt = string.gsub(tc.stdout or "", "\n", "")
+
+      if cnt > 100 then
+        content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
       end
     end
 
-    content:nl()
-    local _, cnt = string.gsub(tc.stdout or "", "\n", "")
+    if tc.output then
+      content:append("Expect", "AssistantH1"):nl(2)
 
-    if cnt > 100 then
-      content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
-    end
-  end
-
-  if tc.output then
-    content:append("Expect", "AssistantH1"):nl(2)
-
-    for _, line in ipairs(utils.slice_first_n_lines(tc.output or "", 100)) do
-      if line then
-        content:append(line, "AssistantText"):nl()
+      for _, line in ipairs(utils.slice_first_n_lines(tc.output or "", 100)) do
+        if line then
+          content:append(line, "AssistantText"):nl()
+        end
       end
-    end
 
-    content:nl()
-    local _, cnt = string.gsub(tc.stdout or "", "\n", "")
+      content:nl()
+      local _, cnt = string.gsub(tc.stdout or "", "\n", "")
 
-    if cnt > 100 then
-      content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
+      if cnt > 100 then
+        content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
+      end
     end
   end
 
@@ -167,44 +166,43 @@ end
 -- Render output section by testcase `id` as parameter
 ---@param id number?
 function M.render_output(id)
-  if not id then
-    return
-  end
-
   local content = Text.new()
-  local tc = state.get_test_by_id(id)
 
-  if tc.stdout and tc.stdout ~= "" then
-    content:append("Stdout", "AssistantH1"):nl(2)
+  if id ~= nil then
+    local tc = state.get_test_by_id(id)
 
-    for _, line in ipairs(utils.slice_first_n_lines(tc.stdout, 100)) do
-      if line then
-        content:append(line, "AssistantText"):nl()
+    if tc.stdout and tc.stdout ~= "" then
+      content:append("Stdout", "AssistantH1"):nl(2)
+
+      for _, line in ipairs(utils.slice_first_n_lines(tc.stdout, 100)) do
+        if line then
+          content:append(line, "AssistantText"):nl()
+        end
+      end
+
+      content:nl()
+      local _, cnt = string.gsub(tc.stdout or "", "\n", "")
+
+      if cnt > 100 then
+        content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
       end
     end
 
-    content:nl()
-    local _, cnt = string.gsub(tc.stdout or "", "\n", "")
+    if tc.stderr and tc.stderr ~= "" then
+      content:nl():append("Stderr", "AssistantH1"):nl(2)
 
-    if cnt > 100 then
-      content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
-    end
-  end
-
-  if tc.stderr and tc.stderr ~= "" then
-    content:nl():append("Stderr", "AssistantH1"):nl(2)
-
-    for _, line in ipairs(utils.slice_first_n_lines(tc.stderr, 100)) do
-      if line then
-        content:append(line, "AssistantText"):nl()
+      for _, line in ipairs(utils.slice_first_n_lines(tc.stderr, 100)) do
+        if line then
+          content:append(line, "AssistantText"):nl()
+        end
       end
-    end
 
-    content:nl()
-    local _, cnt = string.gsub(tc.stderr or "", "\n", "")
+      content:nl()
+      local _, cnt = string.gsub(tc.stderr or "", "\n", "")
 
-    if cnt > 100 then
-      content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
+      if cnt > 100 then
+        content:append("-- REACHED MAXIMUM RENDER LIMIT --", "AssistantDimText")
+      end
     end
   end
 
