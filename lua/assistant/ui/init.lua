@@ -1,7 +1,7 @@
 local Float = require("assistant.ui.float")
 local Text = require("assistant.ui.text")
 local maps = require("assistant.mappings")
-local store = require("assistant.store")
+local state = require("assistant.state")
 local utils = require("assistant.utils")
 
 local M = {}
@@ -20,24 +20,25 @@ function M.update_layout()
   local ww = math.ceil(vw * 0.7) - 2
   local rr = math.ceil(vh * 0.5) - math.ceil(wh * 0.5) - 1
   local cr = math.ceil(vw * 0.5) - math.ceil(ww * 0.5) - 1
+  local name = state.get_problem_name()
 
-  if not store.PROBLEM_DATA then
-    store.PROBLEM_DATA = {}
-  end
-
-  if not store.PROBLEM_DATA["name"] then
-    local name = vim.fn.expand("%:t")
+  if not name then
+    name = vim.fn.expand("%:t")
 
     if name == "" then
-      store.PROBLEM_DATA["name"] = "UNTITLED"
+      state.set_by_key("src_name", function()
+        return "UNTITLED"
+      end)
     else
-      store.PROBLEM_DATA["name"] = name
+      state.set_by_key("src_name", function()
+        return name
+      end)
     end
   end
 
   -- update view config
   M.home.conf = vim.tbl_deep_extend("force", {
-    title = " " .. store.PROBLEM_DATA["name"] .. " ",
+    title = " " .. name .. " ",
     height = math.ceil(vh * 0.7),
     width = math.ceil(ww * 0.5),
     row = rr - 1,
@@ -99,15 +100,9 @@ function M.render_home()
   end
 
   local content = Text.new()
+  local tests = state.get_all_tests()
 
-  for i, test in ipairs(store.PROBLEM_DATA["tests"] or {}) do
-    if store.COMPILE_STATUS.code and store.COMPILE_STATUS.code ~= 0 then
-      test.status = "COMPILATION ERROR"
-      test.group = "AssistantRed"
-      test.start_at = nil
-      test.end_at = nil
-    end
-
+  for i, test in ipairs(tests or {}) do
     content:append(string.format("testcase #%d ", i), "AssistantText")
     content:append(test.status or "", test.group or "AssistantText")
 
@@ -115,22 +110,12 @@ function M.render_home()
       content:append(string.format("takes %.3fs", (test.end_at - test.start_at) * 0.001), "AssistantDimText")
     end
 
-    if i ~= #store.PROBLEM_DATA["tests"] then
+    if i ~= #tests then
       content:nl()
     end
   end
 
   utils.render(M.home.buf, content)
-
-  if store.COMPILE_STATUS.code and store.COMPILE_STATUS.code ~= 0 then
-    local error = Text.new()
-
-    for _, line in ipairs(store.COMPILE_STATUS.error) do
-      error:append(line, "AssistantDimText"):nl()
-    end
-
-    M.popup_show(error)
-  end
 end
 
 -- Render text for `input` section by testcase `id` as parameter
@@ -141,7 +126,7 @@ function M.render_input(id)
   end
 
   local content = Text.new()
-  local tc = store.PROBLEM_DATA["tests"][id]
+  local tc = state.get_test_by_id(id)
   if tc.input then
     content:append("Input", "AssistantH1"):nl(2)
 
@@ -187,7 +172,7 @@ function M.render_output(id)
   end
 
   local content = Text.new()
-  local tc = store.PROBLEM_DATA["tests"][id]
+  local tc = state.get_test_by_id(id)
 
   if tc.stdout and tc.stdout ~= "" then
     content:append("Stdout", "AssistantH1"):nl(2)
@@ -228,7 +213,7 @@ end
 
 -- Open Assistant.nvim UI
 function M.open()
-  store.fetch()
+  state.update_all()
   M.update_layout()
   M.home:create()
   M.input:create()
@@ -303,21 +288,14 @@ function M.prompt_hide_and_save_input()
   M.prompt.conf.title = " edit INPUT "
   M.prompt_show({
     pre = function()
-      if store.PROBLEM_DATA["tests"][index].input then
-        vim.api.nvim_buf_set_lines(
-          M.prompt.buf,
-          0,
-          -1,
-          false,
-          vim.split(store.PROBLEM_DATA["tests"][index].input, "\n")
-        )
+      if state.get_test_by_id(index).input then
+        vim.api.nvim_buf_set_lines(M.prompt.buf, 0, -1, false, vim.split(state.get_test_by_id(index).input, "\n"))
       end
     end,
     post = function()
       local lines = vim.api.nvim_buf_get_lines(M.prompt.buf, 0, -1, false)
       M.prompt_hide()
-      store.PROBLEM_DATA["tests"][index].input = table.concat(lines, "\n")
-      store.write()
+      state.get_test_by_id(index).input = table.concat(lines, "\n")
     end,
   })
 end
@@ -334,21 +312,14 @@ function M.prompt_hide_and_save_expect()
   M.prompt.conf.title = " edit OUTPUT "
   M.prompt_show({
     pre = function()
-      if store.PROBLEM_DATA["tests"][index].output then
-        vim.api.nvim_buf_set_lines(
-          M.prompt.buf,
-          0,
-          -1,
-          false,
-          vim.split(store.PROBLEM_DATA["tests"][index].output, "\n")
-        )
+      if state.get_test_by_id(index).output then
+        vim.api.nvim_buf_set_lines(M.prompt.buf, 0, -1, false, vim.split(state.get_test_by_id(index).output, "\n"))
       end
     end,
     post = function()
       local lines = vim.api.nvim_buf_get_lines(M.prompt.buf, 0, -1, false)
       M.prompt_hide()
-      store.PROBLEM_DATA["tests"][index].output = table.concat(lines, "\n")
-      store.write()
+      state.get_test_by_id(index).output = table.concat(lines, "\n")
     end,
   })
 end
@@ -363,7 +334,7 @@ end
 function M.prompt_show(opts)
   M.prompt:create()
   opts.pre()
-  maps.set("n", "<m-cr>", opts.post, M.prompt.buf)
+  maps.set("n", "<cr>", opts.post, M.prompt.buf)
 end
 
 function M.popup_hide()
