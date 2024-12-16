@@ -1,209 +1,266 @@
+local Text = require("assistant.ui.text")
 local config = require("assistant.config")
-local store = require("assistant.store")
+local state = require("assistant.state")
 local ui = require("assistant.ui")
 local utils = require("assistant.utils")
+local luv = vim.uv or vim.loop
 local M = {}
+M.queue = {}
+M.MAX_CONCURRENCY = 5
+M.concurrency_count = 0
+M.processor_status = "STOPPED"
 
----@param callback function
-function M.compile(callback)
-  if not store.PROBLEM_DATA then
-    return
+---@return table
+function M.get_cmd()
+  local cmd = vim.deepcopy(config.commands[state.get_src_ft()] or {})
+
+  local function format(filename)
+    local name, ext = state.get_src_name()
+    return filename
+      :gsub("%$FILENAME_WITH_EXTENSION", string.format("%s.%s", name, ext))
+      :gsub("%$FILENAME_WITHOUT_EXTENSION", name)
   end
 
-  local command = utils.interpolate(
-    store.FILENAME_WITH_EXTENSION,
-    store.FILENAME_WITHOUT_EXTENSION,
-    config.commands[store.FILETYPE].compile
-  )
-  store.COMPILE_STATUS = { code = nil, error = nil }
+  if cmd.compile ~= nil then
+    cmd.compile.main = format(cmd.compile.main)
 
-  if not command then
-    callback()
-  else
-    for i = 1, #store.PROBLEM_DATA["tests"] do
-      store.PROBLEM_DATA["tests"][i].status = "COMPILING"
-      store.PROBLEM_DATA["tests"][i].group = "AssistantYellow"
+    for i = 1, #cmd.compile.args do
+      cmd.compile.args[i] = format(cmd.compile.args[i])
     end
-
-    ui.render_home()
-    vim.fn.jobstart(vim.iter({ command.main, command.args }):flatten():totable(), {
-      stderr_buffered = true,
-      on_stderr = function(_, data)
-        store.COMPILE_STATUS.error = data
-      end,
-      on_exit = function(_, code)
-        store.COMPILE_STATUS.code = code
-
-        if store.COMPILE_STATUS.code == 0 then
-          callback()
-        else
-          ui.render_home()
-          store.write()
-        end
-      end,
-    })
   end
+
+  if cmd.execute ~= nil then
+    cmd.execute.main = format(cmd.execute.main)
+
+    for i = 1, #(cmd.execute.args or {}) do
+      cmd.execute.args[i] = format(cmd.execute.args[i])
+    end
+  end
+
+  return cmd
 end
 
----@param index number
-function M.execute(index)
-  local process = {
-    stdin = vim.loop.new_pipe(),
-    stdout = vim.loop.new_pipe(),
-    stderr = vim.loop.new_pipe(),
-    timer = vim.loop.new_timer(),
-  }
+---@param test_id integer
+function M._execute(test_id)
+  local cmd = M.get_cmd()
+  local process = {}
+  local test = state.get_test_by_id(test_id)
+  process.stdio = { luv.new_pipe(false), luv.new_pipe(false), luv.new_pipe(false) }
+  process.timer = luv.new_timer()
+  process.stdout = ""
+  process.stderr = ""
 
-  local command = utils.interpolate(
-    store.FILENAME_WITH_EXTENSION,
-    store.FILENAME_WITHOUT_EXTENSION,
-    config.commands[store.FILETYPE].execute
-  )
-
-  if not command then
+  if not cmd.execute then
     return
   end
 
-  local test = store.PROBLEM_DATA["tests"][index]
-  ---@diagnostic disable-next-line: missing-fields
-  process.handle, process.id = vim.loop.spawn(command.main, {
-    args = command.args,
-    stdio = { process.stdin, process.stdout, process.stderr },
-  }, function(code, signal)
-    process.code, process.signal = code, signal
-    test.end_at = vim.loop.now()
+  process.handle, process.pid = luv.spawn(
+    cmd.execute.main,
+    ---@diagnostic disable-next-line
+    { stdio = process.stdio, args = cmd.execute.args },
+    function(code, _)
+      process.end_at = luv.now()
 
-    if process.code == 0 then
-      if test.end_at - test.start_at > config.time_limit then
-        test.status = "TIME LIMIT EXCEEDED"
-        test.group = "AssistantRed"
-      elseif utils.compare(test.stdout, test.output) then
-        test.status = "PASSED"
-        test.group = "AssistantGreen"
-      else
-        test.status = "FAILED"
-        test.group = "AssistantRed"
+      for _, pipe in ipairs(process.stdio) do
+        if not pipe:is_closing() then
+          pipe:close()
+        end
       end
 
-      vim.schedule(function()
-        store.write()
-        ui.render_home()
-      end)
-    end
+      if not process.timer:is_closing() then
+        process.timer:close()
+      end
 
-    if not process.stdin:is_closing() then
-      process.stdin:close()
-    end
+      if code == 0 then
+        if utils.compare(process.stdout, test.output) then
+          state.set_by_key("tests", function(value)
+            value[test_id].stdout = process.stdout
+            value[test_id].stderr = process.stderr
+            value[test_id].status = "ACCEPTED"
+            value[test_id].group = "AssistantGreen"
+            value[test_id].time_taken = (process.end_at - process.start_at) / 1e3
+            return value
+          end)
+        else
+          state.set_by_key("tests", function(value)
+            value[test_id].stdout = process.stdout
+            value[test_id].stderr = process.stderr
+            value[test_id].status = "WRONG ANSWER"
+            value[test_id].group = "AssistantRed"
+            value[test_id].time_taken = (process.end_at - process.start_at) / 1e3
+            return value
+          end)
+        end
+      else
+        state.set_by_key("tests", function(value)
+          value[test_id].stdout = process.stdout
+          value[test_id].stderr = process.stderr
+          value[test_id].status = "RUNTIME ERROR"
+          value[test_id].group = "AssistantYellow"
+          value[test_id].time_taken = (process.end_at - process.start_at) / 1e3
+          return value
+        end)
+      end
 
-    if not process.handle:is_closing() then
-      process.handle:close()
+      M.concurrency_count = M.concurrency_count - 1
+      M.process_queue()
+      vim.schedule(ui.render_home)
     end
+  )
 
-    if not process.timer:is_active() then
-      process.timer:stop()
-    end
-
-    if not process.timer:is_closing() then
-      process.timer:close()
-    end
+  process.start_at = luv.now()
+  state.set_by_key("tests", function(value)
+    value[test_id].status = "RUNNING"
+    value[test_id].group = "AssistantYellow"
+    return value
   end)
-
-  test.status = "RUNNING"
-  test.group = "AssistantYellow"
-  test.start_at = vim.loop.now()
-  test.end_at = test.start_at
-  test.stdout = ""
-  test.stderr = ""
-  vim.schedule(function()
-    ui.render_home()
-  end)
+  vim.schedule(ui.render_home)
   process.timer:start(config.time_limit, 0, function()
-    if not process.timer:is_active() then
-      process.timer:stop()
-    end
-
     if not process.timer:is_closing() then
       process.timer:close()
     end
-
-    test.end_at = vim.loop.now()
 
     if process.handle and process.handle:is_active() then
-      ---@diagnostic disable-next-line: missing-parameter
-      process.handle:kill()
+      process.handle:kill(0)
     end
   end)
-
-  vim.loop.write(process.stdin, test.input or "")
-  vim.loop.shutdown(process.stdin)
-  vim.loop.read_start(process.stdout, function(err, data)
-    if err or not data then
-      if process.stdout:is_readable() then
-        process.stdout:read_stop()
-      end
-
-      if process.stdout:is_closing() then
-        process.stdout:close()
-      end
-    else
-      test.stdout = test.stdout .. utils.get_stream_data(data)
+  luv.write(process.stdio[1], test.input)
+  luv.shutdown(process.stdio[1])
+  luv.read_start(process.stdio[2], function(_, data)
+    if data then
+      --TODO: add render limit for lines
+      process.stdout = process.stdout .. utils.get_stream_data(data)
     end
   end)
-  vim.loop.read_start(process.stderr, function(err, data)
-    if err or not data then
-      if process.stderr:is_readable() then
-        process.stderr:read_stop()
-      end
-
-      if process.stderr:is_closing() then
-        process.stderr:close()
-      end
-    else
-      test.stderr = test.stderr .. utils.get_stream_data(data)
+  luv.read_start(process.stdio[3], function(_, data)
+    if data then
+      --TODO: add render limit for lines
+      process.stderr = process.stderr .. utils.get_stream_data(data)
     end
   end)
 end
 
-function M.run_unique()
-  local index = utils.get_current_line_number()
+function M._compile()
+  ---@type thread
+  local thread = nil
+  thread = coroutine.create(function()
+    local cmd = M.get_cmd()
+    local process = {}
+    process.stdio = { nil, nil, luv.new_pipe(false) }
+    process.stderr = ""
+    process.handle, process.pid = luv.spawn(
+      cmd.compile.main,
+      ---@diagnostic disable-next-line
+      { stdio = process.stdio, args = cmd.compile.args },
+      function(code, _)
+        for _, pipe in ipairs(process.stdio) do
+          pipe:close()
+        end
 
-  if not index then
+        if code == 0 then
+          state.set_by_key("need_compilation", function()
+            return false
+          end)
+        else
+          local content = Text.new()
+
+          for _, line in ipairs(vim.split(process.stderr or "", "\n")) do
+            content:append(line, "AssistantDimText"):nl()
+          end
+
+          ui.popup_show(content)
+        end
+
+        coroutine.resume(thread)
+      end
+    )
+
+    if not process.handle then
+      vim.notify("[Process]: unable to start compilation", vim.log.levels.ERROR)
+
+      for _, pipe in ipairs(process.stdio) do
+        pipe:close()
+      end
+    end
+
+    luv.read_start(process.stdio[3], function(_, data)
+      if data then
+        process.stderr = process.stderr .. utils.get_stream_data(data)
+      end
+    end)
+
+    coroutine.yield()
+  end)
+
+  return thread
+end
+
+---@param test_id integer
+---@return boolean
+function M.is_unique_test(test_id)
+  for i = 1, #M.queue do
+    if M.queue[i] == test_id then
+      return false
+    end
+  end
+
+  return true
+end
+
+function M.process_queue()
+  if M.processor_status == "RUNNING" then
     return
   end
 
-  M.compile(function()
-    M.execute(index)
-  end)
-end
+  M.processor_status = "RUNNING"
 
-function M.run_all()
-  M.compile(function()
-    for i = 1, #store.PROBLEM_DATA["tests"] do
-      M.execute(i)
+  while M.concurrency_count < M.MAX_CONCURRENCY and #M.queue > 0 do
+    if state.need_compilation() then
+      local thread = M._compile()
+      coroutine.resume(thread)
+
+      while true do
+        if coroutine.status(thread) == "dead" then
+          break
+        end
+
+        vim.wait(100)
+      end
     end
-  end)
+
+    M._execute(M.queue[1])
+    M.concurrency_count = M.concurrency_count + 1
+    table.remove(M.queue, 1)
+    vim.wait(100)
+  end
+
+  M.processor_status = "STOPPED"
 end
 
-function M.create_test()
-  store.PROBLEM_DATA = store.PROBLEM_DATA or {}
-  store.PROBLEM_DATA["tests"] = store.PROBLEM_DATA["tests"] or {}
-  table.insert(store.PROBLEM_DATA["tests"], {})
-  store.write()
-  ui.render_home()
-end
+function M.push_unique()
+  local test_id = utils.get_current_line_number()
 
-function M.remove_test()
-  local current_line = vim.api.nvim_get_current_line()
-  local index = tonumber(current_line:match("testcase #(%d+)%s+"))
-
-  if not index then
+  if test_id == nil then
     return
   end
 
-  if store.PROBLEM_DATA then
-    table.remove(store.PROBLEM_DATA["tests"], index)
-    ui.render_home()
+  if M.is_unique_test(test_id) then
+    table.insert(M.queue, test_id)
   end
+
+  M.process_queue()
+end
+
+function M.push_all()
+  local tests = state.get_all_tests()
+
+  for i = 1, #tests do
+    if M.is_unique_test(i) then
+      table.insert(M.queue, i)
+    end
+  end
+
+  M.process_queue()
 end
 
 return M

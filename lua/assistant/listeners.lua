@@ -1,5 +1,6 @@
 local maps = require("assistant.mappings")
 local runner = require("assistant.runner")
+local state = require("assistant.state")
 local ui = require("assistant.ui")
 local utils = require("assistant.utils")
 local M = {}
@@ -57,10 +58,10 @@ M.cmds = {
         ui.output:bo("modifiable", false)
 
         -- Utility keys
-        maps.set("n", "r", runner.run_unique, ui.home.buf)
-        maps.set("n", "R", runner.run_all, ui.home.buf)
-        maps.set("n", "c", runner.create_test, ui.home.buf)
-        maps.set("n", "d", runner.remove_test, ui.home.buf)
+        maps.set("n", "r", runner.push_unique, ui.home.buf)
+        maps.set("n", "R", runner.push_all, ui.home.buf)
+        -- maps.set("n", "c", runner.create_test, ui.home.buf)
+        -- maps.set("n", "d", runner.remove_test, ui.home.buf)
         maps.set("n", "i", ui.prompt_hide_and_save_input, ui.home.buf)
         maps.set("n", "e", ui.prompt_hide_and_save_expect, ui.home.buf)
 
@@ -82,6 +83,16 @@ M.cmds = {
         then
           ui.close()
         end
+      end,
+    },
+  },
+  {
+    event = "BufWritePost",
+    opts = {
+      callback = function()
+        state.set_by_key("need_compilation", function()
+          return true
+        end)
       end,
     },
   },
