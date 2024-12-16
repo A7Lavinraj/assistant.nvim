@@ -13,11 +13,8 @@ M.cmds = {
     opts = {
       callback = function()
         local number = utils.get_current_line_number()
-
-        if number then
-          ui.render_input(number)
-          ui.render_output(number)
-        end
+        ui.render_input(number)
+        ui.render_output(number)
       end,
     },
   },
@@ -60,8 +57,8 @@ M.cmds = {
         -- Utility keys
         maps.set("n", "r", runner.push_unique, ui.home.buf)
         maps.set("n", "R", runner.push_all, ui.home.buf)
-        -- maps.set("n", "c", runner.create_test, ui.home.buf)
-        -- maps.set("n", "d", runner.remove_test, ui.home.buf)
+        maps.set("n", "c", runner.create_test, ui.home.buf)
+        maps.set("n", "d", runner.remove_test, ui.home.buf)
         maps.set("n", "i", ui.prompt_hide_and_save_input, ui.home.buf)
         maps.set("n", "e", ui.prompt_hide_and_save_expect, ui.home.buf)
 

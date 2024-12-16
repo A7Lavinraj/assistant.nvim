@@ -263,4 +263,27 @@ function M.push_all()
   M.process_queue()
 end
 
+function M.create_test()
+  state.set_by_key("tests", function(value)
+    table.insert(value, {})
+    return value
+  end)
+  ui.render_home()
+end
+
+function M.remove_test()
+  local test_id = utils.get_current_line_number()
+
+  if not test_id then
+    vim.notify("[ERROR]: Not a valid testcase to remove", vim.log.levels.ERROR)
+    return
+  end
+
+  state.set_by_key("tests", function(value)
+    table.remove(value, test_id)
+    return table
+  end)
+  ui.render_home()
+end
+
 return M
