@@ -140,6 +140,7 @@ function M._execute(test_id)
   end)
 end
 
+---@return thread
 function M._compile()
   ---@type thread
   local thread = nil
