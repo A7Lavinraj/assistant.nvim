@@ -1,3 +1,4 @@
+local config = require("assistant.config")
 local M = {}
 
 local dynamic = {
@@ -18,13 +19,13 @@ local dynamic = {
     link = "NavicText",
   },
   AssistantGreen = {
-    link = "String",
+    fg = "#00ff00",
   },
   AssistantRed = {
-    link = "Error",
+    fg = "#ff0000",
   },
   AssistantYellow = {
-    link = "WarningMsg",
+    fg = "#ffff00",
   },
   AssistantDimText = {
     link = "Comment",
@@ -32,8 +33,10 @@ local dynamic = {
 }
 
 function M.init()
+  local ns = config.ns or 0
+
   for group, value in pairs(dynamic) do
-    vim.api.nvim_set_hl(0, group, value)
+    vim.api.nvim_set_hl(ns, group, value)
   end
 end
 

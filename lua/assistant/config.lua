@@ -3,6 +3,7 @@ local AssistantConfig = {}
 
 AssistantConfig.commands = {}
 AssistantConfig.time_limit = 5000
+AssistantConfig.ns = vim.api.nvim_create_namespace("assistant")
 
 function AssistantConfig.init(opts)
   if opts then
