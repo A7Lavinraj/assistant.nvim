@@ -108,6 +108,14 @@ function M._execute(test_id)
     end
   )
 
+  if not process.handle then
+    vim.notify("[Process]: unable to start compilation", vim.log.levels.ERROR)
+
+    for _, pipe in ipairs(process.stdio) do
+      pipe:close()
+    end
+  end
+
   process.start_at = luv.now()
   state.set_by_key("tests", function(value)
     value[test_id].status = "RUNNING"
