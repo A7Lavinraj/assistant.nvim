@@ -1,4 +1,3 @@
-local config = require("assistant.config")
 local M = {}
 
 ---@param received string

@@ -1,4 +1,3 @@
-local Text = require("assistant.ui.text")
 local actions = require("assistant.core.actions")
 local config = require("assistant.config")
 local state = require("assistant.state")
@@ -10,6 +9,7 @@ M.queue = {}
 M.MAX_CONCURRENCY = 5
 M.concurrency_count = 0
 M.processor_status = "STOPPED"
+M.compile_status = { code = -1, err = "" }
 
 ---@return table
 function M.get_cmd()
@@ -154,13 +154,11 @@ function M._execute(test_id)
   luv.shutdown(process.stdio[1])
   luv.read_start(process.stdio[2], function(_, data)
     if data then
-      --TODO: add render limit for lines
       process.stdout = process.stdout .. utils.get_stream_data(data)
     end
   end)
   luv.read_start(process.stdio[3], function(_, data)
     if data then
-      --TODO: add render limit for lines
       process.stderr = process.stderr .. utils.get_stream_data(data)
     end
   end)
@@ -184,22 +182,8 @@ function M._compile()
           pipe:close()
         end
 
-        if code == 0 then
-          state.set_by_key("need_compilation", function()
-            return false
-          end)
-        else
-          local content = Text.new()
-
-          for _, line in ipairs(vim.split(process.stderr or "", "\n")) do
-            content:append(line, "AssistantDimText"):nl()
-          end
-
-          vim.schedule(function()
-            ui.popup_show(content)
-          end)
-        end
-
+        M.compile_status.code = code
+        M.compile_status.err = process.stderr
         coroutine.resume(thread)
       end
     )
@@ -246,18 +230,26 @@ function M.process_queue()
   while M.concurrency_count < M.MAX_CONCURRENCY and #M.queue > 0 do
     if state.need_compilation() then
       local thread = M._compile()
+      M.compile_status = { code = -1, err = "" }
       coroutine.resume(thread)
       actions.compilation_start()
       vim.wait(10000, function()
         return coroutine.status(thread) == "dead"
       end)
-      actions.compilation_finish()
+      actions.compilation_finish(M.compile_status)
     end
 
-    M._execute(M.queue[1])
-    M.concurrency_count = M.concurrency_count + 1
-    table.remove(M.queue, 1)
-    vim.wait(100)
+    if M.compile_status.code == 0 then
+      state.set_by_key("need_compilation", function()
+        return false
+      end)
+      M._execute(M.queue[1])
+      M.concurrency_count = M.concurrency_count + 1
+      table.remove(M.queue, 1)
+      vim.wait(100)
+    else
+      break
+    end
   end
 
   M.processor_status = "STOPPED"

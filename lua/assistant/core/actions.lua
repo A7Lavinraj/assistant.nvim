@@ -12,7 +12,7 @@ M.timer = luv.new_timer()
 ---@return string
 function M.center(str)
   local width = math.floor(ui.actions.conf.width * 0.5)
-  return string.rep(" ", width - math.ceil(#str * 0.5)) .. str
+  return string.rep(" ", width - math.ceil(#str * 0.5) - 1) .. str
 end
 
 ---@param status string
@@ -45,9 +45,28 @@ function M.compilation_start()
   )
 end
 
-M.compilation_finish = vim.schedule_wrap(function()
+M.compilation_finish = vim.schedule_wrap(function(status)
   luv.timer_stop(M.timer)
-  utils.render(ui.actions.buf, Text.new():append(M.center("COMPILATION "), "AssistantGreen"))
+
+  if status.code ~= 0 then
+    local content = Text.new()
+
+    for _, line in ipairs(vim.split(status.err or "", "\n")) do
+      content:append(line, "AssistantDimText"):nl()
+    end
+
+    ui.popup_show(content)
+  end
+
+  local content = Text.new()
+
+  if status.code == 0 then
+    content:append(M.center("COMPILATION "), "AssistantGreen")
+  else
+    content:append(M.center("COMPILATION "), "AssistantRed")
+  end
+
+  utils.render(ui.actions.buf, content)
 end)
 
 M.execution_status = vim.schedule_wrap(function()
@@ -58,9 +77,7 @@ M.execution_status = vim.schedule_wrap(function()
     return
   end
 
-  for _ = 1, math.floor(ui.actions.conf.width * 0.5) - math.ceil((2 * #tests) * 0.5) - 2 do
-    status:append("", "NonText")
-  end
+  status:append(string.rep(" ", math.floor(ui.actions.conf.width * 0.5) - math.ceil((2 * #tests) * 0.5) - 3), "Nontext")
 
   for _, test in pairs(tests or {}) do
     local color = M.get_color_on_status(test.status)
