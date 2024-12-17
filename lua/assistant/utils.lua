@@ -107,17 +107,12 @@ function M.render(buf, text)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
   end
 
-  if buf and vim.api.nvim_buf_is_valid(buf) then
-    vim.api.nvim_buf_clear_namespace(buf, config.ns, 0, -1)
-    vim.api.nvim_set_hl(0, "AssistantGreen", { fg = "#00ff00" })
-  end
-
   for cnt, row in pairs(text.lines) do
     local offset = text.padding
 
     for _, col in pairs(row) do
       if buf and vim.api.nvim_buf_is_valid(buf) then
-        vim.api.nvim_buf_add_highlight(buf, config.ns, col.hl, cnt - 1, offset, offset + #col.str)
+        vim.api.nvim_buf_add_highlight(buf, 0, col.hl, cnt - 1, offset, offset + #col.str)
       end
 
       offset = offset + #col.str + 1

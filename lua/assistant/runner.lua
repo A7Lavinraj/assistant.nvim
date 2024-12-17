@@ -1,4 +1,5 @@
 local Text = require("assistant.ui.text")
+local actions = require("assistant.core.actions")
 local config = require("assistant.config")
 local state = require("assistant.state")
 local ui = require("assistant.ui")
@@ -72,13 +73,22 @@ function M._execute(test_id)
       end
 
       if code == 0 then
-        if utils.compare(process.stdout, test.output) then
+        if (process.end_at - process.start_at) > config.time_limit then
+          state.set_by_key("tests", function(value)
+            value[test_id].stdout = process.stdout
+            value[test_id].stderr = process.stderr
+            value[test_id].status = "KILLED"
+            value[test_id].group = "AssistantRed"
+            value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
+            return value
+          end)
+        elseif utils.compare(process.stdout, test.output) then
           state.set_by_key("tests", function(value)
             value[test_id].stdout = process.stdout
             value[test_id].stderr = process.stderr
             value[test_id].status = "ACCEPTED"
             value[test_id].group = "AssistantGreen"
-            value[test_id].time_taken = (process.end_at - process.start_at) / 1e3
+            value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
             return value
           end)
         else
@@ -87,7 +97,7 @@ function M._execute(test_id)
             value[test_id].stderr = process.stderr
             value[test_id].status = "WRONG ANSWER"
             value[test_id].group = "AssistantRed"
-            value[test_id].time_taken = (process.end_at - process.start_at) / 1e3
+            value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
             return value
           end)
         end
@@ -105,11 +115,12 @@ function M._execute(test_id)
       M.concurrency_count = M.concurrency_count - 1
       M.process_queue()
       vim.schedule(ui.render_home)
+      actions.execution_status()
     end
   )
 
   if not process.handle then
-    vim.notify("[Process]: unable to start compilation", vim.log.levels.ERROR)
+    vim.notify("[Process]: unable to start execution", vim.log.levels.ERROR)
 
     for _, pipe in ipairs(process.stdio) do
       pipe:close()
@@ -129,8 +140,15 @@ function M._execute(test_id)
     end
 
     if process.handle and process.handle:is_active() then
-      process.handle:kill(0)
+      luv.kill(process.pid, 15)
     end
+
+    state.set_by_key("tests", function(value)
+      value[test_id].status = "KILLED"
+      value[test_id].group = "AssistantRed"
+      return value
+    end)
+    vim.schedule(ui.render_home)
   end)
   luv.write(process.stdio[1], test.input)
   luv.shutdown(process.stdio[1])
@@ -177,7 +195,9 @@ function M._compile()
             content:append(line, "AssistantDimText"):nl()
           end
 
-          ui.popup_show(content)
+          vim.schedule(function()
+            ui.popup_show(content)
+          end)
         end
 
         coroutine.resume(thread)
@@ -227,14 +247,11 @@ function M.process_queue()
     if state.need_compilation() then
       local thread = M._compile()
       coroutine.resume(thread)
-
-      while true do
-        if coroutine.status(thread) == "dead" then
-          break
-        end
-
-        vim.wait(100)
-      end
+      actions.compilation_start()
+      vim.wait(10000, function()
+        return coroutine.status(thread) == "dead"
+      end)
+      actions.compilation_finish()
     end
 
     M._execute(M.queue[1])

@@ -4,14 +4,17 @@ local state = require("assistant.state")
 local ui = require("assistant.ui")
 local utils = require("assistant.utils")
 local M = {}
-
 M.ids = {}
 M.augroup = vim.api.nvim_create_augroup("AssistantGroup", { clear = true })
 M.cmds = {
   {
     event = "CursorMoved",
     opts = {
-      callback = function()
+      callback = function(event)
+        if event.buf ~= ui.home.buf then
+          return
+        end
+
         local number = utils.get_current_line_number()
         ui.render_input(number)
         ui.render_output(number)
@@ -47,10 +50,12 @@ M.cmds = {
     opts = {
       pattern = "AssistantViewOpen",
       callback = function()
+        require("assistant.ui.groups").setup()
         ui.render_home()
 
         -- default options
         ui.home:bo("modifiable", false)
+        ui.actions:bo("modifiable", false)
         ui.input:bo("modifiable", false)
         ui.output:bo("modifiable", false)
 
@@ -64,6 +69,9 @@ M.cmds = {
 
         -- Navigation keys
         maps.set("n", "<c-l>", ui.move_right, ui.home.buf)
+        maps.set("n", "<c-j>", ui.move_down, ui.home.buf)
+        maps.set("n", "<c-k>", ui.move_up, ui.actions.buf)
+        maps.set("n", "<c-l>", ui.move_right, ui.actions.buf)
         maps.set("n", "<c-j>", ui.move_down, ui.input.buf)
         maps.set("n", "<c-h>", ui.move_left, ui.input.buf)
         maps.set("n", "<c-k>", ui.move_up, ui.output.buf)
@@ -76,7 +84,10 @@ M.cmds = {
     opts = {
       callback = function(event)
         if
-          not vim.tbl_contains({ ui.home.buf, ui.input.buf, ui.output.buf, ui.prompt.buf, ui.popup.buf }, event.buf)
+          not vim.tbl_contains(
+            { ui.home.buf, ui.actions.buf, ui.input.buf, ui.output.buf, ui.prompt.buf, ui.popup.buf },
+            event.buf
+          )
         then
           ui.close()
         end

@@ -11,6 +11,7 @@ M.input = setmetatable({}, { __index = Float })
 M.output = setmetatable({}, { __index = Float })
 M.prompt = setmetatable({ enter = true }, { __index = Float })
 M.popup = setmetatable({ enter = true }, { __index = Float })
+M.actions = setmetatable({}, { __index = Float })
 M.view_config = { relative = "editor", style = "minimal", border = "rounded", title_pos = "center" }
 
 -- TODO: fix overflow ui for very small window
@@ -39,9 +40,17 @@ function M.update_layout()
   -- update view config
   M.home.conf = vim.tbl_deep_extend("force", {
     title = " " .. name .. " ",
-    height = math.ceil(vh * 0.7),
+    height = math.ceil(vh * 0.7) - 3,
     width = math.ceil(ww * 0.5),
     row = rr - 1,
+    col = cr - 1,
+  }, M.view_config)
+
+  M.actions.conf = vim.tbl_deep_extend("force", {
+    title = " ACTIONS ",
+    height = 1,
+    width = math.ceil(ww * 0.5),
+    row = rr + math.ceil(vh * 0.7) - 2,
     col = cr - 1,
   }, M.view_config)
 
@@ -80,6 +89,10 @@ function M.update_layout()
     vim.api.nvim_win_set_config(M.home.win, M.home.conf)
   end
 
+  if M.actions:is_win() then
+    vim.api.nvim_win_set_config(M.actions.win, M.actions.conf)
+  end
+
   if M.input:is_win() then
     vim.api.nvim_win_set_config(M.input.win, M.input.conf)
   end
@@ -106,8 +119,8 @@ function M.render_home()
     content:append(string.format("testcase #%d ", i), "AssistantText")
     content:append(test.status or "", test.group or "AssistantText")
 
-    if test.start_at and test.end_at then
-      content:append(string.format("takes %.3fs", (test.end_at - test.start_at) * 0.001), "AssistantDimText")
+    if test.time_taken then
+      content:append(string.format("takes %.3fs", test.time_taken), "AssistantDimText")
     end
 
     if i ~= #tests then
@@ -214,6 +227,7 @@ function M.open()
   state.update_all()
   M.update_layout()
   M.home:create()
+  M.actions:create()
   M.input:create()
   M.output:create()
   M.is_open = true
@@ -223,6 +237,7 @@ end
 -- Close Assistant.nvim UI
 function M.close()
   M.home:remove()
+  M.actions:remove()
   M.input:remove()
   M.output:remove()
   M.is_open = false
@@ -242,8 +257,12 @@ end
 function M.move_left()
   local buf = vim.api.nvim_get_current_buf()
 
-  if buf == M.input.buf or buf == M.output.buf then
+  if buf == M.input.buf then
     vim.fn.win_gotoid(M.home.win)
+  end
+
+  if buf == M.output.buf then
+    vim.fn.win_gotoid(M.actions.win)
   end
 end
 
@@ -254,6 +273,10 @@ function M.move_right()
   if buf == M.home.buf then
     vim.fn.win_gotoid(M.input.win)
   end
+
+  if buf == M.actions.buf then
+    vim.fn.win_gotoid(M.output.win)
+  end
 end
 
 -- Focus available up window
@@ -263,11 +286,19 @@ function M.move_up()
   if buf == M.output.buf then
     vim.fn.win_gotoid(M.input.win)
   end
+
+  if buf == M.actions.buf then
+    vim.fn.win_gotoid(M.home.win)
+  end
 end
 
 -- Focus available down window
 function M.move_down()
   local buf = vim.api.nvim_get_current_buf()
+
+  if buf == M.home.buf then
+    vim.fn.win_gotoid(M.actions.win)
+  end
 
   if buf == M.input.buf then
     vim.fn.win_gotoid(M.output.win)

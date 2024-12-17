@@ -1,7 +1,6 @@
-local config = require("assistant.config")
 local M = {}
 
-local dynamic = {
+M.groups = {
   AssistantFloat = {
     link = "Float",
   },
@@ -19,25 +18,34 @@ local dynamic = {
     link = "NavicText",
   },
   AssistantGreen = {
-    fg = "#00ff00",
+    fg = "#bef264",
   },
   AssistantRed = {
-    fg = "#ff0000",
+    fg = "#fca5a5",
   },
   AssistantYellow = {
-    fg = "#ffff00",
+    fg = "#fcd34d",
   },
   AssistantDimText = {
     link = "Comment",
   },
 }
 
-function M.init()
-  local ns = config.ns or 0
-
-  for group, value in pairs(dynamic) do
-    vim.api.nvim_set_hl(ns, group, value)
+function M.setup()
+  for group, value in pairs(M.groups) do
+    vim.api.nvim_set_hl(0, group, value)
   end
+end
+
+function M.init()
+  if M.did_setup then
+    return
+  end
+
+  M.did_setup = true
+  M.setup()
+  vim.api.nvim_create_autocmd("VimEnter", { callback = M.setup })
+  vim.api.nvim_create_autocmd("ColorScheme", { callback = M.setup })
 end
 
 return M
