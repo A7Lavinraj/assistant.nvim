@@ -9,11 +9,11 @@ M.queue = {}
 M.MAX_CONCURRENCY = 5
 M.concurrency_count = 0
 M.processor_status = "STOPPED"
-M.compile_status = { code = -1, err = "" }
+M.compile_status = { code = 0, err = "" }
 
 ---@return table
 function M.get_cmd()
-  local cmd = vim.deepcopy(config.commands[state.get_src_ft()] or {})
+  local cmd = vim.deepcopy(config.options.commands[state.get_src_ft()] or {})
 
   local function format(filename)
     local name, ext = state.get_src_name()
@@ -73,7 +73,7 @@ function M._execute(test_id)
       end
 
       if code == 0 then
-        if (process.end_at - process.start_at) > config.time_limit then
+        if (process.end_at - process.start_at) > config.options.time_limit then
           state.set_by_key("tests", function(value)
             value[test_id].stdout = process.stdout
             value[test_id].stderr = process.stderr
@@ -134,7 +134,7 @@ function M._execute(test_id)
     return value
   end)
   vim.schedule(ui.render_home)
-  process.timer:start(config.time_limit, 0, function()
+  process.timer:start(config.options.time_limit, 0, function()
     if not process.timer:is_closing() then
       process.timer:close()
     end
@@ -228,7 +228,7 @@ function M.process_queue()
   M.processor_status = "RUNNING"
 
   while M.concurrency_count < M.MAX_CONCURRENCY and #M.queue > 0 do
-    if state.need_compilation() then
+    if state.need_compilation() and not vim.tbl_isempty(M.get_cmd().compile or {}) then
       local thread = M._compile()
       M.compile_status = { code = -1, err = "" }
       coroutine.resume(thread)

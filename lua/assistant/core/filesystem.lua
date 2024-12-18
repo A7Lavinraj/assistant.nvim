@@ -15,13 +15,13 @@ end
 function FileSystem.create(filename)
   local sources = {}
 
-  for key, _ in pairs(config.commands) do
+  for key, _ in pairs(config.options.commands) do
     table.insert(sources, key)
   end
 
   vim.ui.select(sources, { prompt = "Select source" }, function(source)
     if source then
-      local extension = config.commands[source].extension
+      local extension = config.options.commands[source].extension
       vim.cmd(string.format("edit %s.%s | w", filename, extension))
     end
   end)

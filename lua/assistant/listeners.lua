@@ -60,6 +60,7 @@ M.cmds = {
         ui.output:bo("modifiable", false)
 
         -- Utility keys
+        maps.set("n", "q", ui.close, ui.home.buf)
         maps.set("n", "r", runner.push_unique, ui.home.buf)
         maps.set("n", "R", runner.push_all, ui.home.buf)
         maps.set("n", "c", runner.create_test, ui.home.buf)
@@ -89,6 +90,9 @@ M.cmds = {
             event.buf
           )
         then
+          state.set_by_key("need_compilation", function()
+            return true
+          end)
           ui.close()
         end
       end,
