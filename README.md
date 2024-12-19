@@ -25,7 +25,7 @@
 
 <br />
 
-![DEMO](./assets/demo.png)
+![demo](https://github.com/user-attachments/assets/3b8144b3-5597-48ad-a41c-f1a684eb7a69)
 
 <br />
 
@@ -51,8 +51,9 @@
 
 # **Setup with [Lazy.nvim](https://github.com/folke/lazy.nvim)**
 
+### Quickstart
+
 ```lua
--- Example to setup for C++ and Python
 {
     "A7lavinraj/assistant.nvim",
     dependencies = { "stevearc/dressing.nvim" }, -- optional but recommended
@@ -60,6 +61,47 @@
         { "<leader>a", "<cmd>AssistantToggle<cr>", desc = "Toggle Assistant.nvim window" }
     },
     opts = {}
+}
+```
+
+<br>
+
+### Default Configuration
+
+```lua
+{
+  commands = {
+    python = {
+      extension = "py",
+      compile = nil,
+      execute = {
+        main = "python3",
+        args = { "$FILENAME_WITH_EXTENSION" },
+      },
+    },
+    cpp = {
+      extension = "cpp",
+      compile = {
+        main = "g++",
+        args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
+      },
+      execute = {
+        main = "./$FILENAME_WITHOUT_EXTENSION",
+        args = nil,
+      },
+    },
+  },
+  ui = {
+    icons = {
+      success = "",
+      failure = "",
+      unknown = "",
+      loading = { "󰸴", "󰸵", "󰸸", "󰸷", "󰸶" },
+    },
+  },
+  core = {
+    process_budget = 5000,
+  },
 }
 ```
 
@@ -123,3 +165,5 @@ python = {
 | `<c-k>`   | Navigate to available up window otherwise close the UI    |
 | `<c-h>`   | Navigate to available left window otherwise close the UI  |
 | `<c-j>`   | Navigate to available down window otherwise close the UI  |
+
+# [Submit your feedback to the release discussion](https://github.com/A7Lavinraj/assistant.nvim/discussions/46)
