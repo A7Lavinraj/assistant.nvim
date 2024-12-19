@@ -56,34 +56,10 @@
 {
     "A7lavinraj/assistant.nvim",
     dependencies = { "stevearc/dressing.nvim" }, -- optional but recommended
-    lazy = false,
-    keys = {{ "<leader>a", "<cmd>AssistantToggle<cr>", desc = "Toggle Assistant.nvim window" }},
-    opts = {
-        commands = { -- starters setup for `cpp` and `python3`
-            python = {
-                extension = "py",
-                compile = nil,
-                execute = {
-                    main = "python3",
-                    args = { "$FILENAME_WITH_EXTENSION" }
-                },
-            },
-            cpp = {
-                extension = "cpp",
-                compile = {
-                    main = "g++",
-                    args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" }
-                },
-                execute = {
-                    main = "./$FILENAME_WITHOUT_EXTENSION",
-                    args = nil
-                },
-            },
-        },
-        time_limit = 5000,
-        border = false, -- border is OFF by default, you can can pass true to enable borders
-        theme = "dynamic" -- "gruvbox", "catppuccin" and "tokyonight" are also available
-    }
+    keys = {
+        { "<leader>a", "<cmd>AssistantToggle<cr>", desc = "Toggle Assistant.nvim window" }
+    },
+    opts = {}
 }
 ```
 
@@ -101,7 +77,7 @@ Above code snippet is a command to compile a C++ file, If you take a closure loo
 
 ```lua
 python = {
-    extension = "py", -- your prefered file extension for python file
+    extension = "py", -- your preferred file extension for python file
     compile = nil, -- since python code doesn't get compiled so pass a nil
     execute = { -- {main} command and array of {args} as we saw earlier.
         main = "python3",
@@ -120,13 +96,9 @@ python = {
 :lua print(vim.bo.filetype)
 ```
 
-- `time_limit` option is used to limit your code execution process to prevent infinite execution.
-- `border` option is used to enable borders.
-- `theme` option is used to change themes. there are only four options yet `gruvbox`, `catppuccin`, `tokyonight` and `dynamic`. `dynamic` option uses the current environment colorsheme.
-
 <br />
 
-> There is only one command to interact with plugin <span style="font-weight: bold; color: lightgray;">AssistantToggle</span> which toggle the UI window of plugin and rest operations are done by keymappings.
+> There is only one command to interact with plugin <span style="font-weight: bold; color: lightgray;">AssistantToggle</span> which toggle the UI window of plugin and rest operations are done by key-mappings.
 
 <br />
 
@@ -139,6 +111,7 @@ python = {
 
 | Key     | Operation                                                 |
 | ------- | --------------------------------------------------------- |
+| `q`     | Close UI                                                  |
 | `r`     | Run testcase on which the cursor is holded                |
 | `R`     | Run all available testcases                               |
 | `c`     | Create an empty testcase                                  |
