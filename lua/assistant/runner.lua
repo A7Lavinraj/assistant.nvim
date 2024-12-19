@@ -10,6 +10,7 @@ M.MAX_CONCURRENCY = 5
 M.concurrency_count = 0
 M.processor_status = "STOPPED"
 M.compile_status = { code = 0, err = "" }
+M.budget = config.options.core.process_budget or 5000
 
 ---@return table
 function M.get_cmd()
@@ -73,7 +74,7 @@ function M._execute(test_id)
       end
 
       if code == 0 then
-        if (process.end_at - process.start_at) > config.options.time_limit then
+        if (process.end_at - process.start_at) > M.budget then
           state.set_by_key("tests", function(value)
             value[test_id].stdout = process.stdout
             value[test_id].stderr = process.stderr
@@ -134,7 +135,7 @@ function M._execute(test_id)
     return value
   end)
   vim.schedule(ui.render_home)
-  process.timer:start(config.options.time_limit, 0, function()
+  process.timer:start(M.budget, 0, function()
     if not process.timer:is_closing() then
       process.timer:close()
     end

@@ -1,11 +1,16 @@
 local Text = require("assistant.ui.text")
+local config = require("assistant.config")
 local state = require("assistant.state")
 local ui = require("assistant.ui")
 local utils = require("assistant.utils")
 local luv = vim.uv or vim.loop
+local icons = config.options.ui.icons
+local success = icons.success or ""
+local failure = icons.failure or ""
+local unknown = icons.unknown or ""
+local frames = icons.loading or { "󰸴", "󰸵", "󰸸", "󰸷", "󰸶" }
+local frame_id = 1
 local M = {}
-M.frames = { "󰸴", "󰸵", "󰸸", "󰸷", "󰸶" }
-M.frame_id = 1
 M.timer = luv.new_timer()
 
 ---@param str string
@@ -30,22 +35,27 @@ function M.get_color_on_status(status)
 end
 
 function M.compilation_start()
+  if not ui.actions:is_buf() then
+    return
+  end
+
   luv.timer_start(
     M.timer,
     0,
     200,
     vim.schedule_wrap(function()
-      utils.render(
-        ui.actions.buf,
-        Text.new():append(M.center("COMPILATION " .. M.frames[M.frame_id]), "AssistantYellow")
-      )
-      M.frame_id = M.frame_id % #M.frames + 1
+      utils.render(ui.actions.buf, Text.new():append(M.center("COMPILATION " .. frames[frame_id]), "AssistantYellow"))
+      frame_id = frame_id % #frames + 1
       vim.api.nvim_command("redraw")
     end)
   )
 end
 
 M.compilation_finish = vim.schedule_wrap(function(status)
+  if not ui.actions:is_buf() then
+    return
+  end
+
   luv.timer_stop(M.timer)
 
   if status.code ~= 0 then
@@ -61,15 +71,19 @@ M.compilation_finish = vim.schedule_wrap(function(status)
   local content = Text.new()
 
   if status.code == 0 then
-    content:append(M.center("COMPILATION "), "AssistantGreen")
+    content:append(M.center("COMPILATION " .. success), "AssistantGreen")
   else
-    content:append(M.center("COMPILATION "), "AssistantRed")
+    content:append(M.center("COMPILATION " .. failure), "AssistantRed")
   end
 
   utils.render(ui.actions.buf, content)
 end)
 
 M.execution_status = vim.schedule_wrap(function()
+  if not ui.actions:is_buf() then
+    return
+  end
+
   local status = Text.new()
   local tests = state.get_all_tests()
 
@@ -80,8 +94,13 @@ M.execution_status = vim.schedule_wrap(function()
   status:append(string.rep(" ", math.floor(ui.actions.conf.width * 0.5) - math.ceil((2 * #tests) * 0.5) - 3), "Nontext")
 
   for _, test in pairs(tests or {}) do
-    local color = M.get_color_on_status(test.status)
-    status:append((color == "AssistantGreen" and "" or ""), color)
+    if test.status == nil then
+      status:append(unknown, "AssistantText")
+    elseif test.status == "ACCEPTED" then
+      status:append(success, "AssistantGreen")
+    else
+      status:append(failure, "AssistantRed")
+    end
   end
 
   utils.render(ui.actions.buf, status)

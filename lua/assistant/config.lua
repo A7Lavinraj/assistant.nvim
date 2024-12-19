@@ -22,7 +22,17 @@ M.defaults = {
       },
     },
   },
-  time_limit = 5000,
+  ui = {
+    icons = {
+      success = "",
+      failure = "",
+      unknown = "",
+      loading = { "󰸴", "󰸵", "󰸸", "󰸷", "󰸶" },
+    },
+  },
+  core = {
+    process_budget = 5000,
+  },
 }
 
 function M.init(opts)

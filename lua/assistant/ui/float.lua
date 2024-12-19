@@ -6,10 +6,14 @@ function AssistantFloat.new()
   return setmetatable({}, { __index = AssistantFloat })
 end
 
+---@param key string
+---@param value any
 function AssistantFloat:wo(key, value)
   vim.api.nvim_set_option_value(key, value, { win = self.win })
 end
 
+---@param key string
+---@param value any
 function AssistantFloat:bo(key, value)
   vim.api.nvim_set_option_value(key, value, { buf = self.buf })
 end
@@ -23,6 +27,7 @@ function AssistantFloat:is_buf()
   return vim.api.nvim_buf_is_valid(self.buf)
 end
 
+---@return boolean
 function AssistantFloat:is_win()
   if not self.win then
     return false
@@ -31,6 +36,9 @@ function AssistantFloat:is_win()
   return vim.api.nvim_win_is_valid(self.win)
 end
 
+---@param mode string
+---@param lhs string
+---@param rhs any
 function AssistantFloat:on_key(mode, lhs, rhs)
   vim.keymap.set(mode or "n", lhs, rhs, { buffer = self.buf })
 end
