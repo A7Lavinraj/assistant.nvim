@@ -116,6 +116,8 @@ function M.init()
   end
 end
 
+---@param event string
+---@param opts vim.api.keyset.create_autocmd
 function M.set(event, opts)
   local id = vim.api.nvim_create_autocmd(event, vim.tbl_deep_extend("force", opts, { group = M.augroup }))
   table.insert(M.ids, id)

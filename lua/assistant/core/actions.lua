@@ -51,6 +51,7 @@ function M.compilation_start()
   )
 end
 
+---@param status {code:number,err:string}
 M.compilation_finish = vim.schedule_wrap(function(status)
   if not ui.actions:is_buf() then
     return

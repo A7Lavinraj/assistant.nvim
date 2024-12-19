@@ -35,6 +35,7 @@ M.defaults = {
   },
 }
 
+---@param opts AssistantConfig
 function M.init(opts)
   M.options = vim.tbl_deep_extend("force", M.defaults, opts or {})
 end
