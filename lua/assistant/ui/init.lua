@@ -14,7 +14,6 @@ M.popup = setmetatable({ enter = true }, { __index = Float })
 M.actions = setmetatable({}, { __index = Float })
 M.view_config = { relative = "editor", style = "minimal", border = "rounded", title_pos = "center" }
 
--- TODO: fix overflow ui for very small window
 function M.update_layout()
   local vh, vw = utils.get_view_port()
   local wh = math.ceil(vh * 0.7) - 2
@@ -75,6 +74,8 @@ function M.update_layout()
     width = math.floor(vw * 0.5),
     row = math.floor(vh * 0.5) - math.floor(vh * 0.25),
     col = math.floor(vw * 0.5) - math.floor(vw * 0.25),
+    footer = { { "[<enter> to confirm changes]", "AssistantGreen" } },
+    footer_pos = "center",
   }, M.view_config)
 
   M.popup.conf = vim.tbl_deep_extend("force", {
@@ -82,6 +83,8 @@ function M.update_layout()
     width = math.floor(vw * 0.5),
     row = math.floor(vh * 0.5) - math.floor(vh * 0.25),
     col = math.floor(vw * 0.5) - math.floor(vw * 0.25),
+    footer = { { "[q to exit]", "AssistantRed" } },
+    footer_pos = "center",
   }, M.view_config)
 
   -- apply view config
@@ -372,7 +375,7 @@ end
 
 ---@param text AssistantText
 function M.popup_show(text)
-  M.popup.conf.title = " ERROR (Press q to exit) "
+  M.popup.conf.title = " Compilation Error "
   M.popup:create()
   M.popup:bo("modifiable", false)
   utils.render(0, text)
