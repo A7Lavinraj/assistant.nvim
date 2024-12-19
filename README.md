@@ -109,15 +109,17 @@ python = {
 
 <br />
 
-| Key     | Operation                                                 |
-| ------- | --------------------------------------------------------- |
-| `q`     | Close UI                                                  |
-| `r`     | Run testcase on which the cursor is holded                |
-| `R`     | Run all available testcases                               |
-| `c`     | Create an empty testcase                                  |
-| `d`     | Delete testcase on which the cursor is holded             |
-| `i`     | Open prompt window for updating input                     |
-| `<c-l>` | Navigate to available right window otherwise close the UI |
-| `<c-k>` | Navigate to available up window otherwise close the UI    |
-| `<c-h>` | Navigate to available left window otherwise close the UI  |
-| `<c-j>` | Navigate to available down window otherwise close the UI  |
+| Key       | Operation                                                 |
+| --------- | --------------------------------------------------------- |
+| `q`       | Close UI                                                  |
+| `r`       | Run testcase on which the cursor is holded                |
+| `R`       | Run all available testcases                               |
+| `c`       | Create an empty testcase                                  |
+| `d`       | Delete testcase on which the cursor is holded             |
+| `e`       | Open prompt window for updating expect                    |
+| `i`       | Open prompt window for updating input                     |
+| `<enter>` | Confirm changes in prompt                                 |
+| `<c-l>`   | Navigate to available right window otherwise close the UI |
+| `<c-k>`   | Navigate to available up window otherwise close the UI    |
+| `<c-h>`   | Navigate to available left window otherwise close the UI  |
+| `<c-j>`   | Navigate to available down window otherwise close the UI  |
