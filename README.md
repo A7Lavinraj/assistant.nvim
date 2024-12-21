@@ -44,7 +44,7 @@
 
 # **Requirements**
 
-- **Neovim version** >= 9.5
+- **Neovim version** >= `0.9.5`
 - [Competitive companion Browser extension](https://github.com/jmerle/competitive-companion)
 
 <br />
