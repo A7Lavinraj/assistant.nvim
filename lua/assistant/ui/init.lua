@@ -23,7 +23,7 @@ function M.update_layout()
   local name = state.get_problem_name()
 
   if not name then
-    name = vim.fn.expand("%:t")
+    name = vim.fn.expand("%:t:r")
 
     if name == "" then
       state.set_by_key("src_name", function()
