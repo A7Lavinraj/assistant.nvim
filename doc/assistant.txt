@@ -1,4 +1,4 @@
-ASSISTANT-NVIM
+*assistant.txt*
 
 A modern plugin developed for competitive programmer to automate some common
 repeatitive tasks, so that they can focus on their core logic
