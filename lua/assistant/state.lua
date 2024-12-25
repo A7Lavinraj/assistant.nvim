@@ -1,4 +1,5 @@
 local fs = require("assistant.core.filesystem").new()
+local luv = vim.uv or vim.loop
 local M = {}
 M._data_map = {}
 
@@ -51,6 +52,8 @@ function M.set_by_key(key, callback)
   else
     M._data_map[key] = callback(M._data_map[key])
   end
+
+  M.write_all()
 end
 
 function M.update_all()
@@ -64,7 +67,7 @@ function M.update_all()
     return vim.bo.filetype
   end)
   local name, _ = M.get_src_name()
-  local filepath = string.format("%s/.ast/%s.json", vim.uv.cwd(), name)
+  local filepath = string.format("%s/.ast/%s.json", luv.cwd(), name)
   local problem_data = fs.fetch(filepath)
   M.set_by_key("tests", function()
     if problem_data == nil then
@@ -80,6 +83,17 @@ function M.update_all()
 
     return problem_data["name"]
   end)
+end
+
+function M.write_all()
+  local name, _ = M.get_src_name()
+
+  if not name then
+    return
+  end
+
+  local filepath = string.format("%s/.ast/%s.json", luv.cwd(), name)
+  fs:write(filepath, vim.json.encode(vim.tbl_deep_extend("force", fs.fetch(filepath) or {}, M._data_map or {})))
 end
 
 return M

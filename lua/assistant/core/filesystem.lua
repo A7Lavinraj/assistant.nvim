@@ -1,5 +1,6 @@
 local config = require("assistant.config")
 local FileSystem = {}
+local luv = vim.uv or vim.loop
 
 function FileSystem.new()
   return setmetatable({}, { __index = FileSystem })
@@ -9,6 +10,21 @@ function FileSystem.__init__()
   if vim.fn.isdirectory(".ast") == 0 then
     vim.fn.mkdir(".ast")
   end
+end
+
+---@param chunk string
+---@return table?
+function FileSystem.filter(chunk)
+  local parsed = vim.json.decode(chunk)
+
+  if parsed then
+    local filtered_data = {}
+    filtered_data["problem_name"] = parsed["name"]
+    filtered_data["tests"] = parsed["tests"]
+    return filtered_data
+  end
+
+  return nil
 end
 
 ---@param filename string
@@ -31,16 +47,16 @@ end
 ---@param mode string
 ---@return string?
 function FileSystem.read(path, mode)
-  local fd, _ = vim.uv.fs_open(path, mode, 438)
+  local fd, _ = luv.fs_open(path, mode, 438)
 
   if not fd then
     return
   end
 
-  local stat = vim.uv.fs_fstat(fd)
+  local stat = luv.fs_fstat(fd)
   local file_size = stat and stat.size or 0
-  local data = vim.uv.fs_read(fd, file_size)
-  vim.uv.fs_close(fd)
+  local data = luv.fs_read(fd, file_size)
+  luv.fs_close(fd)
   return data
 end
 
@@ -48,15 +64,15 @@ end
 ---@param bytes string
 function FileSystem:write(path, bytes)
   self.__init__()
-  local fd, _ = vim.uv.fs_open(path, "w", 438)
+  local fd, _ = luv.fs_open(path, "w", 438)
 
   if not fd then
     print("[ERROR]: can't open file", path)
     return
   end
 
-  vim.uv.fs_write(fd, bytes)
-  vim.uv.fs_close(fd)
+  luv.fs_write(fd, bytes)
+  luv.fs_close(fd)
 end
 
 ---@param chunk string
@@ -67,8 +83,13 @@ function FileSystem:save(chunk)
 
   if data.languages.java.taskClass then
     vim.schedule(function()
-      self:write(string.format("%s/.ast/%s.json", vim.fn.expand("%:p:h"), data.languages.java.taskClass), chunk)
-      self.create(data.languages.java.taskClass)
+      local filtered_data = self.filter(chunk)
+      local filepath = string.format("%s/.ast/%s.json", vim.fn.expand("%:p:h"), data.languages.java.taskClass)
+
+      if filtered_data then
+        self:write(filepath, vim.json.encode(filtered_data))
+        self.create(data.languages.java.taskClass)
+      end
     end)
   end
 end
@@ -80,7 +101,7 @@ function FileSystem.fetch(path)
     return nil
   end
 
-  local fd = vim.uv.fs_open(path, "r", 438)
+  local fd = luv.fs_open(path, "r", 438)
 
   if not fd then
     return nil
@@ -99,7 +120,6 @@ function FileSystem.fetch(path)
   end
 
   vim.loop.fs_close(fd)
-
   return vim.json.decode(data)
 end
 

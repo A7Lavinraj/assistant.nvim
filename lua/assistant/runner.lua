@@ -284,6 +284,10 @@ end
 
 function M.create_test()
   state.set_by_key("tests", function(value)
+    if value == nil then
+      value = {}
+    end
+
     table.insert(value, {})
     return value
   end)
