@@ -83,6 +83,7 @@ function M._execute(test_id)
             value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
             return value
           end)
+          state.write_all()
         elseif utils.compare(process.stdout, test.output) then
           state.set_by_key("tests", function(value)
             value[test_id].stdout = process.stdout
@@ -92,6 +93,7 @@ function M._execute(test_id)
             value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
             return value
           end)
+          state.write_all()
         else
           state.set_by_key("tests", function(value)
             value[test_id].stdout = process.stdout
@@ -101,6 +103,7 @@ function M._execute(test_id)
             value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
             return value
           end)
+          state.write_all()
         end
       else
         state.set_by_key("tests", function(value)
@@ -111,6 +114,7 @@ function M._execute(test_id)
           value[test_id].time_taken = (process.end_at - process.start_at) / 1e3
           return value
         end)
+        state.write_all()
       end
 
       M.concurrency_count = M.concurrency_count - 1
@@ -292,6 +296,7 @@ function M.create_test()
     return value
   end)
   ui.render_home()
+  state.write_all()
 end
 
 function M.remove_test()
@@ -307,6 +312,7 @@ function M.remove_test()
     return table
   end)
   ui.render_home()
+  state.write_all()
 end
 
 return M

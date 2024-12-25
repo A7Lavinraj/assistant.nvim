@@ -52,8 +52,6 @@ function M.set_by_key(key, callback)
   else
     M._data_map[key] = callback(M._data_map[key])
   end
-
-  M.write_all()
 end
 
 function M.update_all()
