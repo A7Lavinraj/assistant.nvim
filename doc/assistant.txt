@@ -1,25 +1,18 @@
-*assistant.txt*
+							      *assistant.nvim*
 
 A modern plugin developed for competitive programmer to automate some common
 repeatitive tasks, so that they can focus on their core logic
 
-==============================================================================
+============================================================================
 
-Table of content                             *assistant.nvim-table-of-content*
+					      *assistant.nvim-getting-started*
 
-1. Getting started                            |assistant.nvim-getting-started|
-2. Configurations                              |assistant.nvim-configurations|
-
-==============================================================================
-
-Getting started                               *assistant.nvim-getting-started*
-
-*assistant.nvim* is modern neovim plugin designed for competitive programmer
+|assistant.nvim| is modern neovim plugin designed for competitive programmer
 to automate repeatitive tasks, so that they can focus on more important
 aspects
 
 
-FEATURES                                             *assistant.nvim-features*
+						     *assistant.nvim-features*
 
 - Automatic samples fetching
 - Interactice user interface
@@ -27,18 +20,14 @@ FEATURES                                             *assistant.nvim-features*
 - Blazingly fast
 - Builtin parallel task scheduler
 
-REQUIREMENTS                                     *assistant.nvim-requirements*
+						 *assistant.nvim-requirements*
 
 - Neovim version >= 9.5
 - Competitive programming companion browser
 
-==============================================================================
+============================================================================
 
-Configurations                                 *assistant.nvim-configurations*
-
-
-DEFAULT-CONFIGURATIONS                               *assistant.nvim-defaults*
-
+						     *assistant.nvim-defaults*
 >lua
   {
     commands = {
@@ -79,8 +68,9 @@ DEFAULT-CONFIGURATIONS                               *assistant.nvim-defaults*
 By default plugin comes with pre-written C++ and python commands in the
 configurations, but can be customize further
 
+============================================================================
 
-COMMAND-CUSTOMIZATION                           *assistant.nvim-customization*
+						*assistant.nvim-customization*
 
 Let's add a command for running rust files, so for compiling and running rust
 files a shell command can be written as follows:
@@ -107,8 +97,9 @@ Now above shell command can be convert into lua tables as follows:
   }
 <
 
+============================================================================
 
-UI-CUSTOMIZATION                             *assistant.nvim-ui-customization*
+					     *assistant.nvim-ui-customization*
 
 For now only icons can be changed, as follows
 
@@ -123,8 +114,9 @@ For now only icons can be changed, as follows
   },
 <
 
+============================================================================
 
-CORE-CUSTOMIZATION                         *assistant.nvim-core-customization*
+					   *assistant.nvim-core-customization*
 
 For now only maximum running time of process can be changed
 >lua
@@ -133,6 +125,5 @@ For now only maximum running time of process can be changed
     process_budget = 6000,
   }
 <
-
 
 vim:tw=78:ts=8:noet:ft=help:norl:
