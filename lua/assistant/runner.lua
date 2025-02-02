@@ -309,7 +309,7 @@ function M.remove_test()
 
   state.set_by_key("tests", function(value)
     table.remove(value, test_id)
-    return table
+    return value
   end)
   ui.render_home()
   state.write_all()
