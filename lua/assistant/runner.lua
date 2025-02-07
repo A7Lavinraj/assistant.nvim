@@ -12,6 +12,31 @@ M.processor_status = "STOPPED"
 M.compile_status = { code = 0, err = "" }
 M.budget = config.options.core.process_budget or 5000
 
+-- For windows python alias
+local function resolve_command(cmd)
+  if cmd:lower() == "python" then
+    -- Try different Python commands in order
+    local possible_commands = {"python3", "python", "py"}
+
+    for _, possible_cmd in ipairs(possible_commands) do
+
+      local handle = io.popen(string.format("where %s 2>nul", possible_cmd))
+
+      if handle then
+        local result = handle:read("*a")
+        handle:close()
+      
+        if result and result ~= "" then
+          return possible_cmd
+        end
+      end
+    end
+  end
+
+  return cmd
+end
+
+
 ---@return table
 function M.get_cmd()
   local cmd = vim.deepcopy(config.options.commands[state.get_src_ft()] or {})
@@ -56,8 +81,10 @@ function M._execute(test_id)
     return
   end
 
+  local execute_command = resolve_command(cmd.execute.main)
+
   process.handle, process.pid = luv.spawn(
-    cmd.execute.main,
+    execute_command,
     ---@diagnostic disable-next-line
     { stdio = process.stdio, args = cmd.execute.args },
     function(code, _)
