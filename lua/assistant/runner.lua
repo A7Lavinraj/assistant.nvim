@@ -292,7 +292,11 @@ function M.create_test()
       value = {}
     end
 
-    table.insert(value, {})
+    table.insert(value, {
+      input = "",
+      output = "",
+      expected = "",
+    })
     return value
   end)
   ui.render_home()
