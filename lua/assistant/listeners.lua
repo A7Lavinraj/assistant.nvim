@@ -16,8 +16,7 @@ M.cmds = {
         end
 
         local number = utils.get_current_line_number()
-        ui.render_input(number)
-        ui.render_output(number)
+        ui.render_logs(number)
       end,
     },
   },
@@ -31,7 +30,7 @@ M.cmds = {
     event = "WinClosed",
     opts = {
       callback = function(event)
-        if vim.tbl_contains({ ui.home.buf, ui.input.buf, ui.output.buf }, event.buf) then
+        if vim.tbl_contains({ ui.home.buf, ui.logs.buf, ui.logs.buf }, event.buf) then
           ui.close()
         end
 
@@ -56,8 +55,8 @@ M.cmds = {
         -- default options
         ui.home:bo("modifiable", false)
         ui.actions:bo("modifiable", false)
-        ui.input:bo("modifiable", false)
-        ui.output:bo("modifiable", false)
+        ui.logs:bo("modifiable", false)
+        ui.logs:bo("modifiable", false)
 
         -- Utility keys
         maps.set("n", "q", ui.close, ui.home.buf)
@@ -73,10 +72,10 @@ M.cmds = {
         maps.set("n", "<c-j>", ui.move_down, ui.home.buf)
         maps.set("n", "<c-k>", ui.move_up, ui.actions.buf)
         maps.set("n", "<c-l>", ui.move_right, ui.actions.buf)
-        maps.set("n", "<c-j>", ui.move_down, ui.input.buf)
-        maps.set("n", "<c-h>", ui.move_left, ui.input.buf)
-        maps.set("n", "<c-k>", ui.move_up, ui.output.buf)
-        maps.set("n", "<c-h>", ui.move_left, ui.output.buf)
+        maps.set("n", "<c-j>", ui.move_down, ui.logs.buf)
+        maps.set("n", "<c-h>", ui.move_left, ui.logs.buf)
+        maps.set("n", "<c-k>", ui.move_up, ui.logs.buf)
+        maps.set("n", "<c-h>", ui.move_left, ui.logs.buf)
       end,
     },
   },
@@ -86,7 +85,7 @@ M.cmds = {
       callback = function(event)
         if
           not vim.tbl_contains(
-            { ui.home.buf, ui.actions.buf, ui.input.buf, ui.output.buf, ui.prompt.buf, ui.popup.buf },
+            { ui.home.buf, ui.actions.buf, ui.logs.buf, ui.logs.buf, ui.prompt.buf, ui.popup.buf },
             event.buf
           )
         then

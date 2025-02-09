@@ -7,20 +7,26 @@ local utils = require("assistant.utils")
 local M = {}
 M.is_open = false
 M.home = setmetatable({ enter = true }, { __index = Float })
-M.input = setmetatable({}, { __index = Float })
-M.output = setmetatable({}, { __index = Float })
+M.logs = setmetatable({}, { __index = Float })
 M.prompt = setmetatable({ enter = true }, { __index = Float })
 M.popup = setmetatable({ enter = true }, { __index = Float })
 M.actions = setmetatable({}, { __index = Float })
 M.view_config = { relative = "editor", style = "minimal", border = "rounded", title_pos = "center" }
 
+---@return integer, integer, integer, integer
+M.get_layout_dimension = function()
+  local vh, vw = utils.get_view_port()
+  local lh = math.floor(vh * 0.8)
+  local lw = math.floor(vw * 0.8)
+  local lt = math.floor((vh - lh) / 2) - 1
+  local ll = math.floor((vw - lw) / 2) - 2
+  return lh, lw, lt, ll
+end
+
 function M.update_layout()
   local vh, vw = utils.get_view_port()
-  local wh = math.ceil(vh * 0.7) - 2
-  local ww = math.ceil(vw * 0.7) - 2
-  local rr = math.ceil(vh * 0.5) - math.ceil(wh * 0.5) - 1
-  local cr = math.ceil(vw * 0.5) - math.ceil(ww * 0.5) - 1
   local name = state.get_problem_name()
+  local lh, lw, lt, ll = M.get_layout_dimension()
 
   if not name then
     name = vim.fn.expand("%:t:r")
@@ -38,35 +44,27 @@ function M.update_layout()
 
   -- update view config
   M.home.conf = vim.tbl_deep_extend("force", {
+    height = lh - 3,
+    width = math.ceil(lw / 3),
+    row = lt,
+    col = ll,
     title = " " .. name .. " ",
-    height = math.ceil(vh * 0.7) - 3,
-    width = math.ceil(ww * 0.5),
-    row = rr - 1,
-    col = cr - 1,
   }, M.view_config)
 
   M.actions.conf = vim.tbl_deep_extend("force", {
-    title = " ACTIONS ",
     height = 1,
-    width = math.ceil(ww * 0.5),
-    row = rr + math.ceil(vh * 0.7) - 2,
-    col = cr - 1,
+    width = math.ceil(lw / 3),
+    row = lt + lh - 1,
+    col = ll,
+    title = "  ACTIONS ",
   }, M.view_config)
 
-  M.input.conf = vim.tbl_deep_extend("force", {
-    title = " INPUT ",
-    height = math.ceil(wh * 0.5),
-    width = ww - math.ceil(ww * 0.5),
-    row = rr - 1,
-    col = cr + math.ceil(ww * 0.5) + 1,
-  }, M.view_config)
-
-  M.output.conf = vim.tbl_deep_extend("force", {
-    title = " OUTPUT ",
-    height = wh - math.ceil(wh * 0.5),
-    width = ww - math.ceil(ww * 0.5),
-    row = rr + math.ceil(wh * 0.5) + 1,
-    col = cr + math.ceil(ww * 0.5) + 1,
+  M.logs.conf = vim.tbl_deep_extend("force", {
+    height = lh,
+    width = math.ceil((2 * lw) / 3),
+    row = lt,
+    col = ll + math.ceil(lw / 3) + 2,
+    title = "   LOGS ",
   }, M.view_config)
 
   M.prompt.conf = vim.tbl_deep_extend("force", {
@@ -96,12 +94,8 @@ function M.update_layout()
     vim.api.nvim_win_set_config(M.actions.win, M.actions.conf)
   end
 
-  if M.input:is_win() then
-    vim.api.nvim_win_set_config(M.input.win, M.input.conf)
-  end
-
-  if M.output:is_win() then
-    vim.api.nvim_win_set_config(M.output.win, M.output.conf)
+  if M.logs:is_win() then
+    vim.api.nvim_win_set_config(M.logs.win, M.logs.conf)
   end
 
   if M.prompt:is_win() then
@@ -136,7 +130,7 @@ end
 
 -- Render text for `input` section by testcase `id` as parameter
 ---@param id number?
-function M.render_input(id)
+function M.render_logs(id)
   local content = Text.new()
 
   if id ~= nil then
@@ -176,14 +170,6 @@ function M.render_input(id)
     end
   end
 
-  utils.render(M.input.buf, content)
-end
-
--- Render output section by testcase `id` as parameter
----@param id number?
-function M.render_output(id)
-  local content = Text.new()
-
   if id ~= nil then
     local tc = state.get_test_by_id(id)
 
@@ -222,7 +208,7 @@ function M.render_output(id)
     end
   end
 
-  utils.render(M.output.buf, content)
+  utils.render(M.logs.buf, content)
 end
 
 -- Open Assistant.nvim UI
@@ -231,8 +217,10 @@ function M.open()
   M.update_layout()
   M.home:create()
   M.actions:create()
-  M.input:create()
-  M.output:create()
+  M.logs:create()
+  M.home:wo("winhighlight", "FloatBorder:AssistantFloatBorder")
+  M.actions:wo("winhighlight", "FloatBorder:AssistantFloatBorder")
+  M.logs:wo("winhighlight", "FloatBorder:AssistantFloatBorder")
   M.is_open = true
   utils.emit("AssistantViewOpen")
 end
@@ -241,8 +229,7 @@ end
 function M.close()
   M.home:remove()
   M.actions:remove()
-  M.input:remove()
-  M.output:remove()
+  M.logs:remove()
   M.is_open = false
   utils.emit("AssistantViewClose")
 end
@@ -260,11 +247,11 @@ end
 function M.move_left()
   local buf = vim.api.nvim_get_current_buf()
 
-  if buf == M.input.buf then
+  if buf == M.logs.buf then
     vim.fn.win_gotoid(M.home.win)
   end
 
-  if buf == M.output.buf then
+  if buf == M.logs.buf then
     vim.fn.win_gotoid(M.actions.win)
   end
 end
@@ -274,11 +261,11 @@ function M.move_right()
   local buf = vim.api.nvim_get_current_buf()
 
   if buf == M.home.buf then
-    vim.fn.win_gotoid(M.input.win)
+    vim.fn.win_gotoid(M.logs.win)
   end
 
   if buf == M.actions.buf then
-    vim.fn.win_gotoid(M.output.win)
+    vim.fn.win_gotoid(M.logs.win)
   end
 end
 
@@ -286,8 +273,8 @@ end
 function M.move_up()
   local buf = vim.api.nvim_get_current_buf()
 
-  if buf == M.output.buf then
-    vim.fn.win_gotoid(M.input.win)
+  if buf == M.logs.buf then
+    vim.fn.win_gotoid(M.logs.win)
   end
 
   if buf == M.actions.buf then
@@ -303,8 +290,8 @@ function M.move_down()
     vim.fn.win_gotoid(M.actions.win)
   end
 
-  if buf == M.input.buf then
-    vim.fn.win_gotoid(M.output.win)
+  if buf == M.logs.buf then
+    vim.fn.win_gotoid(M.logs.win)
   end
 end
 
