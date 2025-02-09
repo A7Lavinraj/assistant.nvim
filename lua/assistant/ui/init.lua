@@ -1,6 +1,5 @@
 local Float = require("assistant.ui.float")
 local Text = require("assistant.ui.text")
-local maps = require("assistant.mappings")
 local state = require("assistant.state")
 local utils = require("assistant.utils")
 
@@ -353,7 +352,7 @@ end
 function M.prompt_show(opts)
   M.prompt:create()
   opts.pre()
-  maps.set("n", "<cr>", opts.post, M.prompt.buf)
+  vim.keymap.set("n", "<cr>", opts.post, { buffer = M.prompt.buf })
 end
 
 function M.popup_hide()
@@ -366,7 +365,7 @@ function M.popup_show(text)
   M.popup:create()
   M.popup:bo("modifiable", false)
   utils.render(0, text)
-  maps.set("n", "q", M.popup_hide, M.popup.buf)
+  vim.keymap.set("n", "q", M.popup_hide, { buffer = M.popup.buf })
 end
 
 return M
