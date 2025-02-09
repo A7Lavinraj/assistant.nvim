@@ -13,7 +13,7 @@ M.actions = setmetatable({}, { __index = Float })
 M.view_config = { relative = "editor", style = "minimal", border = "rounded", title_pos = "center" }
 
 ---@return integer, integer, integer, integer
-M.get_layout_dimension = function()
+function M.get_layout_dimension()
   local vh, vw = utils.get_view_port()
   local lh = math.floor(vh * 0.8)
   local lw = math.floor(vw * 0.8)
