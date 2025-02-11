@@ -59,6 +59,8 @@ M.cmds = {
 
         -- Utility keys
         vim.keymap.set("n", "q", ui.close, { buffer = ui.home.buf })
+        vim.keymap.set("n", "q", ui.close, { buffer = ui.actions.buf })
+        vim.keymap.set("n", "q", ui.close, { buffer = ui.logs.buf })
         vim.keymap.set("n", "r", runner.push_unique, { buffer = ui.home.buf })
         vim.keymap.set("n", "R", runner.push_all, { buffer = ui.home.buf })
         vim.keymap.set("n", "c", runner.create_test, { buffer = ui.home.buf })
