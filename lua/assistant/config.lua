@@ -32,7 +32,6 @@ M.defaults = {
   },
   core = {
     process_budget = 5000,
-    template_file = nil,
   },
 }
 

@@ -41,9 +41,9 @@ function FileSystem.create(filename)
       local extension = config.options.commands[source].extension
       vim.cmd(string.format("edit %s.%s | w", filename, extension))
 
-      if config.options.core.template_file then
-        utils.notify_info("populating with " .. config.options.core.template_file)
-        vim.cmd(string.format("0read %s", config.options.core.template_file))
+      if config.options.commands[source].template then
+        utils.notify_info("populating with " .. config.options.commands[source].template)
+        vim.cmd(string.format("0read %s", config.options.commands[source].template))
       end
     end
   end)
