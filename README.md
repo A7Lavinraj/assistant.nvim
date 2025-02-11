@@ -16,7 +16,7 @@ related to sample data testing in competitive programming scenarios.
 
 <br>
 
-![demo](https://github.com/user-attachments/assets/3b8144b3-5597-48ad-a41c-f1a684eb7a69)
+![DEMO](https://github.com/user-attachments/assets/1f96629d-cdce-4e8d-836f-b10f55768212)
 
 <br>
 
