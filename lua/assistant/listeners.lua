@@ -73,9 +73,6 @@ M.cmds = {
         vim.keymap.set("n", "<c-j>", ui.move_down, { buffer = ui.home.buf })
         vim.keymap.set("n", "<c-k>", ui.move_up, { buffer = ui.actions.buf })
         vim.keymap.set("n", "<c-l>", ui.move_right, { buffer = ui.actions.buf })
-        vim.keymap.set("n", "<c-j>", ui.move_down, { buffer = ui.logs.buf })
-        vim.keymap.set("n", "<c-h>", ui.move_left, { buffer = ui.logs.buf })
-        vim.keymap.set("n", "<c-k>", ui.move_up, { buffer = ui.logs.buf })
         vim.keymap.set("n", "<c-h>", ui.move_left, { buffer = ui.logs.buf })
       end,
     },

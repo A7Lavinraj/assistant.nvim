@@ -11,6 +11,7 @@ M.prompt = setmetatable({ enter = true }, { __index = Float })
 M.popup = setmetatable({ enter = true }, { __index = Float })
 M.actions = setmetatable({}, { __index = Float })
 M.view_config = { relative = "editor", style = "minimal", border = "rounded", title_pos = "center" }
+M.previous_win = M.home.win
 
 ---@return integer, integer, integer, integer
 function M.get_layout_dimension()
@@ -244,54 +245,23 @@ end
 
 -- Focus available left window
 function M.move_left()
-  local buf = vim.api.nvim_get_current_buf()
-
-  if buf == M.logs.buf then
-    vim.fn.win_gotoid(M.home.win)
-  end
-
-  if buf == M.logs.buf then
-    vim.fn.win_gotoid(M.actions.win)
-  end
+  vim.fn.win_gotoid(M.previous_win)
 end
 
 -- Focus available right window
 function M.move_right()
-  local buf = vim.api.nvim_get_current_buf()
-
-  if buf == M.home.buf then
-    vim.fn.win_gotoid(M.logs.win)
-  end
-
-  if buf == M.actions.buf then
-    vim.fn.win_gotoid(M.logs.win)
-  end
+  M.previous_win = vim.api.nvim_get_current_win()
+  vim.fn.win_gotoid(M.logs.win)
 end
 
 -- Focus available up window
 function M.move_up()
-  local buf = vim.api.nvim_get_current_buf()
-
-  if buf == M.logs.buf then
-    vim.fn.win_gotoid(M.logs.win)
-  end
-
-  if buf == M.actions.buf then
-    vim.fn.win_gotoid(M.home.win)
-  end
+  vim.fn.win_gotoid(M.home.win)
 end
 
 -- Focus available down window
 function M.move_down()
-  local buf = vim.api.nvim_get_current_buf()
-
-  if buf == M.home.buf then
-    vim.fn.win_gotoid(M.actions.win)
-  end
-
-  if buf == M.logs.buf then
-    vim.fn.win_gotoid(M.logs.win)
-  end
+  vim.fn.win_gotoid(M.actions.win)
 end
 
 -- Hide prompt window and save text contain in it as `input` block
