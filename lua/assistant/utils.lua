@@ -1,5 +1,20 @@
 local M = {}
 
+---@param msg string
+function M.notify_info(msg)
+  vim.notify(msg, vim.log.levels.INFO, { title = "Assistant.nvim" })
+end
+
+---@param msg string
+function M.notify_warn(msg)
+  vim.notify(msg, vim.log.levels.WARN, { title = "Assistant.nvim" })
+end
+
+---@param msg string
+function M.notify_err(msg)
+  vim.notify(msg, vim.log.levels.ERROR, { title = "Assistant.nvim" })
+end
+
 ---@param received string
 ---@return string
 function M.get_stream_data(received)

@@ -1,3 +1,11 @@
-dev
+# assistant registry
 .ast
+
+# development folder
+dev
+
+# todo file
 TODO.md
+
+# docs tags
+doc/tags

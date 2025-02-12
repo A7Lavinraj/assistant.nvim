@@ -1,4 +1,3 @@
-local maps = require("assistant.mappings")
 local runner = require("assistant.runner")
 local state = require("assistant.state")
 local ui = require("assistant.ui")
@@ -16,8 +15,7 @@ M.cmds = {
         end
 
         local number = utils.get_current_line_number()
-        ui.render_input(number)
-        ui.render_output(number)
+        ui.render_logs(number)
       end,
     },
   },
@@ -31,7 +29,7 @@ M.cmds = {
     event = "WinClosed",
     opts = {
       callback = function(event)
-        if vim.tbl_contains({ ui.home.buf, ui.input.buf, ui.output.buf }, event.buf) then
+        if vim.tbl_contains({ ui.home.buf, ui.logs.buf, ui.logs.buf }, event.buf) then
           ui.close()
         end
 
@@ -56,27 +54,26 @@ M.cmds = {
         -- default options
         ui.home:bo("modifiable", false)
         ui.actions:bo("modifiable", false)
-        ui.input:bo("modifiable", false)
-        ui.output:bo("modifiable", false)
+        ui.logs:bo("modifiable", false)
+        ui.logs:bo("modifiable", false)
 
         -- Utility keys
-        maps.set("n", "q", ui.close, ui.home.buf)
-        maps.set("n", "r", runner.push_unique, ui.home.buf)
-        maps.set("n", "R", runner.push_all, ui.home.buf)
-        maps.set("n", "c", runner.create_test, ui.home.buf)
-        maps.set("n", "d", runner.remove_test, ui.home.buf)
-        maps.set("n", "i", ui.prompt_hide_and_save_input, ui.home.buf)
-        maps.set("n", "e", ui.prompt_hide_and_save_expect, ui.home.buf)
+        vim.keymap.set("n", "q", ui.close, { buffer = ui.home.buf })
+        vim.keymap.set("n", "q", ui.close, { buffer = ui.actions.buf })
+        vim.keymap.set("n", "q", ui.close, { buffer = ui.logs.buf })
+        vim.keymap.set("n", "r", runner.push_unique, { buffer = ui.home.buf })
+        vim.keymap.set("n", "R", runner.push_all, { buffer = ui.home.buf })
+        vim.keymap.set("n", "c", runner.create_test, { buffer = ui.home.buf })
+        vim.keymap.set("n", "d", runner.remove_test, { buffer = ui.home.buf })
+        vim.keymap.set("n", "i", ui.prompt_hide_and_save_input, { buffer = ui.home.buf })
+        vim.keymap.set("n", "e", ui.prompt_hide_and_save_expect, { buffer = ui.home.buf })
 
         -- Navigation keys
-        maps.set("n", "<c-l>", ui.move_right, ui.home.buf)
-        maps.set("n", "<c-j>", ui.move_down, ui.home.buf)
-        maps.set("n", "<c-k>", ui.move_up, ui.actions.buf)
-        maps.set("n", "<c-l>", ui.move_right, ui.actions.buf)
-        maps.set("n", "<c-j>", ui.move_down, ui.input.buf)
-        maps.set("n", "<c-h>", ui.move_left, ui.input.buf)
-        maps.set("n", "<c-k>", ui.move_up, ui.output.buf)
-        maps.set("n", "<c-h>", ui.move_left, ui.output.buf)
+        vim.keymap.set("n", "<c-l>", ui.move_right, { buffer = ui.home.buf })
+        vim.keymap.set("n", "<c-j>", ui.move_down, { buffer = ui.home.buf })
+        vim.keymap.set("n", "<c-k>", ui.move_up, { buffer = ui.actions.buf })
+        vim.keymap.set("n", "<c-l>", ui.move_right, { buffer = ui.actions.buf })
+        vim.keymap.set("n", "<c-h>", ui.move_left, { buffer = ui.logs.buf })
       end,
     },
   },
@@ -86,7 +83,7 @@ M.cmds = {
       callback = function(event)
         if
           not vim.tbl_contains(
-            { ui.home.buf, ui.actions.buf, ui.input.buf, ui.output.buf, ui.prompt.buf, ui.popup.buf },
+            { ui.home.buf, ui.actions.buf, ui.logs.buf, ui.logs.buf, ui.prompt.buf, ui.popup.buf },
             event.buf
           )
         then

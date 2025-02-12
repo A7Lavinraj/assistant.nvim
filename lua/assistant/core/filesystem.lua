@@ -1,4 +1,5 @@
 local config = require("assistant.config")
+local utils = require("assistant.utils")
 local FileSystem = {}
 local luv = vim.uv or vim.loop
 
@@ -35,10 +36,15 @@ function FileSystem.create(filename)
     table.insert(sources, key)
   end
 
-  vim.ui.select(sources, { prompt = "Select source" }, function(source)
+  vim.ui.select(sources, { prompt = "Select source | " }, function(source)
     if source then
       local extension = config.options.commands[source].extension
       vim.cmd(string.format("edit %s.%s | w", filename, extension))
+
+      if config.options.commands[source].template then
+        utils.notify_info("populating with " .. config.options.commands[source].template)
+        vim.cmd(string.format("0read %s", config.options.commands[source].template))
+      end
     end
   end)
 end
