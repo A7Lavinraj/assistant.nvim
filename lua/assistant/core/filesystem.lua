@@ -77,6 +77,11 @@ end
 
 ---@param chunk string
 function FileSystem:save(chunk)
+  -- Helper function to convert to snake_case
+  local function to_snake_case(str)
+    return str:gsub("(%s)", "_"):gsub("(%u)", "_%1"):gsub("^_", "") -- Convert spaces to underscores and handle camel case
+  end
+
   self.__init__()
   chunk = string.match(chunk, "^.+\r\n(.+)$")
   local data = vim.json.decode(chunk)
@@ -84,15 +89,17 @@ function FileSystem:save(chunk)
   if data.languages.java.taskClass then
     vim.schedule(function()
       local filtered_data = self.filter(chunk)
-      local filepath = string.format("%s/.ast/%s.json", vim.fn.expand("%:p:h"), data.languages.java.taskClass)
+      local task_class_snake = to_snake_case(data.languages.java.taskClass) -- Convert to snake_case
+      local filepath = string.format("%s/.ast/%s.json", vim.fn.expand("%:p:h"), task_class_snake)
 
       if filtered_data then
         self:write(filepath, vim.json.encode(filtered_data))
-        self.create(data.languages.java.taskClass)
+        self.create(task_class_snake)
       end
     end)
   end
 end
+
 
 ---@param path string | nil
 ---@return table | nil
