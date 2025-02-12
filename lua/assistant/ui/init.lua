@@ -10,7 +10,8 @@ M.logs = setmetatable({}, { __index = Float })
 M.prompt = setmetatable({ enter = true }, { __index = Float })
 M.popup = setmetatable({ enter = true }, { __index = Float })
 M.actions = setmetatable({}, { __index = Float })
-M.view_config = { relative = "editor", style = "minimal", border = "rounded", title_pos = "center" }
+M.backdrop = setmetatable({}, { __index = Float })
+M.view_config = { relative = "editor", style = "minimal", border = "rounded" }
 M.previous_win = M.home.win
 
 ---@return integer, integer, integer, integer
@@ -42,6 +43,15 @@ function M.update_layout()
     end
   end
 
+  M.backdrop.conf = {
+    relative = "editor",
+    height = vim.o.lines,
+    width = vim.o.columns,
+    row = 0,
+    col = 0,
+    zindex = 1,
+  }
+
   -- update view config
   M.home.conf = vim.tbl_deep_extend("force", {
     height = lh - 3,
@@ -49,6 +59,8 @@ function M.update_layout()
     row = lt,
     col = ll,
     title = " " .. name .. " ",
+    title_pos = "center",
+    zindex = 2,
   }, M.view_config)
 
   M.actions.conf = vim.tbl_deep_extend("force", {
@@ -56,7 +68,8 @@ function M.update_layout()
     width = math.ceil(lw / 3),
     row = lt + lh - 1,
     col = ll,
-    title = "  ACTIONS ",
+    -- title = "  ACTIONS ",
+    zindex = 2,
   }, M.view_config)
 
   M.logs.conf = vim.tbl_deep_extend("force", {
@@ -65,6 +78,8 @@ function M.update_layout()
     row = lt,
     col = ll + math.ceil(lw / 3) + 2,
     title = "   LOGS ",
+    title_pos = "center",
+    zindex = 2,
   }, M.view_config)
 
   M.prompt.conf = vim.tbl_deep_extend("force", {
@@ -215,18 +230,31 @@ end
 function M.open()
   state.update_all()
   M.update_layout()
+  M.backdrop:create()
+  M.backdrop:wo("winhighlight", "NormalFloat:AssistantBackdrop")
+  M.backdrop:wo("winblend", 20)
   M.home:create()
   M.actions:create()
   M.logs:create()
-  M.home:wo("winhighlight", "FloatBorder:AssistantFloatBorder")
-  M.actions:wo("winhighlight", "FloatBorder:AssistantFloatBorder")
-  M.logs:wo("winhighlight", "FloatBorder:AssistantFloatBorder")
+  M.home:wo(
+    "winhighlight",
+    "NormalFloat:AssistantFloat,FloatBorder:AssistantFloatBorder,FloatTitle:AssistantFloatTitle"
+  )
+  M.actions:wo(
+    "winhighlight",
+    "NormalFloat:AssistantFloat,FloatBorder:AssistantFloatBorder,FloatTitle:AssistantFloatTitle"
+  )
+  M.logs:wo(
+    "winhighlight",
+    "NormalFloat:AssistantFloat,FloatBorder:AssistantFloatBorder,FloatTitle:AssistantFloatTitle"
+  )
   M.is_open = true
   utils.emit("AssistantViewOpen")
 end
 
 -- Close Assistant.nvim UI
 function M.close()
+  M.backdrop:remove()
   M.home:remove()
   M.actions:remove()
   M.logs:remove()

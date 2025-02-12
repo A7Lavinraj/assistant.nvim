@@ -24,10 +24,10 @@ M.defaults = {
   },
   ui = {
     icons = {
-      success = "",
-      failure = "",
-      unknown = "",
-      loading = { "󰸴", "󰸵", "󰸸", "󰸷", "󰸶" },
+      success = " ",
+      failure = " ",
+      unknown = " ",
+      loading = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
     },
   },
   core = {
