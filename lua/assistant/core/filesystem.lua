@@ -85,7 +85,8 @@ end
 function FileSystem:save(chunk)
   -- Helper function to convert to snake_case
   local function to_snake_case(str)
-    return str:gsub("(%s)", "_"):gsub("(%u)", "_%1"):gsub("^_", "") -- Convert spaces to underscores and handle camel case
+    -- Convert spaces to underscores and handle camel-case and consecutive capital letters
+    return str:gsub("(%s)", "_"):gsub("(%u%l)", "_%1"):gsub("(%l)(%u)", "%1_%2"):gsub("^_", "")
   end
 
   self.__init__()
