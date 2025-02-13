@@ -86,18 +86,14 @@ function FileSystem:save(chunk)
   -- Helper function to convert to snake_case
   local function to_snake_case(str)
     -- Convert spaces to underscores and handle camel-case and consecutive capital letters
-    local result = str
-        :gsub("(%s)", "_")
-        :gsub("(%u%l)", "_%1")
-        :gsub("(%l)(%u)", "%1_%2")
-        :gsub("^_", "")
-  	return result
-    		:gsub("^%s*(.-)%s*$", "%1")
-    		:gsub("%s+", "_")
-    		:gsub("(%l)(%u)", "%1_%2")
-    		:gsub("(%l)(%d)", "%1_%2")
-    		:gsub("(%d)(%l)", "%1_%2")
-    		:gsub("(%d)(%u)", "%1_%2")
+    local result = str:gsub("(%s)", "_"):gsub("(%u%l)", "_%1"):gsub("(%l)(%u)", "%1_%2"):gsub("^_", "")
+    return result
+      :gsub("^%s*(.-)%s*$", "%1")
+      :gsub("%s+", "_")
+      :gsub("(%l)(%u)", "%1_%2")
+      :gsub("(%l)(%d)", "%1_%2")
+      :gsub("(%d)(%l)", "%1_%2")
+      :gsub("(%d)(%u)", "%1_%2")
   end
 
   self.__init__()
@@ -117,7 +113,6 @@ function FileSystem:save(chunk)
     end)
   end
 end
-
 
 ---@param path string | nil
 ---@return table | nil
