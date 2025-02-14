@@ -2,21 +2,6 @@ name: "Bug Report"
 description: "Report a bug to help us improve."
 labels: ["bug"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to report a bug! Please fill out the details below.
-  
-  - type: input
-    id: title
-    attributes:
-      label: "Bug Title"
-      description: "Provide a concise title for the bug."
-      placeholder: |
-        BUG: title to the bug
-    validations:
-      required: true
-  
   - type: textarea
     id: description
     attributes:
