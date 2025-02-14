@@ -1,0 +1,44 @@
+name: "Pull Request"
+description: "Submit a pull request for review."
+labels: ["pull request"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Describe the changes introduced in this pull request."
+    validations:
+      required: true
+  
+  - type: textarea
+    id: issue-reference
+    attributes:
+      label: "Issue Reference"
+      description: "Link to the issue(s) this PR resolves, if applicable."
+      placeholder: "Fixes #123"
+  
+  - type: textarea
+    id: changes
+    attributes:
+      label: "Changes Made"
+      description: "List the main changes in this PR."
+      placeholder: |
+        - Added feature X
+        - Fixed bug Y
+        - Refactored component Z
+    validations:
+      required: true
+  
+  - type: textarea
+    id: testing
+    attributes:
+      label: "Testing Instructions"
+      description: "Explain how reviewers can test these changes."
+    validations:
+      required: true
+  
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "Additional Context"
+      description: "Any other information relevant to this PR."
