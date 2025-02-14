@@ -1,0 +1,31 @@
+name: "Feature Request"
+description: "Suggest a new feature or improvement."
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Describe the feature and its benefits."
+    validations:
+      required: true
+  
+  - type: textarea
+    id: use-case
+    attributes:
+      label: "Use Case"
+      description: "Explain how this feature would be used and who it benefits."
+    validations:
+      required: true
+  
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "List any alternative solutions or features you've considered."
+  
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "Additional Context"
+      description: "Any other context, screenshots, or ideas related to the request."
