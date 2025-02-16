@@ -2,16 +2,16 @@ local M = {}
 
 M.groups = {
   AssistantBackdrop = {
-    link = "NormalFloat",
+    bg = "#000000",
   },
   AssistantFloat = {
     link = "NormalFloat",
   },
   AssistantFloatBorder = {
-    link = "NonText",
+    link = "FloatBorder",
   },
   AssistantFloatTitle = {
-    link = "CursorLineNr",
+    link = "FloatTitle",
   },
   AssistantH1 = {
     fg = "#ffffff",

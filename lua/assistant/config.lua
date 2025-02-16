@@ -23,6 +23,7 @@ M.defaults = {
     },
   },
   ui = {
+    backdrop = 60,
     icons = {
       success = " ",
       failure = " ",

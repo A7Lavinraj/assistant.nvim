@@ -36,7 +36,7 @@ function FileSystem.create(filename)
     table.insert(sources, key)
   end
 
-  vim.ui.select(sources, { prompt = "Select source | " }, function(source)
+  vim.ui.select(sources, { prompt = "select source" }, function(source)
     if source then
       local extension = config.options.commands[source].extension
       vim.cmd(string.format("edit %s.%s | w", filename, extension))
