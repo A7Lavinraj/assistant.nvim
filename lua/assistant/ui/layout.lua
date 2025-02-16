@@ -36,6 +36,8 @@ local AstLayout = {}
 
 ---@param init_opts Ast.Layout.Opts
 function AstLayout.new(init_opts)
+  init_opts = init_opts or {}
+
   local self = setmetatable({}, { __index = AstLayout })
 
   self.width = init_opts.width

@@ -1,6 +1,31 @@
+---@class Ast.Config.Core
+---@field process_budget integer
+
+---@class Ast.Config.UI
+---@field width number
+---@field height number
+---@field tasks table<string, any>
+---@field actions table<string, any>
+---@field logs table<string, any>
+
+---@class Ast.Config.Command.Opts
+---@field extension string
+---@field compile? { main?: string, args?: string[] }
+---@field execute? { main?: string, args?: string[] }
+
+---@alias Ast.Config.Command table<string, Ast.Config.Command.Opts>
+
+---@class Ast.Config.Defaults
+---@field commands Ast.Config.Command[]
+---@field ui Ast.Config.UI
+---@field core Ast.Config.Core
+
+---@class Ast.Config
+---@field private _defaults Ast.Config.Defaults
+---@field opts Ast.Config.Defaults
 local M = {}
 
-M.defaults = {
+M._defaults = {
   commands = {
     python = {
       extension = "py",
@@ -23,12 +48,16 @@ M.defaults = {
     },
   },
   ui = {
-    backdrop = 60,
-    icons = {
-      success = " ",
-      failure = " ",
-      unknown = " ",
-      loading = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
+    width = 0.8,
+    height = 0.8,
+    tasks = {
+      title_icon = " ",
+    },
+    actions = {
+      title_icon = " ",
+    },
+    logs = {
+      title_icon = " ",
     },
   },
   core = {
@@ -36,9 +65,8 @@ M.defaults = {
   },
 }
 
----@param opts AssistantConfig
 function M.init(opts)
-  M.options = vim.tbl_deep_extend("force", M.defaults, opts or {})
+  M.opts = vim.tbl_deep_extend("force", M._defaults, opts or {})
 end
 
 return M

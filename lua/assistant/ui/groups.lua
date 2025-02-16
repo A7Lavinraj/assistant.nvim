@@ -17,7 +17,7 @@ M.groups = {
     fg = "#ffffff",
     bold = true,
   },
-  AssistantText = {
+  AstText = {
     link = "NavicText",
   },
   AssistantGreen = {

@@ -13,7 +13,7 @@ end
 function M.setup(opts)
   -- vim.api.nvim_create_user_command("AssistantToggle", ui.toggle, {})
   M.init_all({
-    -- { name = "config", opts = opts },
+    { name = "config", opts = opts },
     -- { name = "listeners" },
     -- { name = "core.tcplistener" },
   })

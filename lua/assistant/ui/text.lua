@@ -1,16 +1,28 @@
----@class AssistantText
-local AssistantText = {}
+---@alias Ast.Text.Line { str: string, hl: string }
 
----@return AssistantText
-function AssistantText.new()
-  local self = setmetatable({}, { __index = AssistantText })
-  self.padding = 2
+---@class Ast.Text.Opts
+---@field pd integer
+---@field lines Ast.Text.Line[][]
+
+---@class Ast.Text
+---@field pd integer
+---@field lines Ast.Text.Line[][]
+local AstText = {}
+
+---@return Ast.Text
+function AstText.new(init_opts)
+  init_opts = init_opts or {}
+
+  local self = setmetatable({}, { __index = AstText })
+
+  self.pd = init_opts.pd or 0
   self.lines = { {} }
+
   return self
 end
 
 ---@param count integer?
-function AssistantText:nl(count)
+function AstText:nl(count)
   for _ = 1, (count or 1) do
     table.insert(self.lines, {})
   end
@@ -20,10 +32,10 @@ end
 
 ---@param str string
 ---@param hl string
-function AssistantText:append(str, hl)
+function AstText:append(str, hl)
   table.insert(self.lines[#self.lines], { str = str, hl = hl })
 
   return self
 end
 
-return AssistantText
+return AstText

@@ -123,13 +123,13 @@ function M.slice_first_n_lines(str, n)
 end
 
 ---@param buf number
----@param text AssistantText
+---@param text Ast.Text
 function M.render(buf, text)
   local lines = {}
   local access = vim.api.nvim_get_option_value("modifiable", { buf = buf })
 
   for _, row in pairs(text.lines) do
-    local line = string.rep(" ", text.padding)
+    local line = string.rep(" ", text.pd)
 
     for i, col in pairs(row) do
       line = line .. col.str .. string.rep(" ", i == #row and 0 or 1)
@@ -146,7 +146,7 @@ function M.render(buf, text)
   end
 
   for cnt, row in pairs(text.lines) do
-    local offset = text.padding
+    local offset = text.pd
 
     for _, col in pairs(row) do
       if buf and vim.api.nvim_buf_is_valid(buf) then
