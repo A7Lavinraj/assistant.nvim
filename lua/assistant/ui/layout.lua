@@ -63,6 +63,19 @@ function AstLayout:_init()
     end,
   })
 
+  api.nvim_create_autocmd("BufEnter", {
+    group = self.augroup,
+    callback = function(event)
+      for _, config in pairs(self.pane_config) do
+        if config.buf == event.buf then
+          return
+        end
+      end
+
+      self:hide()
+    end,
+  })
+
   api.nvim_create_autocmd("WinClosed", {
     group = self.augroup,
     callback = function(event)
