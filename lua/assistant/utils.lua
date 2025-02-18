@@ -16,11 +16,11 @@ function M.notify_err(msg)
 end
 
 function M.bo(buf, opt, value)
-  vim.api.nvim_set_options_value(opt, value, { buf = buf })
+  vim.api.nvim_set_option_value(opt, value, { buf = buf })
 end
 
 function M.wo(win, opt, value)
-  vim.api.nvim_set_options_value(opt, value, { win = win })
+  vim.api.nvim_set_option_value(opt, value, { win = win })
 end
 
 function M.is_buf(buf)

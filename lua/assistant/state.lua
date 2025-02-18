@@ -54,7 +54,7 @@ function M.set_by_key(key, callback)
   end
 end
 
-function M.update_all()
+function M.update()
   M.set_by_key("src_name", function()
     return vim.fn.expand("%:t:r")
   end)

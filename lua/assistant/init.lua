@@ -9,12 +9,12 @@ function M.init_all(module_list)
 end
 
 -- Setup function for loading and create user command
----@param opts AssistantConfig
+---@param opts Ast.Config
 function M.setup(opts)
   -- vim.api.nvim_create_user_command("AssistantToggle", ui.toggle, {})
   M.init_all({
     { name = "config", opts = opts },
-    -- { name = "listeners" },
+    { name = "ui.groups" },
     -- { name = "core.tcplistener" },
   })
 end

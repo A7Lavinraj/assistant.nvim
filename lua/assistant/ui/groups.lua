@@ -1,42 +1,60 @@
 local M = {}
 
 M.groups = {
-  AssistantBackdrop = {
+  BackdropNormalFloat = {
     bg = "#000000",
   },
-  AssistantFloat = {
+  TasksNormalFloat = {
     link = "NormalFloat",
   },
-  AssistantFloatBorder = {
+  TasksFloatBorder = {
     link = "FloatBorder",
   },
-  AssistantFloatTitle = {
+  TasksFloatTitle = {
     link = "FloatTitle",
   },
-  AssistantH1 = {
+  ActionsNormalFloat = {
+    link = "NormalFloat",
+  },
+  ActionsFloatBorder = {
+    link = "FloatBorder",
+  },
+  ActionsFloatTitle = {
+    link = "FloatTitle",
+  },
+  LogsNormalFloat = {
+    link = "NormalFloat",
+  },
+  LogsFloatBorder = {
+    link = "FloatBorder",
+  },
+  LogsFloatTitle = {
+    link = "FloatTitle",
+  },
+  TextH1 = {
     fg = "#ffffff",
     bold = true,
   },
-  AstText = {
+  TextP = {
     link = "NavicText",
   },
-  AssistantGreen = {
+  TextGreen = {
     fg = "#bef264",
   },
-  AssistantRed = {
+  TextRed = {
     fg = "#fca5a5",
   },
-  AssistantYellow = {
+  TextYellow = {
     fg = "#fcd34d",
   },
-  AssistantDimText = {
+  TextDim = {
     link = "Comment",
   },
 }
 
 function M.setup()
   for group, value in pairs(M.groups) do
-    vim.api.nvim_set_hl(0, group, value)
+    vim.api.nvim_set_hl(0, "Ast" .. group, value)
   end
 end
 

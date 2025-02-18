@@ -4,6 +4,8 @@
 ---@class Ast.Config.UI
 ---@field width number
 ---@field height number
+---@field backdrop integer
+---@field border string
 ---@field tasks table<string, any>
 ---@field actions table<string, any>
 ---@field logs table<string, any>
@@ -50,6 +52,8 @@ M._defaults = {
   ui = {
     width = 0.8,
     height = 0.8,
+    backdrop = 60,
+    border = "single",
     tasks = {
       title_icon = " ",
     },

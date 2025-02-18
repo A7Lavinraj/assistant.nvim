@@ -19,16 +19,24 @@ local api = vim.api
 ---@field title? string
 ---@field title_pos? string
 ---@field enter? boolean
+---@field relative? string
+---@field style? string
 
 ---@class Ast.Layout.Opts
 ---@field width number
 ---@field height number
+---@field backdrop? integer
+---@field border? string
+---@field zindex? integer
 ---@field pane_config table<string, Ast.Layout.PaneConfig>
 
 ---@class Ast.Layout
 ---@field width number
 ---@field height number
----@field pane_config { root: Ast.Layout.PaneConfig, [string]: Ast.Layout.PaneConfig }
+---@field backdrop? integer
+---@field border? string
+---@field zindex? integer
+---@field pane_config table<string, Ast.Layout.PaneConfig>
 ---@field pane_opts table<string, vim.api.keyset.win_config>
 ---@field augroup integer
 ---@field is_open boolean
@@ -42,6 +50,9 @@ function AstLayout.new(init_opts)
 
   self.width = init_opts.width
   self.height = init_opts.height
+  self.backdrop = init_opts.backdrop
+  self.border = init_opts.border
+  self.zindex = init_opts.zindex
   self.pane_config = init_opts.pane_config
   self.augroup = api.nvim_create_augroup("AstLayout", { clear = true })
   self:_init()
@@ -52,42 +63,25 @@ end
 function AstLayout:_init()
   self.pane_opts = {}
 
+  if self.backdrop and self.backdrop < 100 then
+    self.pane_config.Backdrop = {}
+  end
+
   for name, config in pairs(self.pane_config) do
     if not self.pane_opts[name] then
       self:_resolve_config(name, config)
     end
   end
+end
 
-  api.nvim_create_autocmd("VimResized", {
+function AstLayout:bind_key(lhs, rhs, opts, mode)
+  vim.keymap.set(mode or "n", lhs, rhs, opts)
+end
+
+function AstLayout:bind_cmd(events, fn)
+  api.nvim_create_autocmd(events, {
     group = self.augroup,
-    callback = function()
-      self:_resize()
-    end,
-  })
-
-  api.nvim_create_autocmd("BufEnter", {
-    group = self.augroup,
-    callback = function(event)
-      for _, config in pairs(self.pane_config) do
-        if config.buf == event.buf then
-          return
-        end
-      end
-
-      self:hide()
-    end,
-  })
-
-  api.nvim_create_autocmd("WinClosed", {
-    group = self.augroup,
-    callback = function(event)
-      for _, config in pairs(self.pane_config) do
-        if config.win == tonumber(event.match) then
-          self:hide()
-          return
-        end
-      end
-    end,
+    callback = fn,
   })
 end
 
@@ -119,19 +113,34 @@ function AstLayout:_update(name, config)
   local vh, vw = utils.get_view_port()
 
   self.pane_opts[name] = {
-    style = "minimal",
-    border = "single",
-    relative = "editor",
+    style = self.pane_config[name].style,
+    relative = self.pane_config[name].relative,
+    border = self.border,
     title = self.pane_config[name].title,
     title_pos = self.pane_config[name].title_pos,
+    zindex = self.backdrop and (self.zindex + 1) or self.zindex,
   }
-  if name == "root" then
-    self.pane_opts[name].row = math.floor((1 - self.height) * vh * 0.5)
-    self.pane_opts[name].col = math.floor((1 - self.width) * vw * 0.5)
+
+  if self.backdrop and self.backdrop < 100 then
+    self.pane_opts.Backdrop = {
+      relative = "editor",
+      style = "minimal",
+      width = vim.o.columns,
+      height = vim.o.lines,
+      zindex = self.zindex,
+      focusable = false,
+      row = 0,
+      col = 0,
+    }
   end
 
   self.pane_opts[name].width = math.floor(vw * self.width * (config.width or 0))
   self.pane_opts[name].height = math.floor(vh * self.height * (config.height or 0))
+
+  if not (config.left or config.top or config.right or config.bottom) then
+    self.pane_opts[name].row = math.floor((1 - self.height) * vh * 0.5)
+    self.pane_opts[name].col = math.floor((1 - self.width) * vw * 0.5)
+  end
 
   if self.pane_config[name].dwidth then
     self.pane_opts[name].width = self.pane_opts[name].width + self.pane_config[name].dwidth
@@ -166,7 +175,7 @@ function AstLayout:_update(name, config)
   end
 end
 
-function AstLayout:_resize()
+function AstLayout:resize()
   self.pane_opts = {}
 
   for name, config in pairs(self.pane_config) do
@@ -182,7 +191,7 @@ function AstLayout:_resize()
   end
 end
 
-function AstLayout:show()
+function AstLayout:open()
   if self.is_open then
     return
   end
@@ -196,7 +205,7 @@ function AstLayout:show()
   self.is_open = true
 end
 
-function AstLayout:hide()
+function AstLayout:close()
   if not self.is_open then
     return
   end
@@ -205,11 +214,6 @@ function AstLayout:hide()
     if utils.is_win(self.pane_config[name].win) then
       api.nvim_win_close(self.pane_config[name].win, true)
       self.pane_config[name].win = nil
-    end
-
-    if utils.is_buf(self.pane_config[name].buf) then
-      vim.api.nvim_buf_delete(self.pane_config[name].buf, { force = true })
-      self.pane_config[name].buf = nil
     end
   end
 
