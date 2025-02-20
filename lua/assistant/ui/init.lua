@@ -109,6 +109,29 @@ layout_opts.on_mount_end = function(self)
     self:push_unique()
   end, { buffer = self.pane_config.Tasks.buf })
 
+  self:bind_key("s", function()
+    local test_id = utils.get_current_line_number()
+    print(test_id)
+
+    if test_id then
+      state.set_by_key("tests", function(value)
+        if value[test_id].checked then
+          value[test_id].checked = false
+        else
+          value[test_id].checked = true
+        end
+
+        return value
+      end)
+
+      self:render_tasks()
+    end
+  end, { buffer = self.pane_config.Tasks.buf })
+
+  self:bind_key("c", function()
+    self:create_test()
+  end, { buffer = self.pane_config.Tasks.buf })
+
   self:bind_cmd("CursorMoved", function()
     local line = vim.api.nvim_get_current_line()
 
@@ -183,6 +206,8 @@ function M:render(buf)
   if not access then
     utils.bo(buf, "modifiable", false)
   end
+
+  vim.cmd.redraw()
 end
 
 function M:render_tasks()
@@ -201,11 +226,15 @@ function M:render_tasks()
     end
 
     self:append(string.format("Testcase #%d", id), "AstTextH1"):nl()
-    self
-      :append("↳", "AstTextDim")
-      :append("󰂓", "AstTextDim")
-      :append(string.format("%s", test.status or "Pending"), "AstTextP")
-      :append("󰔛", "AstTextDim")
+    self:append("↳", "AstTextDim"):append("󰂓", "AstTextDim")
+
+    if test.status then
+      self:append(string.format("%s", test.status.text), test.status.hl)
+    else
+      self:append("-", "AstTextP")
+    end
+
+    self:append("󰔛", "AstTextDim")
 
     if test.time_taken then
       self:append(string.format("%.3f", test.time_taken), "AstTextP")

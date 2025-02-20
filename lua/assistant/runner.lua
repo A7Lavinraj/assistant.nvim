@@ -21,6 +21,16 @@ function AstRunner:_init()
   self.processor_status = "STOPPED"
   self.compile_status = { code = 0, err = "" }
   self.budget = opts.core.process_budget or 5000
+  self.status_map = {
+    AC = { text = "accepted", hl = "AstTextGreen" },
+    WA = { text = "wrong answer", hl = "AstTextRed" },
+    TLE = { text = "time limit exceeded", hl = "AstTextYellow" },
+    RE = { text = "runtime error", hl = "AstTextYellow" },
+    CE = { text = "compilation error", hl = "AstTextYellow" },
+    SKIP = { text = "skipped", hl = "AstTextP" },
+    RUN = { text = "running", hl = "AstTextYellow" },
+    QUEUE = { text = "queued", hl = "AstTextBlue" },
+  }
 end
 
 function AstRunner:get_cmd()
@@ -89,8 +99,7 @@ function AstRunner:_execute(test_id)
           state.set_by_key("tests", function(value)
             value[test_id].stdout = process.stdout
             value[test_id].stderr = process.stderr
-            value[test_id].status = "KILLED"
-            value[test_id].group = "AssistantRed"
+            value[test_id].status = self.status_map.TLE
             value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
 
             return value
@@ -101,8 +110,7 @@ function AstRunner:_execute(test_id)
           state.set_by_key("tests", function(value)
             value[test_id].stdout = process.stdout
             value[test_id].stderr = process.stderr
-            value[test_id].status = "ACCEPTED"
-            value[test_id].group = "AssistantGreen"
+            value[test_id].status = self.status_map.AC
             value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
 
             return value
@@ -113,8 +121,7 @@ function AstRunner:_execute(test_id)
           state.set_by_key("tests", function(value)
             value[test_id].stdout = process.stdout
             value[test_id].stderr = process.stderr
-            value[test_id].status = "WRONG ANSWER"
-            value[test_id].group = "AssistantRed"
+            value[test_id].status = self.status_map.WA
             value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
 
             return value
@@ -126,8 +133,7 @@ function AstRunner:_execute(test_id)
         state.set_by_key("tests", function(value)
           value[test_id].stdout = process.stdout
           value[test_id].stderr = process.stderr
-          value[test_id].status = "RUNTIME ERROR"
-          value[test_id].group = "AssistantYellow"
+          value[test_id].status = self.status_map.RE
           value[test_id].time_taken = (process.end_at - process.start_at) / 1e3
 
           return value
@@ -157,8 +163,7 @@ function AstRunner:_execute(test_id)
 
   process.start_at = luv.now()
   state.set_by_key("tests", function(value)
-    value[test_id].status = "RUNNING"
-    value[test_id].group = "AssistantYellow"
+    value[test_id].status = self.status_map.RUN
     return value
   end)
 
@@ -176,8 +181,7 @@ function AstRunner:_execute(test_id)
     end
 
     state.set_by_key("tests", function(value)
-      value[test_id].status = "KILLED"
-      value[test_id].group = "AssistantRed"
+      value[test_id].status = self.status_map.TLE
       return value
     end)
 
@@ -300,6 +304,12 @@ function AstRunner:push_unique()
     table.insert(self.queue, test_id)
   end
 
+  state.set_by_key("tests", function(value)
+    value[test_id].status = self.status_map.QUEUE
+    return value
+  end)
+
+  self:render_tasks()
   self:process_queue()
 end
 
@@ -312,6 +322,15 @@ function AstRunner:push_all()
     end
   end
 
+  state.set_by_key("tests", function(value)
+    for i = 1, #value do
+      value[i].status = self.status_map.QUEUE
+    end
+
+    return value
+  end)
+
+  self:render_tasks()
   self:process_queue()
 end
 
@@ -326,6 +345,7 @@ function AstRunner:create_test()
       output = "",
       expected = "",
     })
+
     return value
   end)
 

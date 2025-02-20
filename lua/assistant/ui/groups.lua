@@ -44,6 +44,9 @@ M.groups = {
   TextRed = {
     fg = "#fca5a5",
   },
+  TextBlue = {
+    fg = "#7AA2F7",
+  },
   TextYellow = {
     fg = "#fcd34d",
   },
