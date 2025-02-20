@@ -1,26 +1,21 @@
 ---@alias Ast.Text.Line { str: string, hl: string }
 
----@class Ast.Text.Opts
----@field pd integer
----@field lines Ast.Text.Line[][]
-
 ---@class Ast.Text
 ---@field pd integer
 ---@field lines Ast.Text.Line[][]
 local AstText = {}
 
 ---@return Ast.Text
-function AstText.new(init_opts)
-  init_opts = init_opts or {}
-
+function AstText.new()
   local self = setmetatable({}, { __index = AstText })
-  self:_init(init_opts)
+
+  self:_init()
 
   return self
 end
 
-function AstText:_init(init_opts)
-  self.pd = init_opts.pd or 0
+function AstText:_init()
+  self.pd = 2
   self.lines = { {} }
 end
 

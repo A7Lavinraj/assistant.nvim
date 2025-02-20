@@ -131,7 +131,7 @@ end
 layout_opts.on_mount_start = state.update
 
 AstLayout._init(M, layout_opts)
-AstText._init(M, { pd = 2 })
+AstText._init(M)
 AstRunner._init(M)
 
 function M.toggle()
