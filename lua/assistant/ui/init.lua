@@ -163,6 +163,19 @@ layout_opts.on_mount_end = function(self)
 
   self:bind_key("c", function()
     self:create_test()
+
+    local line_count = vim.api.nvim_buf_line_count(0)
+
+    if line_count > 0 then
+      vim.api.nvim_win_set_cursor(0, { line_count, 0 })
+    end
+
+    utils.prev_test()
+  end, { buffer = self.pane_config.Tasks.buf })
+
+  self:bind_key("d", function()
+    self:remove_test()
+    utils.prev_test()
   end, { buffer = self.pane_config.Tasks.buf })
 
   self:bind_cmd("CursorMoved", function()
