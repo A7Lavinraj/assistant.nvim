@@ -22,14 +22,14 @@ function AstRunner:_init()
   self.compile_status = { code = 0, err = "" }
   self.budget = opts.core.process_budget or 5000
   self.status_map = {
-    AC = { text = "accepted", hl = "AstTextGreen" },
-    WA = { text = "wrong answer", hl = "AstTextRed" },
-    TLE = { text = "time limit exceeded", hl = "AstTextYellow" },
-    RE = { text = "runtime error", hl = "AstTextYellow" },
-    CE = { text = "compilation error", hl = "AstTextYellow" },
-    SKIP = { text = "skipped", hl = "AstTextP" },
-    RUN = { text = "running", hl = "AstTextYellow" },
-    QUEUE = { text = "queued", hl = "AstTextBlue" },
+    AC = { text = "Accepted", hl = "AstTextGreen" },
+    WA = { text = "Wrong answer", hl = "AstTextRed" },
+    TLE = { text = "Time limit exceeded", hl = "AstTextYellow" },
+    RE = { text = "Runtime error", hl = "AstTextYellow" },
+    CE = { text = "Compilation error", hl = "AstTextYellow" },
+    SKIP = { text = "Skipped", hl = "AstTextP" },
+    RUN = { text = "Running", hl = "AstTextYellow" },
+    QUEUE = { text = "Queued", hl = "AstTextBlue" },
   }
 end
 

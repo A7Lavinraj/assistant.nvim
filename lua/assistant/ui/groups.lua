@@ -8,28 +8,28 @@ M.groups = {
     link = "NormalFloat",
   },
   TasksFloatBorder = {
-    link = "Conceal",
+    link = "Whitespace",
   },
   TasksFloatTitle = {
-    link = "FloatTitle",
+    link = "Constant",
   },
   ActionsNormalFloat = {
     link = "NormalFloat",
   },
   ActionsFloatBorder = {
-    link = "Conceal",
+    link = "Whitespace",
   },
   ActionsFloatTitle = {
-    link = "FloatTitle",
+    link = "Constant",
   },
   LogsNormalFloat = {
     link = "NormalFloat",
   },
   LogsFloatBorder = {
-    link = "Conceal",
+    link = "Whitespace",
   },
   LogsFloatTitle = {
-    link = "FloatTitle",
+    link = "Constant",
   },
   TextH1 = {
     fg = "#ffffff",
@@ -51,7 +51,7 @@ M.groups = {
     fg = "#fcd34d",
   },
   TextDim = {
-    fg = "#5C6370",
+    link = "Whitespace",
   },
 }
 

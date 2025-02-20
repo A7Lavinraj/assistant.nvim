@@ -216,7 +216,7 @@ function M:render_tasks()
 
   self.lines = { {} }
 
-  self:append("󰫍", "AstTextDim"):append(name or "", "AstTextH1"):nl(2)
+  self:append("󰫍 ", "AstTextYellow"):append(name or "", "AstTextH1"):nl(2)
 
   for id, test in ipairs(tests or {}) do
     if test.checked then
@@ -226,7 +226,7 @@ function M:render_tasks()
     end
 
     self:append(string.format("Testcase #%d", id), "AstTextH1"):nl()
-    self:append("↳", "AstTextDim"):append("󰂓", "AstTextDim")
+    self:append("↳", "AstTextDim"):append("󰂓", "AstTextP")
 
     if test.status then
       self:append(string.format("%s", test.status.text), test.status.hl)
@@ -234,7 +234,7 @@ function M:render_tasks()
       self:append("-", "AstTextP")
     end
 
-    self:append("󰔛", "AstTextDim")
+    self:append(" 󰔛", "AstTextP")
 
     if test.time_taken then
       self:append(string.format("%.3f", test.time_taken), "AstTextP")
