@@ -254,7 +254,41 @@ function M:render_log(id)
     end
 
     self:nl()
+    local _, cnt = string.gsub(test.output or "", "\n", "")
+
+    if cnt > 100 then
+      self:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
+    end
+  end
+
+  if test.stdout then
+    self:append("Stdout", "AstTextH1"):nl(2)
+
+    for _, line in ipairs(utils.slice_first_n_lines(test.stdout, 100)) do
+      if line then
+        self:append(line, "AstTextP"):nl()
+      end
+    end
+
+    self:nl()
     local _, cnt = string.gsub(test.stdout or "", "\n", "")
+
+    if cnt > 100 then
+      self:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
+    end
+  end
+
+  if test.stderr then
+    self:nl():append("Stderr", "AstTextH1"):nl(2)
+
+    for _, line in ipairs(utils.slice_first_n_lines(test.stderr, 100)) do
+      if line then
+        self:append(line, "AstTextP"):nl()
+      end
+    end
+
+    self:nl()
+    local _, cnt = string.gsub(test.stderr or "", "\n", "")
 
     if cnt > 100 then
       self:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
