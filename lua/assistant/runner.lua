@@ -154,7 +154,7 @@ function AstRunner:_execute(test_id)
   )
 
   if not process.handle then
-    vim.notify("[Process]: unable to start execution", vim.log.levels.ERROR)
+    utils.notify_err("[Process]: unable to start execution")
 
     for _, pipe in ipairs(process.stdio) do
       pipe:close()
@@ -210,8 +210,10 @@ function AstRunner:_compile()
   thread = coroutine.create(function()
     local cmd = self:get_cmd()
     local process = {}
+
     process.stdio = { nil, nil, luv.new_pipe(false) }
     process.stderr = ""
+
     process.handle, process.pid = luv.spawn(
       cmd.compile.main,
       ---@diagnostic disable-next-line
@@ -223,11 +225,12 @@ function AstRunner:_compile()
 
         self.compile_status.code = code
         self.compile_status.err = process.stderr
+
         coroutine.resume(thread)
       end
     )
     if not process.handle then
-      vim.notify("[Process]: unable to start compilation", vim.log.levels.ERROR)
+      utils.notify_err("unable to start compilation")
 
       for _, pipe in ipairs(process.stdio) do
         pipe:close()
@@ -357,7 +360,7 @@ function AstRunner:remove_test()
   local test_id = utils.get_current_line_number()
 
   if not test_id then
-    vim.notify("[ERROR]: Not a valid testcase to remove", vim.log.levels.ERROR)
+    utils.notify_err("[ERROR]: Not a valid testcase to remove")
     return
   end
 
