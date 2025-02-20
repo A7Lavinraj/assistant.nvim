@@ -21,6 +21,7 @@ local api = vim.api
 ---@field enter? boolean
 ---@field relative? string
 ---@field style? string
+---@field on_attach? function
 
 ---@class Ast.Layout.Opts
 ---@field width number
@@ -29,6 +30,9 @@ local api = vim.api
 ---@field border? string
 ---@field zindex? integer
 ---@field pane_config table<string, Ast.Layout.PaneConfig>
+---@field on_attach? function
+---@field on_mount_start? function
+---@field on_mount_end? function
 
 ---@class Ast.Layout
 ---@field width number
@@ -40,6 +44,9 @@ local api = vim.api
 ---@field pane_opts table<string, vim.api.keyset.win_config>
 ---@field augroup integer
 ---@field is_open boolean
+---@field on_attach? function
+---@field on_mount_start? function
+---@field on_mount_end? function
 local AstLayout = {}
 
 ---@param init_opts Ast.Layout.Opts
@@ -48,19 +55,23 @@ function AstLayout.new(init_opts)
 
   local self = setmetatable({}, { __index = AstLayout })
 
+  self:_init(init_opts)
+
+  return self
+end
+
+function AstLayout:_init(init_opts)
   self.width = init_opts.width
   self.height = init_opts.height
   self.backdrop = init_opts.backdrop
   self.border = init_opts.border
   self.zindex = init_opts.zindex
   self.pane_config = init_opts.pane_config
+  self.on_attach = init_opts.on_attach
+  self.on_mount_start = init_opts.on_mount_start
+  self.on_mount_end = init_opts.on_mount_end
   self.augroup = api.nvim_create_augroup("AstLayout", { clear = true })
-  self:_init()
 
-  return self
-end
-
-function AstLayout:_init()
   self.pane_opts = {}
 
   if self.backdrop and self.backdrop < 100 then
@@ -72,17 +83,22 @@ function AstLayout:_init()
       self:_resolve_config(name, config)
     end
   end
+
+  if self.on_attach then
+    self:on_attach()
+  end
 end
 
 function AstLayout:bind_key(lhs, rhs, opts, mode)
   vim.keymap.set(mode or "n", lhs, rhs, opts)
 end
 
-function AstLayout:bind_cmd(events, fn)
-  api.nvim_create_autocmd(events, {
-    group = self.augroup,
-    callback = fn,
-  })
+function AstLayout:bind_cmd(events, fn, opts)
+  opts = opts or {}
+  opts.group = self.augroup
+  opts.callback = fn
+
+  api.nvim_create_autocmd(events, opts)
 end
 
 ---@param name string
@@ -192,6 +208,10 @@ function AstLayout:resize()
 end
 
 function AstLayout:open()
+  if self.on_mount_start then
+    self:on_mount_start()
+  end
+
   if self.is_open then
     return
   end
@@ -200,6 +220,10 @@ function AstLayout:open()
     self.pane_config[name].buf = api.nvim_create_buf(false, true)
     self.pane_config[name].win =
       api.nvim_open_win(self.pane_config[name].buf, self.pane_config[name].enter or false, opts)
+  end
+
+  if self.on_mount_end then
+    self:on_mount_end()
   end
 
   self.is_open = true

@@ -11,7 +11,7 @@
 ---@field logs table<string, any>
 
 ---@class Ast.Config.Command.Opts
----@field extension string
+---@field extension? string
 ---@field compile? { main?: string, args?: string[] }
 ---@field execute? { main?: string, args?: string[] }
 

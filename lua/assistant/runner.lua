@@ -1,20 +1,30 @@
-local actions = require("assistant.core.actions")
-local config = require("assistant.config")
+-- local actions = require("assistant.core.actions")
+local opts = require("assistant.config").opts
 local state = require("assistant.state")
-local ui = require("assistant.ui")
 local utils = require("assistant.utils")
 local luv = vim.uv or vim.loop
-local M = {}
-M.queue = {}
-M.MAX_CONCURRENCY = 5
-M.concurrency_count = 0
-M.processor_status = "STOPPED"
-M.compile_status = { code = 0, err = "" }
-M.budget = config.options.core.process_budget or 5000
 
----@return table
-function M.get_cmd()
-  local cmd = vim.deepcopy(config.options.commands[state.get_src_ft()] or {})
+local AstRunner = {}
+
+function AstRunner.new()
+  local self = setmetatable({}, { __index = AstRunner })
+
+  self:_init()
+
+  return self
+end
+
+function AstRunner:_init()
+  self.queue = {}
+  self.MAX_CONCURRENCY = 5
+  self.concurrency_count = 0
+  self.processor_status = "STOPPED"
+  self.compile_status = { code = 0, err = "" }
+  self.budget = opts.core.process_budget or 5000
+end
+
+function AstRunner:get_cmd()
+  local cmd = vim.deepcopy(opts.commands[state.get_src_ft()] or {}) ---@type Ast.Config.Command.Opts
 
   local function format(filename)
     local name, ext = state.get_src_name()
@@ -43,10 +53,11 @@ function M.get_cmd()
 end
 
 ---@param test_id integer
-function M._execute(test_id)
-  local cmd = M.get_cmd()
+function AstRunner:_execute(test_id)
+  local cmd = self:get_cmd()
   local process = {}
   local test = state.get_test_by_id(test_id)
+
   process.stdio = { luv.new_pipe(false), luv.new_pipe(false), luv.new_pipe(false) }
   process.timer = luv.new_timer()
   process.stdout = ""
@@ -74,15 +85,17 @@ function M._execute(test_id)
       end
 
       if code == 0 then
-        if (process.end_at - process.start_at) > M.budget then
+        if (process.end_at - process.start_at) > self.budget then
           state.set_by_key("tests", function(value)
             value[test_id].stdout = process.stdout
             value[test_id].stderr = process.stderr
             value[test_id].status = "KILLED"
             value[test_id].group = "AssistantRed"
             value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
+
             return value
           end)
+
           state.write_all()
         elseif utils.compare(process.stdout, test.output) then
           state.set_by_key("tests", function(value)
@@ -91,8 +104,10 @@ function M._execute(test_id)
             value[test_id].status = "ACCEPTED"
             value[test_id].group = "AssistantGreen"
             value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
+
             return value
           end)
+
           state.write_all()
         else
           state.set_by_key("tests", function(value)
@@ -101,8 +116,10 @@ function M._execute(test_id)
             value[test_id].status = "WRONG ANSWER"
             value[test_id].group = "AssistantRed"
             value[test_id].time_taken = (process.end_at - process.start_at) * 0.001
+
             return value
           end)
+
           state.write_all()
         end
       else
@@ -112,15 +129,21 @@ function M._execute(test_id)
           value[test_id].status = "RUNTIME ERROR"
           value[test_id].group = "AssistantYellow"
           value[test_id].time_taken = (process.end_at - process.start_at) / 1e3
+
           return value
         end)
+
         state.write_all()
       end
 
-      M.concurrency_count = M.concurrency_count - 1
-      M.process_queue()
-      vim.schedule(ui.render_home)
-      actions.execution_status()
+      self.concurrency_count = self.concurrency_count - 1
+      self:process_queue()
+
+      vim.schedule(function()
+        self:render_tasks()
+      end)
+
+      -- actions.execution_status()
     end
   )
 
@@ -138,8 +161,12 @@ function M._execute(test_id)
     value[test_id].group = "AssistantYellow"
     return value
   end)
-  vim.schedule(ui.render_home)
-  process.timer:start(M.budget, 0, function()
+
+  vim.schedule(function()
+    self:render_tasks()
+  end)
+
+  process.timer:start(self.budget, 0, function()
     if not process.timer:is_closing() then
       process.timer:close()
     end
@@ -153,7 +180,10 @@ function M._execute(test_id)
       value[test_id].group = "AssistantRed"
       return value
     end)
-    vim.schedule(ui.render_home)
+
+    vim.schedule(function()
+      self:render_tasks()
+    end)
   end)
   luv.write(process.stdio[1], test.input)
   luv.shutdown(process.stdio[1])
@@ -170,11 +200,11 @@ function M._execute(test_id)
 end
 
 ---@return thread
-function M._compile()
+function AstRunner:_compile()
   ---@type thread
   local thread = nil
   thread = coroutine.create(function()
-    local cmd = M.get_cmd()
+    local cmd = self:get_cmd()
     local process = {}
     process.stdio = { nil, nil, luv.new_pipe(false) }
     process.stderr = ""
@@ -187,12 +217,11 @@ function M._compile()
           pipe:close()
         end
 
-        M.compile_status.code = code
-        M.compile_status.err = process.stderr
+        self.compile_status.code = code
+        self.compile_status.err = process.stderr
         coroutine.resume(thread)
       end
     )
-
     if not process.handle then
       vim.notify("[Process]: unable to start compilation", vim.log.levels.ERROR)
 
@@ -215,9 +244,9 @@ end
 
 ---@param test_id integer
 ---@return boolean
-function M.is_unique_test(test_id)
-  for i = 1, #M.queue do
-    if M.queue[i] == test_id then
+function AstRunner:is_unique_test(test_id)
+  for i = 1, #self.queue do
+    if self.queue[i] == test_id then
       return false
     end
   end
@@ -225,68 +254,68 @@ function M.is_unique_test(test_id)
   return true
 end
 
-function M.process_queue()
-  if M.processor_status == "RUNNING" then
+function AstRunner:process_queue()
+  if self.processor_status == "RUNNING" then
     return
   end
 
-  M.processor_status = "RUNNING"
+  self.processor_status = "RUNNING"
 
-  while M.concurrency_count < M.MAX_CONCURRENCY and #M.queue > 0 do
-    if state.need_compilation() and not vim.tbl_isempty(M.get_cmd().compile or {}) then
-      local thread = M._compile()
-      M.compile_status = { code = -1, err = "" }
+  while self.concurrency_count < self.MAX_CONCURRENCY and #self.queue > 0 do
+    if state.need_compilation() and not vim.tbl_isempty(self:get_cmd().compile or {}) then
+      local thread = self:_compile()
+      self.compile_status = { code = -1, err = "" }
       coroutine.resume(thread)
-      actions.compilation_start()
+      -- actions.compilation_start()
       vim.wait(10000, function()
         return coroutine.status(thread) == "dead"
       end)
-      actions.compilation_finish(M.compile_status)
+      -- actions.compilation_finish(M.compile_status)
     end
 
-    if M.compile_status.code == 0 then
+    if self.compile_status.code == 0 then
       state.set_by_key("need_compilation", function()
         return false
       end)
-      M._execute(M.queue[1])
-      M.concurrency_count = M.concurrency_count + 1
-      table.remove(M.queue, 1)
+      self:_execute(self.queue[1])
+      self.concurrency_count = self.concurrency_count + 1
+      table.remove(self.queue, 1)
       vim.wait(100)
     else
       break
     end
   end
 
-  M.processor_status = "STOPPED"
+  self.processor_status = "STOPPED"
 end
 
-function M.push_unique()
+function AstRunner:push_unique()
   local test_id = utils.get_current_line_number()
 
   if test_id == nil then
     return
   end
 
-  if M.is_unique_test(test_id) then
-    table.insert(M.queue, test_id)
+  if self:is_unique_test(test_id) then
+    table.insert(self.queue, test_id)
   end
 
-  M.process_queue()
+  self:process_queue()
 end
 
-function M.push_all()
+function AstRunner:push_all()
   local tests = state.get_all_tests()
 
   for i = 1, #tests do
-    if M.is_unique_test(i) then
-      table.insert(M.queue, i)
+    if self:is_unique_test(i) then
+      table.insert(self.queue, i)
     end
   end
 
-  M.process_queue()
+  self:process_queue()
 end
 
-function M.create_test()
+function AstRunner:create_test()
   state.set_by_key("tests", function(value)
     if value == nil then
       value = {}
@@ -299,11 +328,12 @@ function M.create_test()
     })
     return value
   end)
-  ui.render_home()
+
+  self:render_tasks()
   state.write_all()
 end
 
-function M.remove_test()
+function AstRunner:remove_test()
   local test_id = utils.get_current_line_number()
 
   if not test_id then
@@ -315,8 +345,9 @@ function M.remove_test()
     table.remove(value, test_id)
     return value
   end)
-  ui.render_home()
+
+  self:render_tasks()
   state.write_all()
 end
 
-return M
+return AstRunner

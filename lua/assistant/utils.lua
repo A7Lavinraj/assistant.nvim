@@ -122,51 +122,53 @@ function M.slice_first_n_lines(str, n)
   return lines
 end
 
----@param buf number
----@param text Ast.Text
-function M.render(buf, text)
-  local lines = {}
-  local access = vim.api.nvim_get_option_value("modifiable", { buf = buf })
+---@return number?
+function M.get_current_line_number()
+  return tonumber(vim.api.nvim_get_current_line():match("^%s*.+%s*Testcase #(%d+)"))
+end
 
-  for _, row in pairs(text.lines) do
-    local line = string.rep(" ", text.pd)
+---@param url string
+---@return string
+function M.get_domain(url)
+  return url:match("https?://([^/]+)")
+end
 
-    for i, col in pairs(row) do
-      line = line .. col.str .. string.rep(" ", i == #row and 0 or 1)
-    end
+function M.next_test()
+  local buf = vim.api.nvim_get_current_buf()
+  local win = vim.api.nvim_get_current_win()
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  local pos = vim.api.nvim_win_get_cursor(win)
 
-    table.insert(lines, line)
+  if lines[pos[1]]:match("^%s*.+%s*Testcase #%d+") then
+    pos[1] = pos[1] + 1
   end
 
-  if buf and vim.api.nvim_buf_is_valid(buf) then
-    if not access then
-      vim.api.nvim_set_option_value("modifiable", true, { buf = buf })
-    end
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  end
-
-  for cnt, row in pairs(text.lines) do
-    local offset = text.pd
-
-    for _, col in pairs(row) do
-      if buf and vim.api.nvim_buf_is_valid(buf) then
-        vim.api.nvim_buf_add_highlight(buf, 0, col.hl, cnt - 1, offset, offset + #col.str)
-      end
-
-      offset = offset + #col.str + 1
-    end
-  end
-
-  if buf and vim.api.nvim_buf_is_valid(buf) then
-    if not access then
-      vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
+  for i = pos[1], #lines do
+    if lines[i]:match("^%s*.+%s*Testcase #%d+") then
+      pos = { i, 0 }
+      vim.api.nvim_win_set_cursor(win, pos)
+      return
     end
   end
 end
 
----@return number?
-function M.get_current_line_number()
-  return tonumber(vim.api.nvim_get_current_line():match("testcase #(%d+)%s+"))
+function M.prev_test()
+  local win = vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_get_current_buf()
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  local pos = vim.api.nvim_win_get_cursor(win)
+
+  if lines[pos[1]]:match("^%s*.+%s*Testcase #%d+") then
+    pos[1] = pos[1] - 1
+  end
+
+  for i = pos[1], 1, -1 do
+    if lines[i]:match("^%s*.+%s*Testcase #%d+") then
+      pos = { i, 0 }
+      vim.api.nvim_win_set_cursor(win, pos)
+      return
+    end
+  end
 end
 
 return M

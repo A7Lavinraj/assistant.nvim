@@ -14,11 +14,14 @@ function AstText.new(init_opts)
   init_opts = init_opts or {}
 
   local self = setmetatable({}, { __index = AstText })
-
-  self.pd = init_opts.pd or 0
-  self.lines = { {} }
+  self:_init(init_opts)
 
   return self
+end
+
+function AstText:_init(init_opts)
+  self.pd = init_opts.pd or 0
+  self.lines = { {} }
 end
 
 ---@param count integer?

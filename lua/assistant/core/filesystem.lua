@@ -1,4 +1,4 @@
-local config = require("assistant.config")
+local opts = require("assistant.config").opts
 local utils = require("assistant.utils")
 local FileSystem = {}
 local luv = vim.uv or vim.loop
@@ -20,7 +20,7 @@ function FileSystem.filter(chunk)
 
   if parsed then
     local filtered_data = {}
-    filtered_data["problem_name"] = parsed["name"]
+    filtered_data["name"] = parsed["name"]
     filtered_data["tests"] = parsed["tests"]
     return filtered_data
   end
@@ -32,18 +32,18 @@ end
 function FileSystem.create(filename)
   local sources = {}
 
-  for key, _ in pairs(config.options.commands) do
+  for key, _ in pairs(opts.commands) do
     table.insert(sources, key)
   end
 
   vim.ui.select(sources, { prompt = "select source" }, function(source)
     if source then
-      local extension = config.options.commands[source].extension
+      local extension = opts.commands[source].extension
       vim.cmd(string.format("edit %s.%s | w", filename, extension))
 
-      if config.options.commands[source].template then
-        utils.notify_info("populating with " .. config.options.commands[source].template)
-        vim.cmd(string.format("0read %s", config.options.commands[source].template))
+      if opts.commands[source].template then
+        utils.notify_info("populating with " .. opts.commands[source].template)
+        vim.cmd(string.format("0read %s", opts.commands[source].template))
       end
     end
   end)

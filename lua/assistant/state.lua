@@ -5,7 +5,7 @@ M._data_map = {}
 
 ---@return string?
 function M.get_problem_name()
-  return M._data_map["problem_name"]
+  return M._data_map["name"]
 end
 
 ---@return string
@@ -58,15 +58,19 @@ function M.update()
   M.set_by_key("src_name", function()
     return vim.fn.expand("%:t:r")
   end)
+
   M.set_by_key("src_ext", function()
     return vim.fn.expand("%:e")
   end)
+
   M.set_by_key("src_ft", function()
     return vim.bo.filetype
   end)
+
   local name, _ = M.get_src_name()
   local filepath = string.format("%s/.ast/%s.json", luv.cwd(), name)
   local problem_data = fs.fetch(filepath)
+
   M.set_by_key("tests", function()
     if problem_data == nil then
       return {}
@@ -74,7 +78,8 @@ function M.update()
 
     return problem_data["tests"]
   end)
-  M.set_by_key("problem_name", function()
+
+  M.set_by_key("name", function()
     if problem_data == nil then
       return nil
     end
