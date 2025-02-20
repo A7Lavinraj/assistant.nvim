@@ -162,6 +162,7 @@ function AstRunner:_execute(test_id)
   end
 
   process.start_at = luv.now()
+
   state.set_by_key("tests", function(value)
     value[test_id].status = self.status_map.RUN
     return value
@@ -187,8 +188,10 @@ function AstRunner:_execute(test_id)
 
     vim.schedule(function()
       self:render_tasks()
+      state.write_all()
     end)
   end)
+
   luv.write(process.stdio[1], test.input)
   luv.shutdown(process.stdio[1])
   luv.read_start(process.stdio[2], function(_, data)
@@ -297,20 +300,33 @@ function AstRunner:process_queue()
 end
 
 function AstRunner:push_unique()
-  local test_id = utils.get_current_line_number()
+  local tests = state.get_all_tests()
+  local checked = {}
 
-  if test_id == nil then
-    return
+  for test_id, test in ipairs(tests or {}) do
+    if test.checked then
+      table.insert(checked, test_id)
+    end
   end
 
-  if self:is_unique_test(test_id) then
-    table.insert(self.queue, test_id)
+  if vim.tbl_isempty(checked) then
+    local test_id = utils.get_current_line_number()
+
+    if test_id then
+      table.insert(checked, test_id)
+    end
   end
 
-  state.set_by_key("tests", function(value)
-    value[test_id].status = self.status_map.QUEUE
-    return value
-  end)
+  for _, test_id in ipairs(checked) do
+    if self:is_unique_test(test_id) then
+      table.insert(self.queue, test_id)
+    end
+
+    state.set_by_key("tests", function(value)
+      value[test_id].status = self.status_map.QUEUE
+      return value
+    end)
+  end
 
   self:render_tasks()
   self:process_queue()

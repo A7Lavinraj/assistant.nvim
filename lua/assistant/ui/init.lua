@@ -105,13 +105,45 @@ layout_opts.on_mount_end = function(self)
 
   self:bind_key("k", utils.prev_test, { buffer = self.pane_config.Tasks.buf })
 
+  self:bind_key("a", function()
+    local tests = state.get_all_tests()
+    local all_checked = true
+
+    for _, test in ipairs(tests or {}) do
+      if not test.checked then
+        all_checked = false
+        break
+      end
+    end
+
+    if all_checked then
+      state.set_by_key("tests", function(value)
+        for i = 1, #value do
+          value[i].checked = false
+        end
+
+        return value
+      end)
+    else
+      state.set_by_key("tests", function(value)
+        for i = 1, #value do
+          value[i].checked = true
+        end
+
+        return value
+      end)
+    end
+
+    self:render_tasks()
+    state.write_all()
+  end, { buffer = self.pane_config.Tasks.buf })
+
   self:bind_key("r", function()
     self:push_unique()
   end, { buffer = self.pane_config.Tasks.buf })
 
   self:bind_key("s", function()
     local test_id = utils.get_current_line_number()
-    print(test_id)
 
     if test_id then
       state.set_by_key("tests", function(value)
@@ -125,6 +157,7 @@ layout_opts.on_mount_end = function(self)
       end)
 
       self:render_tasks()
+      state.write_all()
     end
   end, { buffer = self.pane_config.Tasks.buf })
 
@@ -145,6 +178,8 @@ layout_opts.on_mount_end = function(self)
     state.set_by_key("need_compilation", function()
       return true
     end)
+
+    state.write_all()
   end)
 
   self:render_tasks()
