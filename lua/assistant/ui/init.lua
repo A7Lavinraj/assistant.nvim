@@ -6,9 +6,9 @@ local utils = require("assistant.utils")
 local opt = require("assistant.config").opts
 
 local M = setmetatable({}, {
-  __index = setmetatable(AstText, {
+  __index = setmetatable(AstLayout, {
     __index = setmetatable(AstRunner, {
-      __index = AstLayout,
+      __index = AstText,
     }),
   }),
 })
