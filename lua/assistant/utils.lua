@@ -1,5 +1,7 @@
 local M = {}
 
+local DELIMITER = ">>>>> PLEASE DO NOT EDIT THIS LINE <<<<<"
+
 ---@param msg string
 function M.notify_info(msg)
   vim.notify(msg, vim.log.levels.INFO, { title = "Assistant.nvim" })
@@ -169,6 +171,33 @@ function M.prev_test()
       return
     end
   end
+end
+
+---@param input string
+---@param output string
+function M.io_to_text(self, input, output)
+  local split_lines = vim.split(input, "\n")
+
+  for _, line in ipairs(split_lines) do
+    self:append(line, "AstTextP"):nl()
+  end
+
+  self:append(DELIMITER, "AstTextDim"):nl()
+
+  split_lines = vim.split(output, "\n")
+
+  for index, line in ipairs(split_lines) do
+    self:append(line, "AstTextP")
+
+    if index < #split_lines then
+      self:nl()
+    end
+  end
+end
+
+---@param lines string
+function M.text_to_io(lines)
+  return lines:match("^(.-)\n+" .. DELIMITER .. "\n+(.*)$")
 end
 
 return M

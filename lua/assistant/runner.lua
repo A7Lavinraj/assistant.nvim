@@ -6,8 +6,11 @@ local luv = vim.uv or vim.loop
 
 local AstRunner = {}
 
-function AstRunner.new()
+---@param layout Ast.Layout
+function AstRunner.new(layout)
   local self = setmetatable({}, { __index = AstRunner })
+
+  self.layout = layout
 
   self:_init()
 
@@ -146,7 +149,7 @@ function AstRunner:_execute(test_id)
       self:process_queue()
 
       vim.schedule(function()
-        self:render_tasks()
+        self.layout.view.render:render_tasks()
       end)
 
       -- actions.execution_status()
@@ -169,7 +172,7 @@ function AstRunner:_execute(test_id)
   end)
 
   vim.schedule(function()
-    self:render_tasks()
+    self.layout.view.render:render_tasks()
   end)
 
   process.timer:start(self.budget, 0, function()
@@ -187,7 +190,7 @@ function AstRunner:_execute(test_id)
     end)
 
     vim.schedule(function()
-      self:render_tasks()
+      self.layout.view.render:render_tasks()
       state.write_all()
     end)
   end)
@@ -328,7 +331,7 @@ function AstRunner:push_unique()
     end)
   end
 
-  self:render_tasks()
+  self.layout.view.render:render_tasks()
   self:process_queue()
 end
 
@@ -349,7 +352,7 @@ function AstRunner:push_all()
     return value
   end)
 
-  self:render_tasks()
+  self.layout.view.render:render_tasks()
   self:process_queue()
 end
 
@@ -368,7 +371,7 @@ function AstRunner:create_test()
     return value
   end)
 
-  self:render_tasks()
+  self.layout.view.render:render_tasks()
   state.write_all()
 end
 
@@ -385,7 +388,7 @@ function AstRunner:remove_test()
     return value
   end)
 
-  self:render_tasks()
+  self.layout.view.render:render_tasks()
   state.write_all()
 end
 

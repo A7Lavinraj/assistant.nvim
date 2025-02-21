@@ -17,7 +17,7 @@ function M.setup(opts)
     { name = "core.tcplistener" },
   })
 
-  vim.api.nvim_create_user_command("AssistantToggle", require("assistant.ui").toggle, {})
+  vim.api.nvim_create_user_command("Assistant", require("assistant.ui").show, {})
 end
 
 return M
