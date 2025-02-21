@@ -13,6 +13,8 @@ local M = setmetatable({}, {
   }),
 })
 
+local DELIMITER = ">>>>> PLEASE DO NOT EDIT THIS LINE <<<<<"
+
 local layout_opts = {
   width = opt.ui.width,
   height = opt.ui.height,
@@ -21,15 +23,17 @@ local layout_opts = {
   zindex = 1,
   pane_config = {
     Tasks = {
+      startup = true,
+      enter = true,
       style = "minimal",
       relative = "editor",
       width = 0.4,
       height = 1,
       dheight = -3,
       title = " Tasks " .. opt.ui.tasks.title_icon,
-      enter = true,
     },
     Actions = {
+      startup = true,
       style = "minimal",
       relative = "editor",
       dheight = 1,
@@ -39,6 +43,7 @@ local layout_opts = {
       title = " Actions " .. opt.ui.tasks.title_icon,
     },
     Logs = {
+      startup = true,
       style = "minimal",
       relative = "editor",
       width = 0.6,
@@ -46,6 +51,19 @@ local layout_opts = {
       right = "Tasks",
       border = opt.ui.logs.border,
       title = " Logs " .. opt.ui.tasks.title_icon,
+    },
+    Edit = {
+      enter = true,
+      modifiable = true,
+      style = "minimal",
+      relative = "editor",
+      width = 0.5,
+      height = 0.5,
+      row = 3,
+      col = 3,
+      zindex = 3,
+      border = opt.ui.logs.border,
+      title = " Edit (<enter> to confirm) " .. opt.ui.tasks.title_icon,
     },
   },
 }
@@ -90,7 +108,10 @@ layout_opts.on_mount_end = function(self)
     end
 
     utils.wo(config.win, "winhighlight", winhl)
-    utils.bo(config.buf, "modifiable", false)
+
+    if not self.pane_config[name].modifiable then
+      utils.bo(config.buf, "modifiable", false)
+    end
 
     if name == "Tasks" then
       utils.wo(config.win, "cursorline", true)
@@ -104,6 +125,10 @@ layout_opts.on_mount_end = function(self)
   self:bind_key("j", utils.next_test, { buffer = self.pane_config.Tasks.buf })
 
   self:bind_key("k", utils.prev_test, { buffer = self.pane_config.Tasks.buf })
+
+  self:bind_key("e", function()
+    self:edit()
+  end, { buffer = self.pane_config.Tasks.buf })
 
   self:bind_key("a", function()
     local tests = state.get_all_tests()
@@ -373,6 +398,67 @@ function M:render_log(id)
   end
 
   self:render(self.pane_config.Logs.buf)
+end
+
+---@param test_id integer
+function M:render_io(test_id)
+  local test = state.get_test_by_id(test_id)
+  self.lines = { {} }
+  self.pd = 0
+
+  local split_lines = vim.split(test.input, "\n")
+
+  for _, line in ipairs(split_lines) do
+    self:append(line, "AstTextP"):nl()
+  end
+
+  self:append(DELIMITER, "AstTextDim"):nl()
+
+  split_lines = vim.split(test.output, "\n")
+
+  for index, line in ipairs(split_lines) do
+    self:append(line, "AstTextP")
+
+    if index < #split_lines then
+      self:nl()
+    end
+  end
+
+  self:render(self.pane_config.Edit.buf)
+  self.pd = 2
+end
+
+function M:edit()
+  local test_id = utils.get_current_line_number()
+
+  if not test_id then
+    return
+  end
+
+  self:open_unique("Edit")
+
+  self:render_io(test_id)
+
+  self:bind_key("<enter>", function()
+    local lines = table.concat(vim.api.nvim_buf_get_lines(self.pane_config.Edit.buf, 0, -1, false), "\n")
+
+    state.set_by_key("tests", function(value)
+      value[test_id].input, value[test_id].output = lines:match("^(.-)\n+" .. DELIMITER .. "\n+(.*)$")
+      return value
+    end)
+
+    state.write_all()
+
+    self:close_unique("Edit")
+  end, { buffer = self.pane_config.Edit.buf })
+
+  self:bind_key("q", function()
+    self:close_unique("Edit")
+  end, { buffer = self.pane_config.Edit.buf })
+
+  self:bind_cmd({ "WinClosed", "WinLeave" }, function()
+    self:close_unique("Edit")
+  end, { buffer = self.pane_config.Edit.buf })
 end
 
 return M

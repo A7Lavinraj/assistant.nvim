@@ -22,6 +22,9 @@ local api = vim.api
 ---@field relative? string
 ---@field style? string
 ---@field on_attach? function
+---@field zindex? integer
+---@field startup? boolean
+---@field modifiable? boolean
 
 ---@class Ast.Layout.Opts
 ---@field width number
@@ -134,7 +137,8 @@ function AstLayout:_update(name, config)
     border = self.border,
     title = self.pane_config[name].title,
     title_pos = self.pane_config[name].title_pos,
-    zindex = self.backdrop and (self.zindex + 1) or self.zindex,
+    zindex = self.backdrop and ((self.pane_config[name].zindex or self.zindex) + 1)
+      or (self.pane_config[name].zindex or self.zindex),
   }
 
   if self.backdrop and self.backdrop < 100 then
@@ -154,8 +158,8 @@ function AstLayout:_update(name, config)
   self.pane_opts[name].height = math.floor(vh * self.height * (config.height or 0))
 
   if not (config.left or config.top or config.right or config.bottom) then
-    self.pane_opts[name].row = math.floor((1 - self.height) * vh * 0.5)
-    self.pane_opts[name].col = math.floor((1 - self.width) * vw * 0.5)
+    self.pane_opts[name].row = math.floor((1 - self.height) * (self.pane_config[name].row or 1) * vh * 0.5)
+    self.pane_opts[name].col = math.floor((1 - self.width) * (self.pane_config[name].col or 1) * vw * 0.5)
   end
 
   if self.pane_config[name].dwidth then
@@ -217,9 +221,11 @@ function AstLayout:open()
   end
 
   for name, opts in pairs(self.pane_opts) do
-    self.pane_config[name].buf = api.nvim_create_buf(false, true)
-    self.pane_config[name].win =
-      api.nvim_open_win(self.pane_config[name].buf, self.pane_config[name].enter or false, opts)
+    if self.pane_config[name].startup then
+      self.pane_config[name].buf = api.nvim_create_buf(false, true)
+      self.pane_config[name].win =
+        api.nvim_open_win(self.pane_config[name].buf, self.pane_config[name].enter or false, opts)
+    end
   end
 
   if self.on_mount_end then
@@ -227,6 +233,26 @@ function AstLayout:open()
   end
 
   self.is_open = true
+end
+
+---@param name string
+function AstLayout:open_unique(name)
+  if not self.pane_opts[name] then
+    utils.notify_err(string.format("Unable to find window %s", name))
+    return
+  end
+
+  self.pane_config[name].buf = api.nvim_create_buf(false, true)
+  self.pane_config[name].win =
+    api.nvim_open_win(self.pane_config[name].buf, self.pane_config[name].enter or false, self.pane_opts[name])
+end
+
+---@param name string
+function AstLayout:close_unique(name)
+  if utils.is_win(self.pane_config[name].win) then
+    api.nvim_win_close(self.pane_config[name].win, true)
+    self.pane_config[name].win = nil
+  end
 end
 
 function AstLayout:close()

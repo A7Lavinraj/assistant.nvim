@@ -31,6 +31,15 @@ M.groups = {
   LogsFloatTitle = {
     link = "Constant",
   },
+  EditNormalFloat = {
+    link = "NormalFloat",
+  },
+  EditFloatBorder = {
+    link = "Whitespace",
+  },
+  EditFloatTitle = {
+    link = "Constant",
+  },
   TextH1 = {
     fg = "#ffffff",
     bold = true,
