@@ -40,6 +40,15 @@ M.groups = {
   EditFloatTitle = {
     link = "Constant",
   },
+  PopupNormalFloat = {
+    link = "NormalFloat",
+  },
+  PopupFloatBorder = {
+    link = "Whitespace",
+  },
+  PopupFloatTitle = {
+    link = "Constant",
+  },
   TextH1 = {
     fg = "#ffffff",
     bold = true,

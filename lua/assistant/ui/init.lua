@@ -63,34 +63,27 @@ local layout_opts = {
       col = 3,
       zindex = 3,
       border = opt.ui.logs.border,
-      title = " Edit (<enter> to confirm) " .. opt.ui.tasks.title_icon,
+      title = " Edit (enter to confirm) " .. opt.ui.tasks.title_icon,
+    },
+    Popup = {
+      enter = true,
+      style = "minimal",
+      relative = "editor",
+      width = 0.8,
+      height = 0.8,
+      row = 2,
+      col = 1.8,
+      zindex = 3,
+      border = opt.ui.logs.border,
+      title = " Popup (q to close) " .. opt.ui.tasks.title_icon,
     },
   },
 }
 
 layout_opts.on_attach = function(self)
-  self:bind_cmd("WinClosed", function(event)
-    if not event or not event.match then
-      return
-    end
-    for _, config in pairs(self.pane_config) do
-      if config.win == tonumber(event.match) then
-        return self:close()
-      end
-    end
-  end)
-
   self:bind_cmd("VimResized", function()
     self:resize()
   end)
-
-  for name, config in pairs(self.pane_config) do
-    if name ~= "Backdrop" then
-      self:bind_key("q", function()
-        self:close()
-      end, { buffer = config.buf })
-    end
-  end
 end
 
 layout_opts.on_mount_end = function(self)
@@ -202,6 +195,18 @@ layout_opts.on_mount_end = function(self)
     self:remove_test()
     utils.prev_test()
   end, { buffer = self.pane_config.Tasks.buf })
+
+  for name, config in pairs(self.pane_config) do
+    if vim.tbl_contains({ "Tasks", "Actions", "Logs" }, name) then
+      self:bind_cmd("WinClosed", function()
+        self:close()
+      end, { buffer = config.buf })
+
+      self:bind_key("q", function()
+        self:close()
+      end, { buffer = config.buf })
+    end
+  end
 
   self:bind_cmd("CursorMoved", function()
     local line = vim.api.nvim_get_current_line()
@@ -459,6 +464,18 @@ function M:edit()
   self:bind_cmd({ "WinClosed", "WinLeave" }, function()
     self:close_unique("Edit")
   end, { buffer = self.pane_config.Edit.buf })
+end
+
+function M:popup()
+  self:open_unique("Popup")
+
+  self:bind_key("q", function()
+    self:close_unique("Popup")
+  end, { buffer = self.pane_config.Popup.buf })
+
+  self:bind_cmd({ "WinClosed", "WinLeave" }, function()
+    self:close_unique("Popup")
+  end, { buffer = self.pane_config.Popup.buf })
 end
 
 return M
