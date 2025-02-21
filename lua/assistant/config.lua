@@ -60,6 +60,9 @@ M._defaults = {
     actions = {
       title_icon = " ",
       loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
+      success = " ",
+      failure = " ",
+      unknown = " ",
     },
     logs = {
       title_icon = " ",

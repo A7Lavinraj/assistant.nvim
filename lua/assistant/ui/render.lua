@@ -1,26 +1,35 @@
 local AstText = require("assistant.ui.text")
 local state = require("assistant.state")
 local utils = require("assistant.utils")
+local opts = require("assistant.config").opts
 
 local AstRender = {}
 
+local luv = vim.uv or vim.loop
+local timer = luv.new_timer()
+local frames = opts.ui.actions.loading_frames
+local frame_id = 1
+local success = opts.ui.actions.success
+local failure = opts.ui.actions.failure
+local unknown = opts.ui.actions.unknown
+
 ---@param layout Ast.Layout
 function AstRender.new(layout)
-  local self = setmetatable({}, { __index = setmetatable(AstText, { __index = AstRender }) })
+  local self = setmetatable({}, { __index = AstRender })
 
   self.layout = layout
-  self.pd = 2
 
   return self
 end
 
 ---@param buf integer
-function AstRender:render(buf)
+---@param text Ast.Text
+function AstRender:render(buf, text)
   if not buf or not vim.api.nvim_buf_is_valid(buf) then
     return
   end
 
-  if not self.lines then
+  if not text.lines then
     return
   end
 
@@ -31,8 +40,8 @@ function AstRender:render(buf)
     vim.bo[buf].modifiable = true
   end
 
-  for _, row in pairs(self.lines) do
-    local line = string.rep(" ", self.pd)
+  for _, row in pairs(text.lines) do
+    local line = string.rep(" ", text.pd)
 
     for i, col in ipairs(row) do
       line = line .. col.str .. string.rep(" ", i == #row and 0 or 1)
@@ -43,8 +52,8 @@ function AstRender:render(buf)
 
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 
-  for cnt, row in ipairs(self.lines) do
-    local offset = self.pd
+  for cnt, row in ipairs(text.lines) do
+    local offset = text.pd
 
     for _, col in ipairs(row) do
       vim.api.nvim_buf_add_highlight(buf, 0, col.hl, cnt - 1, offset, offset + #col.str)
@@ -63,128 +72,198 @@ function AstRender:render_tasks()
   local name = state.get_problem_name()
   local tests = state.get_all_tests()
 
-  self.lines = { {} }
+  local lines = AstText.new()
 
-  self:append("󰫍 ", "AstTextYellow"):append(name or "", "AstTextH1"):nl(2)
+  lines:append("󰫍 ", "AstTextYellow"):append(name or "", "AstTextH1"):nl(2)
 
   for id, test in ipairs(tests or {}) do
     if test.checked then
-      self:append(" ", "AstTextP")
+      lines:append(" ", "AstTextP")
     else
-      self:append(" ", "AstTextP")
+      lines:append(" ", "AstTextP")
     end
 
-    self:append(string.format("Testcase #%d", id), "AstTextH1"):nl()
-    self:append("↳", "AstTextDim"):append("󰂓", "AstTextP")
+    lines:append(string.format("Testcase #%d", id), "AstTextH1"):nl()
+    lines:append("↳", "AstTextDim"):append("󰂓", "AstTextP")
 
     if test.status then
-      self:append(string.format("%s", test.status.text), test.status.hl)
+      lines:append(string.format("%s", test.status.text), test.status.hl)
     else
-      self:append("-", "AstTextP")
+      lines:append("-", "AstTextP")
     end
 
-    self:append(" 󰔛", "AstTextP")
+    lines:append(" 󰔛", "AstTextP")
 
     if test.time_taken then
-      self:append(string.format("%.3f", test.time_taken), "AstTextP")
+      lines:append(string.format("%.3f", test.time_taken), "AstTextP")
     else
-      self:append("-", "AstTextP")
+      lines:append("-", "AstTextP")
     end
 
     if id ~= #tests then
-      self:nl(2)
+      lines:nl(2)
     end
   end
 
-  self:render(self.layout.pane_config.Tasks.buf)
+  self:render(self.layout.pane_config.Tasks.buf, lines)
 end
 
 function AstRender:render_log(id)
   local test = state.get_test_by_id(id)
 
-  self.lines = { {} }
+  local lines = AstText.new()
 
   if test.input then
-    self:append("Input", "AstTextH1"):nl(2)
+    lines:append("Input", "AstTextH1"):nl(2)
 
     for _, line in ipairs(utils.slice_first_n_lines(test.input or "", 100)) do
       if line then
-        self:append(line, "AstTextP"):nl()
+        lines:append(line, "AstTextP"):nl()
       end
     end
 
-    self:nl()
+    lines:nl()
     local _, cnt = string.gsub(test.input or "", "\n", "")
 
     if cnt > 100 then
-      self:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
+      lines:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
     end
   end
 
   if test.output then
-    self:append("Expect", "AstTextH1"):nl(2)
+    lines:append("Expect", "AstTextH1"):nl(2)
 
     for _, line in ipairs(utils.slice_first_n_lines(test.output or "", 100)) do
       if line then
-        self:append(line, "AstTextP"):nl()
+        lines:append(line, "AstTextP"):nl()
       end
     end
 
-    self:nl()
+    lines:nl()
     local _, cnt = string.gsub(test.output or "", "\n", "")
 
     if cnt > 100 then
-      self:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
+      lines:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
     end
   end
 
   if test.stdout then
-    self:append("Stdout", "AstTextH1"):nl(2)
+    lines:append("Stdout", "AstTextH1"):nl(2)
 
     for _, line in ipairs(utils.slice_first_n_lines(test.stdout, 100)) do
       if line then
-        self:append(line, "AstTextP"):nl()
+        lines:append(line, "AstTextP"):nl()
       end
     end
 
-    self:nl()
+    lines:nl()
     local _, cnt = string.gsub(test.stdout or "", "\n", "")
 
     if cnt > 100 then
-      self:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
+      lines:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
     end
   end
 
   if test.stderr then
-    self:nl():append("Stderr", "AstTextH1"):nl(2)
+    lines:nl():append("Stderr", "AstTextH1"):nl(2)
 
     for _, line in ipairs(utils.slice_first_n_lines(test.stderr, 100)) do
       if line then
-        self:append(line, "AstTextP"):nl()
+        lines:append(line, "AstTextP"):nl()
       end
     end
 
-    self:nl()
+    lines:nl()
     local _, cnt = string.gsub(test.stderr or "", "\n", "")
 
     if cnt > 100 then
-      self:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
+      lines:append("-- REACHED MAXIMUM RENDER LIMIT --", "AstTextDim")
     end
   end
 
-  self:render(self.layout.pane_config.Logs.buf)
+  self:render(self.layout.pane_config.Logs.buf, lines)
 end
 
 ---@param test_id integer
 function AstRender:render_io(test_id)
   local test = state.get_test_by_id(test_id)
-  self.lines = { {} }
-  self.pd = 0
+  local lines = AstText.new()
+  lines.pd = 0
 
   utils.io_to_text(self, test.input, test.output)
 
-  self:render(self.layout.pane_config.Edit.buf)
-  self.pd = 2
+  self:render(self.layout.pane_config.Edit.buf, lines)
+end
+
+function AstRender:compiling()
+  if not timer then
+    return
+  end
+
+  local lines = AstText.new()
+
+  luv.timer_start(
+    timer,
+    0,
+    200,
+    vim.schedule_wrap(function()
+      lines.lines = { {} }
+      lines:append("COMPILATION ", "AstTextH1"):append(frames[frame_id], "AstTextYellow")
+      frame_id = frame_id % #frames + 1
+      self:render(self.layout.view.pane_config.Actions.buf, lines)
+    end)
+  )
+end
+
+---@param status {code:number,err:string}
+function AstRender:compiled(status)
+  local lines = AstText.new()
+
+  if timer then
+    luv.timer_stop(timer)
+  end
+
+  if status.code ~= 0 then
+    for _, line in ipairs(vim.split(status.err or "", "\n")) do
+      lines:append(line, "AstTextP"):nl()
+    end
+
+    self.layout.popup()
+    self:render(self.layout.view.pane_config.Popup.buf, lines)
+  end
+
+  lines.lines = { {} }
+
+  if status.code == 0 then
+    lines:append("COMPILATION ", "AstTextH1"):append(success, "AstTextGreen")
+  else
+    lines:append("COMPILATION ", "AstTextH1"):append(failure, "AstTextRed")
+  end
+
+  self:render(self.layout.view.pane_config.Actions.buf, lines)
+end
+
+function AstRender:executed()
+  local lines = AstText.new()
+  local tests = state.get_all_tests()
+
+  if not tests then
+    return
+  end
+
+  lines:append("VERDICTS ", "AstTextH1")
+
+  for _, test in pairs(tests or {}) do
+    if test.status.text == "Skipped" then
+      lines:append(unknown, "AstTextH1")
+    elseif test.status.text == "Accepted" then
+      lines:append(success, "AstTextGreen")
+    else
+      lines:append(failure, "AstTextRed")
+    end
+  end
+
+  self:render(self.layout.view.pane_config.Actions.buf, lines)
 end
 
 return AstRender

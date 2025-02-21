@@ -1,4 +1,3 @@
--- local actions = require("assistant.core.actions")
 local opts = require("assistant.config").opts
 local state = require("assistant.state")
 local utils = require("assistant.utils")
@@ -150,9 +149,8 @@ function AstRunner:_execute(test_id)
 
       vim.schedule(function()
         self.layout.view.render:render_tasks()
+        self.layout.view.render:executed()
       end)
-
-      -- actions.execution_status()
     end
   )
 
@@ -279,22 +277,37 @@ function AstRunner:process_queue()
       local thread = self:_compile()
       self.compile_status = { code = -1, err = "" }
       coroutine.resume(thread)
-      -- actions.compilation_start()
+
+      self.layout.view.render:compiling()
+
       vim.wait(10000, function()
         return coroutine.status(thread) == "dead"
       end)
-      -- actions.compilation_finish(M.compile_status)
+
+      self.layout.view.render:compiled(self.compile_status)
     end
 
     if self.compile_status.code == 0 then
       state.set_by_key("need_compilation", function()
         return false
       end)
+
       self:_execute(self.queue[1])
       self.concurrency_count = self.concurrency_count + 1
       table.remove(self.queue, 1)
-      vim.wait(100)
     else
+      self.queue = {}
+
+      state.set_by_key("tests", function(value)
+        for i = 1, #value do
+          value[i].status = self.status_map.SKIP
+        end
+
+        return value
+      end)
+
+      self.layout.view.render:render_tasks()
+
       break
     end
   end
