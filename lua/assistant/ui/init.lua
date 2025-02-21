@@ -188,6 +188,8 @@ function M.show()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
   M.view:bind_key("c", function()
+    M.view.runner:create_test()
+
     local line_count = vim.api.nvim_buf_line_count(0)
 
     if line_count > 0 then
@@ -198,7 +200,7 @@ function M.show()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
   M.view:bind_key("d", function()
-    M.view:remove_test()
+    M.view.runner:remove_test()
     utils.prev_test()
   end, { buffer = M.view.pane_config.Tasks.buf })
 

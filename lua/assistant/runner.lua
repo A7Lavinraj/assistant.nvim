@@ -376,19 +376,38 @@ function AstRunner:create_test()
 end
 
 function AstRunner:remove_test()
-  local test_id = utils.get_current_line_number()
+  local tests = state.get_all_tests()
+  local checked = {}
 
-  if not test_id then
-    utils.notify_err("[ERROR]: Not a valid testcase to remove")
-    return
+  for test_id, test in ipairs(tests or {}) do
+    if test.checked then
+      table.insert(checked, test_id)
+    end
   end
 
-  state.set_by_key("tests", function(value)
-    table.remove(value, test_id)
-    return value
+  if vim.tbl_isempty(checked) then
+    local test_id = utils.get_current_line_number()
+
+    if test_id then
+      table.insert(checked, test_id)
+    end
+  end
+
+  table.sort(checked, function(a, b)
+    return a > b
   end)
 
+  for _, test_id in ipairs(checked) do
+    if self:is_unique_test(test_id) then
+      state.set_by_key("tests", function(value)
+        table.remove(value, test_id)
+        return value
+      end)
+    end
+  end
+
   self.layout.view.render:render_tasks()
+
   state.write_all()
 end
 
