@@ -1,128 +1,68 @@
 							      *assistant.nvim*
-
-A modern plugin developed for competitive programmer to automate some common
-repeatitive tasks, so that they can focus on their core logic
-
 ============================================================================
 
-					      *assistant.nvim-getting-started*
+A modern neovim testing manager for competitive programmers. It comes with
+various basic and advanced features which automate the testing workflow.
 
-|assistant.nvim| is modern neovim plugin designed for competitive programmer
-to automate repeatitive tasks, so that they can focus on more important
-aspects
-
-
-						     *assistant.nvim-features*
-
-- Automatic samples fetching
-- Interactice user interface
-- Highly customizable
-- Blazingly fast
-- Builtin parallel task scheduler
-
-						 *assistant.nvim-requirements*
-
-- Neovim version >= 9.5
-- Competitive programming companion browser
-
+						 *assistant.nvim-installation*
 ============================================================================
 
-						     *assistant.nvim-defaults*
+Using |lazy.nvim| plugin manager
+
+>lua
+  {
+    "A7Lavinraj/assistant.nvim",
+    lazy = false, -- if you want to start tcplistner on neovim startup
+    keys = {
+      { "<leader>a", "<cmd>Assistant<cr>", desc = "Launch Assistant.nvim" }
+    }
+    opts = {} -- config options
+  }
+<
+
+					      *assistant.nvim-default-options*
+============================================================================
+
+|assistant.nvim| comes with defualt options as follows
 >lua
   {
     commands = {
       python = {
-        extension = "py",
-        compile = nil,
-        execute = {
-          main = "python3",
-          args = { "$FILENAME_WITH_EXTENSION" },
-        },
+	extension = "py",
+	compile = nil,
+	execute = {
+	  main = "python3",
+	  args = { "$FILENAME_WITH_EXTENSION" },
+	},
       },
       cpp = {
-        extension = "cpp",
-        compile = {
-          main = "g++",
-          args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
-        },
-        execute = {
-          main = "./$FILENAME_WITHOUT_EXTENSION",
-          args = nil,
-        },
+	extension = "cpp",
+	compile = {
+	  main = "g++",
+	  args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
+	},
+	execute = {
+	  main = "./$FILENAME_WITHOUT_EXTENSION",
+	  args = nil,
+	},
       },
     },
     ui = {
+      width = 0.8,
+      height = 0.8,
+      backdrop = 60,
+      border = "single",
       icons = {
-        success = "",
-        failure = "",
-        unknown = "",
-        loading = { "󰸴", "󰸵", "󰸸", "󰸷", "󰸶" },
+	title = " ",
+	success = " ",
+	failure = " ",
+	unknown = " ",
+	loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
       },
     },
     core = {
       process_budget = 5000,
     },
-  }
-<
-
-By default plugin comes with pre-written C++ and python commands in the
-configurations, but can be customize further
-
-============================================================================
-
-						*assistant.nvim-customization*
-
-Let's add a command for running rust files, so for compiling and running rust
-files a shell command can be written as follows:
-
->sh
-  rustc {filename.rs} -o {filename} && ./filename
-<
-
-Now above shell command can be convert into lua tables as follows:
-
->lua
-  {
-    rust = {
-      extension = "rs",
-      compile = {
-        main = "rustc",
-        args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
-      },
-      execute = {
-        main = "./$FILENAME_WITHOUT_EXTENSION",
-        args = nil,
-      },
-    },
-  }
-<
-
-============================================================================
-
-					     *assistant.nvim-ui-customization*
-
-For now only icons can be changed, as follows
-
->lua
-  ui = {
-    icons = {
-      success = "AC",
-      failure = "WA",
-      unknown = "UK",
-      loading = { "\\", "|", "/", "-" },
-    },
-  },
-<
-
-============================================================================
-
-					   *assistant.nvim-core-customization*
-
-For now only maximum running time of process can be changed
->lua
->lua
-  core = {
-    process_budget = 6000,
   }
 <
 
