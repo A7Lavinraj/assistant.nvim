@@ -1,5 +1,5 @@
 local AstText = require("assistant.ui.text")
-local state = require("assistant.state")
+local state = require("assistant.core.state")
 local utils = require("assistant.utils")
 local opts = require("assistant.config").opts
 

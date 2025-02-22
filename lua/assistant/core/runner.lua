@@ -1,5 +1,5 @@
 local opts = require("assistant.config").opts
-local state = require("assistant.state")
+local state = require("assistant.core.state")
 local utils = require("assistant.utils")
 local luv = vim.uv or vim.loop
 

@@ -1,8 +1,8 @@
 local AstLayout = require("assistant.ui.layout")
 local AstRender = require("assistant.ui.render")
-local AstRunner = require("assistant.runner")
+local AstRunner = require("assistant.core.runner")
 local AstText = require("assistant.ui.text")
-local state = require("assistant.state")
+local state = require("assistant.core.state")
 local utils = require("assistant.utils")
 local opts = require("assistant.config").opts
 
