@@ -123,14 +123,16 @@ function M.show()
       winhl = winhl .. string.format("%s:Ast%s%s", hl, name, hl)
     end
 
-    utils.wo(config.win, "winhighlight", winhl)
+    if utils.is_win(config.win) then
+      vim.wo[config.win].winhighlight = winhl
+    end
 
     if name == "Tasks" then
-      utils.wo(config.win, "cursorline", true)
+      vim.wo[config.win].cursorline = true
     end
 
     if M.view.backdrop and name == "Backdrop" then
-      utils.wo(config.win, "winblend", M.view.backdrop)
+      vim.wo[config.win].winblend = M.view.backdrop
     end
   end
 

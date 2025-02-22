@@ -113,7 +113,7 @@ function AstRender:render_log(id)
 
   local lines = AstText.new()
 
-  if test.input then
+  if test.input and #test.input ~= 0 then
     lines:append("Input", "AstTextH1"):nl(2)
 
     for _, line in ipairs(utils.slice_first_n_lines(test.input or "", 100)) do
@@ -130,7 +130,7 @@ function AstRender:render_log(id)
     end
   end
 
-  if test.output then
+  if test.output and #test.output ~= 0 then
     lines:append("Expect", "AstTextH1"):nl(2)
 
     for _, line in ipairs(utils.slice_first_n_lines(test.output or "", 100)) do
@@ -147,7 +147,7 @@ function AstRender:render_log(id)
     end
   end
 
-  if test.stdout then
+  if test.stdout and #test.stdout ~= 0 then
     lines:append("Stdout", "AstTextH1"):nl(2)
 
     for _, line in ipairs(utils.slice_first_n_lines(test.stdout, 100)) do
@@ -164,7 +164,7 @@ function AstRender:render_log(id)
     end
   end
 
-  if test.stderr then
+  if test.stderr and #test.stderr ~= 0 then
     lines:nl():append("Stderr", "AstTextH1"):nl(2)
 
     for _, line in ipairs(utils.slice_first_n_lines(test.stderr, 100)) do

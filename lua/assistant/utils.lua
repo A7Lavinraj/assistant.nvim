@@ -17,14 +17,6 @@ function M.notify_err(msg)
   vim.notify(msg, vim.log.levels.ERROR, { title = "Assistant.nvim" })
 end
 
-function M.bo(buf, opt, value)
-  vim.api.nvim_set_option_value(opt, value, { buf = buf })
-end
-
-function M.wo(win, opt, value)
-  vim.api.nvim_set_option_value(opt, value, { win = win })
-end
-
 function M.is_buf(buf)
   if not buf then
     return false

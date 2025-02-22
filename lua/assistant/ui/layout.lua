@@ -228,7 +228,7 @@ function AstLayout:open()
     end
 
     if utils.is_buf(self.pane_config[name].buf) and not self.pane_config[name].modifiable then
-      utils.bo(self.pane_config[name].buf, "modifiable", false)
+      vim.bo[self.pane_config[name].buf].modifiable = false
     end
   end
 
@@ -251,7 +251,7 @@ function AstLayout:open_unique(name)
     api.nvim_open_win(self.pane_config[name].buf, self.pane_config[name].enter or false, self.pane_opts[name])
 
   if not self.pane_config[name].modifiable then
-    utils.bo(self.pane_config[name].buf, "modifiable", false)
+    vim.bo[self.pane_config[name].buf].modifiable = false
   end
 end
 
