@@ -24,12 +24,17 @@ related to sample data testing in competitive programming scenarios.</p>
 
 ## Features
 
-- ⚡ Blazingly fast.
-- 🔓 Highly customizable.
-- 🌞 Supports both environment and custom themes.
-- 😃 Easy to use.
-
+- 🌟 Features
+- ⚡ Ultra-Fast – Optimized for speed in CP contests.
+- 🔓 Highly Customizable – Tailor it to your needs.
+- 🎨 Supports Custom Themes – Works with any Neovim theme.
+- 😃 User-Friendly – Simple commands and easy navigation.
 <br>
+
+## ⚠ Important Notice
+In competitive programming, speed is everything. Avoid using plugins that slow you down!
+
+
 
 > [!WARNING]
 One important factor in competitive programming is **Speed**.
