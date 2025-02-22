@@ -149,7 +149,7 @@ end
 
 ---@param lines string
 function M.text_to_io(lines)
-  return lines:match("^(.-)\n+" .. DELIMITER .. "\n+(.*)$")
+  return lines:match("^%s*(.-)%s*\n" .. DELIMITER .. "\n%s*(.-)%s*$")
 end
 
 function M.to_snake_case(str)

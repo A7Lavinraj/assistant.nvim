@@ -298,6 +298,8 @@ function M.edit()
 
     state.set_by_key("tests", function(value)
       value[test_id].input, value[test_id].output = utils.text_to_io(lines)
+      value[test_id].input = value[test_id].input .. "\n"
+      value[test_id].output = value[test_id].output .. "\n"
       return value
     end)
 

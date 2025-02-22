@@ -196,12 +196,18 @@ function AstRunner:_execute(test_id)
   luv.read_start(process.stdio[2], function(_, data)
     if data then
       process.stdout = process.stdout .. utils.get_stream_data(data)
+    else
+      luv.read_stop(process.stdio[2])
+      process.stdio[2]:close()
     end
   end)
 
   luv.read_start(process.stdio[3], function(_, data)
     if data then
       process.stderr = process.stderr .. utils.get_stream_data(data)
+    else
+      luv.read_stop(process.stdio[3])
+      process.stdio[3]:close()
     end
   end)
 end
