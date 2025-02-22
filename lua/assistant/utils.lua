@@ -50,41 +50,6 @@ function M.compare(stdout, expected)
   return process_str(stdout) == process_str(expected)
 end
 
----@param FILENAME_WITH_EXTENSION string | nil
----@param FILENAME_WITHOUT_EXTENSION string | nil
----@param command table | nil
----@return table | nil
-function M.interpolate(FILENAME_WITH_EXTENSION, FILENAME_WITHOUT_EXTENSION, command)
-  if not command then
-    return nil
-  end
-
-  local function replace(filename)
-    return filename
-      :gsub("%$FILENAME_WITH_EXTENSION", FILENAME_WITH_EXTENSION)
-      :gsub("%$FILENAME_WITHOUT_EXTENSION", FILENAME_WITHOUT_EXTENSION)
-  end
-
-  local modified = vim.deepcopy(command)
-
-  if modified.main then
-    modified.main = replace(modified.main)
-  end
-
-  if modified.args then
-    for i = 1, #command.args do
-      modified.args[i] = replace(command.args[i])
-    end
-  end
-
-  return modified
-end
-
----@param pattern string
-function M.emit(pattern)
-  vim.cmd("doautocmd User " .. pattern)
-end
-
 ---@return number, number
 function M.get_view_port()
   local vh = vim.o.lines - vim.o.cmdheight
@@ -119,12 +84,6 @@ end
 ---@return number?
 function M.get_current_line_number()
   return tonumber(vim.api.nvim_get_current_line():match("^%s*.+%s*Testcase #(%d+)"))
-end
-
----@param url string
----@return string
-function M.get_domain(url)
-  return url:match("https?://([^/]+)")
 end
 
 function M.next_test()
