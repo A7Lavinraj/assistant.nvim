@@ -12,7 +12,8 @@ Using |lazy.nvim| plugin manager
 >lua
   {
     "A7Lavinraj/assistant.nvim",
-    lazy = false, -- if you want to start tcplistner on neovim startup
+    dependencies = { "folke/snacks.nvim" }, -- optional but recommended
+    lazy = false, -- if you want to start TCP Listener on neovim startup
     keys = {
       { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
     }

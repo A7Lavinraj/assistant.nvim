@@ -42,7 +42,8 @@
 ```lua
 {
     "A7lavinraj/assistant.nvim",
-    dependencies = { "stevearc/dressing.nvim" }, -- optional but recommended
+    dependencies = { "folke/snacks.nvim" }, -- optional but recommended
+    lazy = false, -- if you want to start TCP Listener on neovim startup
     keys = {
       { "<leader>a", "<cmd>AssistantToggle<cr>", desc = "Assistant.nvim" }
     },
