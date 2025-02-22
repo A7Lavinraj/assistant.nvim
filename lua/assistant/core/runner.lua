@@ -8,11 +8,8 @@ local AstRunner = {}
 ---@param layout Ast.Layout
 function AstRunner.new(layout)
   local self = setmetatable({}, { __index = AstRunner })
-
   self.layout = layout
-
   self:_init()
-
   return self
 end
 
@@ -69,7 +66,6 @@ function AstRunner:_execute(test_id)
   local cmd = self:get_cmd()
   local process = {}
   local test = state.get_test_by_id(test_id)
-
   process.stdio = { luv.new_pipe(false), luv.new_pipe(false), luv.new_pipe(false) }
   process.timer = luv.new_timer()
   process.stdout = ""
@@ -194,12 +190,15 @@ function AstRunner:_execute(test_id)
   end)
 
   luv.write(process.stdio[1], test.input)
+
   luv.shutdown(process.stdio[1])
+
   luv.read_start(process.stdio[2], function(_, data)
     if data then
       process.stdout = process.stdout .. utils.get_stream_data(data)
     end
   end)
+
   luv.read_start(process.stdio[3], function(_, data)
     if data then
       process.stderr = process.stderr .. utils.get_stream_data(data)
@@ -214,7 +213,6 @@ function AstRunner:_compile()
   thread = coroutine.create(function()
     local cmd = self:get_cmd()
     local process = {}
-
     process.stdio = { nil, nil, luv.new_pipe(false) }
     process.stderr = ""
 
@@ -277,7 +275,6 @@ function AstRunner:process_queue()
       local thread = self:_compile()
       self.compile_status = { code = -1, err = "" }
       coroutine.resume(thread)
-
       self.layout.view.render:compiling()
 
       vim.wait(10000, function()
@@ -297,7 +294,6 @@ function AstRunner:process_queue()
       table.remove(self.queue, 1)
     else
       self.queue = {}
-
       state.set_by_key("tests", function(value)
         for i = 1, #value do
           value[i].status = self.status_map.SKIP
@@ -307,7 +303,6 @@ function AstRunner:process_queue()
       end)
 
       self.layout.view.render:render_tasks()
-
       break
     end
   end
@@ -420,7 +415,6 @@ function AstRunner:remove_test()
   end
 
   self.layout.view.render:render_tasks()
-
   state.write_all()
 end
 

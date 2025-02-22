@@ -7,18 +7,16 @@ local AstRender = {}
 
 local luv = vim.uv or vim.loop
 local timer = luv.new_timer()
-local frames = opts.ui.actions.loading_frames
+local frames = opts.ui.icons.loading_frames
 local frame_id = 1
-local success = opts.ui.actions.success
-local failure = opts.ui.actions.failure
-local unknown = opts.ui.actions.unknown
+local success = opts.ui.icons.success
+local failure = opts.ui.icons.failure
+local unknown = opts.ui.icons.unknown
 
 ---@param layout Ast.Layout
 function AstRender.new(layout)
   local self = setmetatable({}, { __index = AstRender })
-
   self.layout = layout
-
   return self
 end
 
@@ -36,7 +34,7 @@ function AstRender:render(buf, text)
   local lines = {}
   local modifiable = vim.bo[buf].modifiable
 
-  if not modifiable then
+  if not modifiable and utils.is_buf(buf) then
     vim.bo[buf].modifiable = true
   end
 
@@ -50,7 +48,9 @@ function AstRender:render(buf, text)
     table.insert(lines, line)
   end
 
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  if utils.is_buf(buf) then
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  end
 
   for cnt, row in ipairs(text.lines) do
     local offset = text.pd
@@ -61,7 +61,7 @@ function AstRender:render(buf, text)
     end
   end
 
-  if not modifiable then
+  if not modifiable and utils.is_buf(buf) then
     vim.bo[buf].modifiable = false
   end
 
@@ -71,9 +71,7 @@ end
 function AstRender:render_tasks()
   local name = state.get_problem_name()
   local tests = state.get_all_tests()
-
   local lines = AstText.new()
-
   lines:append("󰫍 ", "AstTextYellow"):append(name or "", "AstTextH1"):nl(2)
 
   for id, test in ipairs(tests or {}) do
@@ -110,7 +108,6 @@ end
 
 function AstRender:render_log(id)
   local test = state.get_test_by_id(id)
-
   local lines = AstText.new()
 
   if test.input and #test.input ~= 0 then
@@ -189,9 +186,7 @@ function AstRender:render_io(test_id)
   local test = state.get_test_by_id(test_id)
   local lines = AstText.new()
   lines.pd = 0
-
   utils.io_to_text(self, test.input, test.output)
-
   self:render(self.layout.pane_config.Edit.buf, lines)
 end
 
@@ -201,7 +196,6 @@ function AstRender:compiling()
   end
 
   local lines = AstText.new()
-
   luv.timer_start(
     timer,
     0,
@@ -235,9 +229,9 @@ function AstRender:compiled(status)
   lines.lines = { {} }
 
   if status.code == 0 then
-    lines:append("COMPILATION ", "AstTextH1"):append(success, "AstTextGreen")
+    lines:append("COMPILATION ", "AstTextH1"):append(type(success) == "string" and success or "", "AstTextGreen")
   else
-    lines:append("COMPILATION ", "AstTextH1"):append(failure, "AstTextRed")
+    lines:append("COMPILATION ", "AstTextH1"):append(type(failure) == "string" and failure or "", "AstTextRed")
   end
 
   self:render(self.layout.view.pane_config.Actions.buf, lines)
@@ -255,11 +249,11 @@ function AstRender:executed()
 
   for _, test in pairs(tests or {}) do
     if test.status.text == "Skipped" then
-      lines:append(unknown, "AstTextH1")
+      lines:append(type(unknown) == "string" and unknown or "", "AstTextH1")
     elseif test.status.text == "Accepted" then
-      lines:append(success, "AstTextGreen")
+      lines:append(type(success) == "string" and success or "", "AstTextGreen")
     else
-      lines:append(failure, "AstTextRed")
+      lines:append(type(failure) == "string" and failure or "", "AstTextRed")
     end
   end
 

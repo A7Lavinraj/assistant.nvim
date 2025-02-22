@@ -8,8 +8,23 @@ local opts = require("assistant.config").opts
 
 local M = {}
 
+-- Create an instance of `AstLayout` with the addition of `AstRender` and `AstRunner`
 function M.create()
   local self = setmetatable({}, { __index = setmetatable(M, { __index = AstLayout }) })
+
+  --[[
+      ┌ Tasks ────────┐┌ Logs ───────────────┐
+      │               ││                     │
+      │               ││                     │
+      │               ││                     │
+      │               ││                     │
+      │               ││                     │
+      │               ││                     │
+      │               ││                     │
+      └───────────────┘│                     │
+      ┌ Actions ──────┐│                     │
+      └───────────────┘└─────────────────────┘
+  --]]
 
   AstLayout._init(self, {
     width = opts.ui.width,
@@ -26,7 +41,7 @@ function M.create()
         width = 0.4,
         height = 1,
         dheight = -3,
-        title = " Tasks " .. opts.ui.tasks.title_icon,
+        title = " Tasks " .. opts.ui.icons.title,
       },
       Actions = {
         startup = true,
@@ -35,8 +50,8 @@ function M.create()
         dheight = 1,
         width = 0.4,
         bottom = "Tasks",
-        border = opts.ui.actions.border,
-        title = " Actions " .. opts.ui.tasks.title_icon,
+        border = opts.ui.border,
+        title = " Actions " .. opts.ui.icons.title,
       },
       Logs = {
         startup = true,
@@ -45,8 +60,8 @@ function M.create()
         width = 0.6,
         height = 1,
         right = "Tasks",
-        border = opts.ui.logs.border,
-        title = " Logs " .. opts.ui.tasks.title_icon,
+        border = opts.ui.border,
+        title = " Logs " .. opts.ui.icons.title,
       },
       Edit = {
         enter = true,
@@ -58,8 +73,8 @@ function M.create()
         row = 3,
         col = 3,
         zindex = 3,
-        border = opts.ui.logs.border,
-        title = " Edit (enter to confirm) " .. opts.ui.tasks.title_icon,
+        border = opts.ui.border,
+        title = " Edit (enter to confirm) " .. opts.ui.icons.title,
       },
       Popup = {
         enter = true,
@@ -70,18 +85,15 @@ function M.create()
         row = 2,
         col = 1.8,
         zindex = 3,
-        border = opts.ui.logs.border,
-        title = " Popup (q to close) " .. opts.ui.tasks.title_icon,
+        border = opts.ui.border,
+        title = " Popup (q to close) " .. opts.ui.icons.title,
       },
     },
   })
 
   self.text = AstText.new()
-
   self.render = AstRender.new(self)
-
   self.runner = AstRunner.new(self)
-
   return self
 end
 
@@ -104,10 +116,9 @@ function M.show()
     return
   end
 
-  M.init()
-
   state.update()
 
+  M.init()
   M.view:open()
 
   local winhls = { "NormalFloat", "FloatBorder", "FloatTitle" }
@@ -127,11 +138,11 @@ function M.show()
       vim.wo[config.win].winhighlight = winhl
     end
 
-    if name == "Tasks" then
+    if name == "Tasks" and utils.is_win(config.win) then
       vim.wo[config.win].cursorline = true
     end
 
-    if M.view.backdrop and name == "Backdrop" then
+    if M.view.backdrop and name == "Backdrop" and utils.is_win(config.win) then
       vim.wo[config.win].winblend = M.view.backdrop
     end
   end
@@ -240,7 +251,6 @@ function M.show()
     end
 
     M.view.render:render_tasks()
-
     state.write_all()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
@@ -249,7 +259,6 @@ function M.show()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
   M.view.render:render_tasks()
-
   utils.next_test()
 end
 

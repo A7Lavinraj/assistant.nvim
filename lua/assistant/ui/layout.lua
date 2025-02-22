@@ -34,8 +34,6 @@ local api = vim.api
 ---@field zindex? integer
 ---@field pane_config table<string, Ast.Layout.PaneConfig>
 ---@field on_attach? function
----@field on_mount_start? function
----@field on_mount_end? function
 
 ---@class Ast.Layout
 ---@field width number
@@ -48,18 +46,13 @@ local api = vim.api
 ---@field augroup integer
 ---@field is_open boolean
 ---@field on_attach? function
----@field on_mount_start? function
----@field on_mount_end? function
 local AstLayout = {}
 
 ---@param init_opts Ast.Layout.Opts
 function AstLayout.new(init_opts)
-  init_opts = init_opts or {}
-
   local self = setmetatable({}, { __index = AstLayout })
-
+  init_opts = init_opts or {}
   self:_init(init_opts)
-
   return self
 end
 
@@ -71,10 +64,7 @@ function AstLayout:_init(init_opts)
   self.zindex = init_opts.zindex
   self.pane_config = init_opts.pane_config
   self.on_attach = init_opts.on_attach
-  self.on_mount_start = init_opts.on_mount_start
-  self.on_mount_end = init_opts.on_mount_end
   self.augroup = api.nvim_create_augroup("AstLayout", { clear = true })
-
   self.pane_opts = {}
 
   if self.backdrop and self.backdrop < 100 then
@@ -100,7 +90,6 @@ function AstLayout:bind_cmd(events, fn, opts)
   opts = opts or {}
   opts.group = self.augroup
   opts.callback = fn
-
   api.nvim_create_autocmd(events, opts)
 end
 
@@ -212,10 +201,6 @@ function AstLayout:resize()
 end
 
 function AstLayout:open()
-  if self.on_mount_start then
-    self:on_mount_start()
-  end
-
   if self.is_open then
     return
   end
@@ -230,10 +215,6 @@ function AstLayout:open()
     if utils.is_buf(self.pane_config[name].buf) and not self.pane_config[name].modifiable then
       vim.bo[self.pane_config[name].buf].modifiable = false
     end
-  end
-
-  if self.on_mount_end then
-    self:on_mount_end()
   end
 
   self.is_open = true

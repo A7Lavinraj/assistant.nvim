@@ -6,9 +6,7 @@
 ---@field height number
 ---@field backdrop integer
 ---@field border string
----@field tasks table<string, any>
----@field actions table<string, any>
----@field logs table<string, any>
+---@field icons table<string, string|string[]>
 
 ---@class Ast.Config.Command.Opts
 ---@field extension? string
@@ -54,18 +52,12 @@ M._defaults = {
     height = 0.8,
     backdrop = 60,
     border = "single",
-    tasks = {
-      title_icon = " ",
-    },
-    actions = {
-      title_icon = " ",
-      loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
+    icons = {
+      title = " ",
       success = " ",
       failure = " ",
       unknown = " ",
-    },
-    logs = {
-      title_icon = " ",
+      loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
     },
   },
   core = {

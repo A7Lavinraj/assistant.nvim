@@ -8,9 +8,7 @@ local AstText = {}
 ---@return Ast.Text
 function AstText.new()
   local self = setmetatable({}, { __index = AstText })
-
   self:_init()
-
   return self
 end
 
@@ -32,7 +30,6 @@ end
 ---@param hl string
 function AstText:append(str, hl)
   table.insert(self.lines[#self.lines], { str = str, hl = hl })
-
   return self
 end
 
