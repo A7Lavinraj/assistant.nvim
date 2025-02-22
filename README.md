@@ -13,27 +13,18 @@
 
 <br>
 
-<p align="center"><strong>Assistant.nvim</strong> is a Neovim plugin that provides various features
-related to sample data testing in competitive programming scenarios.</p>
+<p align="center"><strong>Assistant.nvim</strong> is a modern neovim testing manager for competitive programmers. It comes with various basic and advanced features which automate the testing workflow
+</p>
 
 <br>
 
-![DEMO](https://github.com/user-attachments/assets/1f96629d-cdce-4e8d-836f-b10f55768212)
-
-<br>
-
-## Features
-
-- ⚡ Blazingly fast.
-- 🔓 Highly customizable.
-- 🌞 Supports both environment and custom themes.
-- 😃 Easy to use.
+![DEMO](https://github.com/user-attachments/assets/24a89357-8ae9-48fa-9c81-5bf97160550a)
 
 <br>
 
 > [!WARNING]
-One important factor in competitive programming is **Speed**.
-Make sure you don't compromise on that while using some fancy plugin or software.
+> One important factor in competitive programming is **Speed**.
+> Make sure you don't compromise on that while using some fancy plugin or software.
 
 <br>
 
@@ -53,11 +44,7 @@ Make sure you don't compromise on that while using some fancy plugin or software
     "A7lavinraj/assistant.nvim",
     dependencies = { "stevearc/dressing.nvim" }, -- optional but recommended
     keys = {
-      {
-        "<leader>a",
-        "<cmd>AssistantToggle<cr>",
-        desc = "Toggle Assistant.nvim window"
-      }
+      { "<leader>a", "<cmd>AssistantToggle<cr>", desc = "Assistant.nvim" }
     },
     opts = {}
 }
@@ -66,55 +53,50 @@ Make sure you don't compromise on that while using some fancy plugin or software
 ### Default configuration
 
 ```lua
-{
-  commands = {
-    python = {
-      extension = "py",
-      template = nil, -- path to the template file
-      compile = nil,
-      execute = {
-        main = "python3",
-        args = { "$FILENAME_WITH_EXTENSION" },
-      },
-    },
-    cpp = {
-      extension = "cpp",
-      template = nil,
-      compile = {
-        main = "g++",
-        args = { 
-          "$FILENAME_WITH_EXTENSION",
-          "-o",
-          "$FILENAME_WITHOUT_EXTENSION"
+  {
+    commands = {
+      python = {
+        extension = "py",
+        compile = nil,
+        execute = {
+          main = "python3",
+          args = { "$FILENAME_WITH_EXTENSION" },
         },
       },
-      execute = {
-        main = "./$FILENAME_WITHOUT_EXTENSION",
-        args = nil,
+      cpp = {
+        extension = "cpp",
+        compile = {
+          main = "g++",
+          args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
+        },
+        execute = {
+          main = "./$FILENAME_WITHOUT_EXTENSION",
+          args = nil,
+        },
       },
     },
-  },
-  ui = {
-    icons = {
-      success = "",
-      failure = "",
-      unknown = "",
-      loading = { "󰸴", "󰸵", "󰸸", "󰸷", "󰸶" },
+    ui = {
+      width = 0.8,
+      height = 0.8,
+      backdrop = 60,
+      border = "single",
+      icons = {
+        title = " ",
+        success = " ",
+        failure = " ",
+        unknown = " ",
+        loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
+      },
     },
-  },
-  core = {
-    process_budget = 5000,
-  },
-}
+    core = {
+      process_budget = 5000,
+    },
+  }
 ```
 
 <br>
 
-## Explanation of above code snippet
-
-- First line points to github repository from where the plugin is get installed.
-- Second line is the dependency array for the plugin, In this case its [Dressing.nvim](https://github.com/stevearc/dressing.nvim)
-- Third line contains the options table to customize plugin:
+## How to create custom command?
 
 <br>
 
@@ -147,8 +129,8 @@ python = {
 
 > [!NOTE]
 > key to the new table is **type of file you want to run**. In this case is `python`,
-you can get the correct file-type of file by just open that file inside neovim
-and type the following command.
+> you can get the correct file-type of file by just open that file inside neovim
+> and type the following command.
 
 <br />
 
@@ -158,29 +140,28 @@ and type the following command.
 
 <br />
 
-> There is only one command to interact with plugin `AssistantToggle`
-which toggle the UI window of plugin and rest operations are done by key-mappings.
+> There is only one command to interact with plugin `Assistant`
+> which toggle the UI window of plugin and rest operations are done by key-mappings.
 
 <br />
 
 ```lua
  -- command to open and close plugin window
-:AssistantToggle
+:Assistant
 ```
 
 <br />
 
-| Key       | Operation                                                 |
-| --------- | --------------------------------------------------------- |
-| `q`       | Close UI                                                  |
-| `r`       | Run testcase on which the cursor is holded                |
-| `R`       | Run all available testcases                               |
-| `c`       | Create an empty testcase                                  |
-| `d`       | Delete testcase on which the cursor is holded             |
-| `e`       | Open prompt window for updating expect                    |
-| `i`       | Open prompt window for updating input                     |
-| `<enter>` | Confirm changes in prompt                                 |
-| `<c-l>`   | Navigate to available right window otherwise close the UI |
-| `<c-k>`   | Navigate to available up window otherwise close the UI    |
-| `<c-h>`   | Navigate to available left window otherwise close the UI  |
-| `<c-j>`   | Navigate to available down window otherwise close the UI  |
+| Key       | Operation                            |
+| --------- | ------------------------------------ |
+| `q`       | Close window                         |
+| `r`       | Run current or selected testcases    |
+| `c`       | Create an empty testcase             |
+| `d`       | Delete current or selected testcases |
+| `e`       | Open edit window                     |
+| `s`       | Toggle testcase selection            |
+| `j`       | Move to next testcase                |
+| `k`       | Move to previous testcase            |
+| `<enter>` | Confirm changes in prompt            |
+| `<c-l>`   | Navigate to available right window   |
+| `<c-h>`   | Navigate to available left window    |
