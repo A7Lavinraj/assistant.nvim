@@ -1,6 +1,6 @@
 local M = {}
 
-local DELIMITER = ">>>>> PLEASE DO NOT EDIT THIS LINE <<<<<"
+local DELIMITER = "==== PLEASE DO NOT EDIT THIS LINE ====="
 
 ---@param msg string
 function M.notify_info(msg)
