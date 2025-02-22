@@ -82,7 +82,7 @@ function AstLayout:_init(init_opts)
   end
 end
 
-function AstLayout:bind_key(lhs, rhs, opts, mode)
+function AstLayout.bind_key(lhs, rhs, opts, mode)
   vim.keymap.set(mode or "n", lhs, rhs, opts)
 end
 

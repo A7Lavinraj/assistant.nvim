@@ -22,7 +22,7 @@ end
 
 ---@param buf integer
 ---@param text Ast.Text
-function AstRender:render(buf, text)
+function AstRender.render(buf, text)
   if not buf or not vim.api.nvim_buf_is_valid(buf) then
     return
   end
@@ -103,7 +103,7 @@ function AstRender:render_tasks()
     end
   end
 
-  self:render(self.layout.pane_config.Tasks.buf, lines)
+  self.render(self.layout.pane_config.Tasks.buf, lines)
 end
 
 function AstRender:render_log(id)
@@ -178,7 +178,7 @@ function AstRender:render_log(id)
     end
   end
 
-  self:render(self.layout.pane_config.Logs.buf, lines)
+  self.render(self.layout.pane_config.Logs.buf, lines)
 end
 
 ---@param test_id integer
@@ -186,8 +186,8 @@ function AstRender:render_io(test_id)
   local test = state.get_test_by_id(test_id)
   local lines = AstText.new()
   lines.pd = 0
-  utils.io_to_text(self, test.input, test.output)
-  self:render(self.layout.pane_config.Edit.buf, lines)
+  utils.io_to_text(lines, test.input, test.output)
+  self.render(self.layout.pane_config.Edit.buf, lines)
 end
 
 function AstRender:compiling()
@@ -204,7 +204,7 @@ function AstRender:compiling()
       lines.lines = { {} }
       lines:append("COMPILATION ", "AstTextH1"):append(frames[frame_id], "AstTextYellow")
       frame_id = frame_id % #frames + 1
-      self:render(self.layout.view.pane_config.Actions.buf, lines)
+      self.render(self.layout.view.pane_config.Actions.buf, lines)
     end)
   )
 end
@@ -223,7 +223,7 @@ function AstRender:compiled(status)
     end
 
     self.layout.popup()
-    self:render(self.layout.view.pane_config.Popup.buf, lines)
+    self.render(self.layout.view.pane_config.Popup.buf, lines)
   end
 
   lines.lines = { {} }
@@ -234,7 +234,7 @@ function AstRender:compiled(status)
     lines:append("COMPILATION ", "AstTextH1"):append(type(failure) == "string" and failure or "", "AstTextRed")
   end
 
-  self:render(self.layout.view.pane_config.Actions.buf, lines)
+  self.render(self.layout.view.pane_config.Actions.buf, lines)
 end
 
 function AstRender:executed()
@@ -257,7 +257,7 @@ function AstRender:executed()
     end
   end
 
-  self:render(self.layout.view.pane_config.Actions.buf, lines)
+  self.render(self.layout.view.pane_config.Actions.buf, lines)
 end
 
 return AstRender

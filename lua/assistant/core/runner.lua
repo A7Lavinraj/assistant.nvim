@@ -32,7 +32,7 @@ function AstRunner:_init()
   }
 end
 
-function AstRunner:get_cmd()
+function AstRunner.get_cmd()
   local cmd = vim.deepcopy(opts.commands[state.get_src_ft()] or {}) ---@type Ast.Config.Command.Opts
 
   local function format(filename)
@@ -63,7 +63,7 @@ end
 
 ---@param test_id integer
 function AstRunner:_execute(test_id)
-  local cmd = self:get_cmd()
+  local cmd = self.get_cmd()
   local process = {}
   local test = state.get_test_by_id(test_id)
   process.stdio = { luv.new_pipe(false), luv.new_pipe(false), luv.new_pipe(false) }
@@ -211,7 +211,7 @@ function AstRunner:_compile()
   ---@type thread
   local thread = nil
   thread = coroutine.create(function()
-    local cmd = self:get_cmd()
+    local cmd = self.get_cmd()
     local process = {}
     process.stdio = { nil, nil, luv.new_pipe(false) }
     process.stderr = ""
@@ -271,7 +271,7 @@ function AstRunner:process_queue()
   self.processor_status = "RUNNING"
 
   while self.concurrency_count < self.MAX_CONCURRENCY and #self.queue > 0 do
-    if state.need_compilation() and not vim.tbl_isempty(self:get_cmd().compile or {}) then
+    if state.need_compilation() and not vim.tbl_isempty(self.get_cmd().compile or {}) then
       local thread = self:_compile()
       self.compile_status = { code = -1, err = "" }
       coroutine.resume(thread)

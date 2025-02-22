@@ -124,24 +124,25 @@ function M.prev_test()
   end
 end
 
+---@param text Ast.Text
 ---@param input string
 ---@param output string
-function M.io_to_text(self, input, output)
+function M.io_to_text(text, input, output)
   local split_lines = vim.split(input, "\n")
 
   for _, line in ipairs(split_lines) do
-    self:append(line, "AstTextP"):nl()
+    text:append(line, "AstTextP"):nl()
   end
 
-  self:append(DELIMITER, "AstTextDim"):nl()
+  text:append(DELIMITER, "AstTextDim"):nl()
 
   split_lines = vim.split(output, "\n")
 
   for index, line in ipairs(split_lines) do
-    self:append(line, "AstTextP")
+    text:append(line, "AstTextP")
 
     if index < #split_lines then
-      self:nl()
+      text:nl()
     end
   end
 end

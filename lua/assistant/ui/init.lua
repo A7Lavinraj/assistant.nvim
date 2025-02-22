@@ -153,7 +153,7 @@ function M.show()
         M.view:close()
       end, { buffer = config.buf })
 
-      M.view:bind_key("q", function()
+      M.view.bind_key("q", function()
         M.view:close()
       end, { buffer = config.buf })
     end
@@ -176,11 +176,11 @@ function M.show()
     end
   end, { buffer = M.view.pane_config.Tasks.buf })
 
-  M.view:bind_key("j", utils.next_test, { buffer = M.view.pane_config.Tasks.buf })
+  M.view.bind_key("j", utils.next_test, { buffer = M.view.pane_config.Tasks.buf })
 
-  M.view:bind_key("k", utils.prev_test, { buffer = M.view.pane_config.Tasks.buf })
+  M.view.bind_key("k", utils.prev_test, { buffer = M.view.pane_config.Tasks.buf })
 
-  M.view:bind_key("s", function()
+  M.view.bind_key("s", function()
     local test_id = utils.get_current_line_number()
 
     if test_id then
@@ -200,7 +200,7 @@ function M.show()
     end
   end, { buffer = M.view.pane_config.Tasks.buf })
 
-  M.view:bind_key("c", function()
+  M.view.bind_key("c", function()
     M.view.runner:create_test()
 
     local line_count = vim.api.nvim_buf_line_count(0)
@@ -212,16 +212,16 @@ function M.show()
     utils.prev_test()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
-  M.view:bind_key("d", function()
+  M.view.bind_key("d", function()
     M.view.runner:remove_test()
     utils.prev_test()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
-  M.view:bind_key("e", function()
+  M.view.bind_key("e", function()
     M.edit()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
-  M.view:bind_key("a", function()
+  M.view.bind_key("a", function()
     local tests = state.get_all_tests()
     local all_checked = true
 
@@ -254,7 +254,7 @@ function M.show()
     state.write_all()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
-  M.view:bind_key("r", function()
+  M.view.bind_key("r", function()
     M.view.runner:push_unique()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
@@ -265,7 +265,7 @@ end
 function M.popup()
   M.view:open_unique("Popup")
 
-  M.view:bind_key("q", function()
+  M.view.bind_key("q", function()
     M.view:close_unique("Popup")
   end, { buffer = M.view.pane_config.Popup.buf })
 
@@ -285,7 +285,7 @@ function M.edit()
 
   M.view.render:render_io(test_id)
 
-  M.view:bind_key("<enter>", function()
+  M.view.bind_key("<enter>", function()
     local lines = table.concat(vim.api.nvim_buf_get_lines(M.view.pane_config.Edit.buf, 0, -1, false), "\n")
 
     state.set_by_key("tests", function(value)
@@ -298,7 +298,7 @@ function M.edit()
     M.view:close_unique("Edit")
   end, { buffer = M.view.pane_config.Edit.buf })
 
-  M.view:bind_key("q", function()
+  M.view.bind_key("q", function()
     M.view.view:close_unique("Edit")
   end, { buffer = M.view.pane_config.Edit.buf })
 
