@@ -1,70 +1,102 @@
+# CHANGELOG
+
+## v3.1.0 (2024-12-19)
+
+### 🔥 What's New  
+
+- ✨ Remastered UI with template support  
+- 🛠️ Fixed navigation bugs  
+
+### 📌 Changes & Updates  
+
+#### 🆕 New Features  
+
+- **Improved UI for better user experience**  
+- **Added template support for sources**  
+
+#### 🔧 Improvements  
+
+- Enhanced UI responsiveness  
+
+#### 🐛 Bug Fixes  
+
+- Fixed **Issue #54**  
+
+#### 📖 Documentation  
+
+- Updated **README** with new instructions  
+
+📺 **Video Guide:** Available on [YouTube](https://youtu.be/kvy7dRFT56E)  
+
+---
+
 ## v3.0.0 (2024-12-19)
 
-# 🎉 Release v3.0.0 Discussion
+Hi everyone! 🚀  
 
-Hi everyone! 🚀
+We're thrilled to announce the release of **v3.0.0** of this plugin! This version brings significant updates, improvements, and bug fixes based on community feedback, enhancing the overall user experience.  
 
-We're thrilled to announce the release of **v3.0.0** of this plugin! This version brings significant updates, improvements, and bug fixes based on community feedback and our goals to enhance the overall user experience.
+### 🔥 What's New in v3.0.0?  
 
-## 🔥 What's New in v3.0.0?
+- **New interactive UI:** A redesigned interface for improved UX and productivity.  
+- **Parallel task scheduler:** Run multiple tasks efficiently without CPU overload.  
+- **New actions bar:** Live feedback for a limited set of actions.  
+- **Enhanced configuration flexibility:** More customization options.  
 
-- **New interactive UI:** Introducing brand new plugin UI for better UX and productivity.
-- **New parallel task scheduler:** Now you can run as many tasks as you want without looking at CPU over loading thanks to new implemented task scheduler.
-- **New actions bar:** Now you can get a live feedback for your actions(track only few actions).
-- **More flexibility over configuration:** Now you can configure the plugin to the next level.
+### 👀 Share Your Feedback  
 
-## 👀 Share Your Feedback
+We'd love to hear your thoughts! Let us know:  
 
-We'd love to hear your thoughts on this release! Let us know:
+- How is your experience with the new features?  
+- Are there any areas for improvement?  
+- Any bugs or unexpected issues?  
 
-- How is your experience with the new features?
-- Are there any areas where you feel we can improve?
-- Any bugs or unexpected issues you've encountered?
+Your feedback helps shape the future of this project! 🚀  
 
-Your feedback helps us shape the future of this project, so don’t hold back!
+### 📖 Resources  
 
-## 📖 Resources
+- [Documentation](https://github.com/A7Lavinraj/assistant.nvim/blob/main/README.md)  
 
-- [Documentation](https://github.com/A7Lavinraj/assistant.nvim/blob/main/README.md)
+---
 
-## 2.2.3 (2024-10-14)
+## v2.2.3 (2024-10-14)
 
-### Fixed
+### 🐛 Bug Fixes  
 
-- handle empty testcase array for `next` and `prev` method
+- Handled empty testcase array for `next` and `prev` methods.  
 
-## 2.2.2 (2024-10-13)
+## v2.2.2 (2024-10-13)
 
-### Fixed
+### 🐛 Bug Fixes  
 
-- Fixed border overlaping of `main` and `prev`
+- Fixed border overlapping of `main` and `prev`.  
 
-## 2.2.1 (2024-10-12)
+## v2.2.1 (2024-10-12)
 
-### Fixed
+### 🐛 Bug Fixes  
 
-- Fixed error message for `vim.api.nvim_get_current_line` when buffer not available
+- Fixed error message for `vim.api.nvim_get_current_line` when buffer is unavailable.  
 
-## 2.2.0 (2024-10-07)
+## v2.2.0 (2024-10-07)
 
-### Added
+### ✨ New Features  
 
-- Set cursor on renders
+- Set cursor position on renders.  
 
-## 2.1.0 (2024-10-06)
+## v2.1.0 (2024-10-06)
 
-### Added
+### ✨ New Features  
 
-- Additional default mappings to easily navigate across available testcases
+- Added default mappings for easy testcase navigation.  
 
-## 2.0.0 (2024-09-25)
+## v2.0.0 (2024-09-25)
 
-### Added
+### ✨ New Features  
 
-- Split UI
-- Custom themes
-- More control over configurations
+- Split UI  
+- Custom themes  
+- Greater configuration control  
 
-### Fixed
+### 🐛 Bug Fixes  
 
-- Infinite running process
+- Resolved infinite running process issue.  
