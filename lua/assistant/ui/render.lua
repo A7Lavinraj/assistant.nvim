@@ -72,7 +72,10 @@ function AstRender:render_tasks()
   local name = state.get_problem_name()
   local tests = state.get_all_tests()
   local lines = AstText.new()
-  lines:append("󰫍 ", "AstTextYellow"):append(name or "", "AstTextH1"):nl(2)
+
+  if name then
+    lines:append("󰫍 ", "AstTextYellow"):append(name or "", "AstTextH1"):nl(2)
+  end
 
   for id, test in ipairs(tests or {}) do
     if test.checked then

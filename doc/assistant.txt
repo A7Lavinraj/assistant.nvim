@@ -29,6 +29,7 @@ Using |lazy.nvim| plugin manager
     commands = {
       python = {
 	extension = "py",
+        template = nil,
 	compile = nil,
 	execute = {
 	  main = "python3",
@@ -37,6 +38,7 @@ Using |lazy.nvim| plugin manager
       },
       cpp = {
 	extension = "cpp",
+        template = nil,
 	compile = {
 	  main = "g++",
 	  args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },

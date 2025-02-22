@@ -57,6 +57,7 @@
     commands = {
       python = {
         extension = "py",
+        template = nil,
         compile = nil,
         execute = {
           main = "python3",
@@ -65,6 +66,7 @@
       },
       cpp = {
         extension = "cpp",
+        template = nil,
         compile = {
           main = "g++",
           args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
@@ -159,7 +161,8 @@ python = {
 | `c`       | Create an empty testcase             |
 | `d`       | Delete current or selected testcases |
 | `e`       | Open edit window                     |
-| `s`       | Toggle testcase selection            |
+| `s`       | Toggle current testcase selection    |
+| `a`       | Toggle all testcase selection        |
 | `j`       | Move to next testcase                |
 | `k`       | Move to previous testcase            |
 | `<enter>` | Confirm changes in prompt            |
