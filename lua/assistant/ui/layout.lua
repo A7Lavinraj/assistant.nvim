@@ -68,7 +68,7 @@ function AstLayout:_init(init_opts)
   self.pane_opts = {}
 
   if self.backdrop and self.backdrop < 100 then
-    self.pane_config.Backdrop = {}
+    self.pane_config.Backdrop = { startup = true }
   end
 
   for name, config in pairs(self.pane_config) do

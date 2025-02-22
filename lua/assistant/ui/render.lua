@@ -248,7 +248,7 @@ function AstRender:executed()
   lines:append("VERDICTS ", "AstTextH1")
 
   for _, test in pairs(tests or {}) do
-    if test.status.text == "Skipped" then
+    if not test.status or test.status.text == "Skipped" then
       lines:append(type(unknown) == "string" and unknown or "", "AstTextH1")
     elseif test.status.text == "Accepted" then
       lines:append(type(success) == "string" and success or "", "AstTextGreen")
