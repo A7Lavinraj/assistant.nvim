@@ -258,6 +258,14 @@ function M.show()
     M.view.runner:push_unique()
   end, { buffer = M.view.pane_config.Tasks.buf })
 
+  M.view.bind_key("<c-l>", function()
+    vim.fn.win_gotoid(M.view.pane_config.Logs.win)
+  end, { buffer = M.view.pane_config.Tasks.buf })
+
+  M.view.bind_key("<c-h>", function()
+    vim.fn.win_gotoid(M.view.pane_config.Tasks.win)
+  end, { buffer = M.view.pane_config.Logs.buf })
+
   M.view.render:render_tasks()
   utils.next_test()
 end

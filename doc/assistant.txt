@@ -2,7 +2,7 @@
 ============================================================================
 
 A modern neovim testing manager for competitive programmers. It comes with
-various basic and advanced features which automate the testing workflow.
+various basic and advanced features which automate the testing workflow
 
 						 *assistant.nvim-installation*
 ============================================================================
@@ -14,7 +14,7 @@ Using |lazy.nvim| plugin manager
     "A7Lavinraj/assistant.nvim",
     lazy = false, -- if you want to start tcplistner on neovim startup
     keys = {
-      { "<leader>a", "<cmd>Assistant<cr>", desc = "Launch Assistant.nvim" }
+      { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
     }
     opts = {} -- config options
   }
