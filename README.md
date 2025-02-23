@@ -45,7 +45,7 @@
     dependencies = { "folke/snacks.nvim" }, -- optional but recommended
     lazy = false, -- if you want to start TCP Listener on neovim startup
     keys = {
-      { "<leader>a", "<cmd>AssistantToggle<cr>", desc = "Assistant.nvim" }
+      { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
     },
     opts = {}
 }
