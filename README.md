@@ -35,9 +35,7 @@
 
 <br>
 
-## Setup with [Lazy.nvim](https://github.com/folke/lazy.nvim)
-
-### Quick start
+### Quick start (latest version)
 
 ```lua
 {
@@ -50,6 +48,30 @@
     opts = {}
 }
 ```
+
+<br>
+
+> [!NOTE]
+> If you are facing any problem with the new updates, you can change to most stable version
+
+<br>
+
+### Quick start (recent stable version)
+
+```lua
+{
+    "A7lavinraj/assistant.nvim",
+    commit = "ca42f5231203ff3c9356180f2d4ca96061a70ef4",
+    dependencies = { "folke/snacks.nvim" }, -- optional but recommended
+    lazy = false, -- if you want to start TCP Listener on neovim startup
+    keys = {
+      { "<leader>a", "<cmd>AssistantToggle<cr>", desc = "Assistant.nvim" }
+    },
+    opts = {}
+}
+```
+
+<br>
 
 ### Default configuration
 
