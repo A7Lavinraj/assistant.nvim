@@ -17,6 +17,12 @@ function M.setup(opts)
     { name = "core.tcplistener" },
   })
 
+  vim.api.nvim_create_user_command("AssistantToggle", function()
+    require("assistant.utils").notify_warn(
+      "Please use `Assistant` command instead of `AssistantToggle`, it is deprecated now"
+    )
+    require("assistant.ui").show()
+  end, {})
   vim.api.nvim_create_user_command("Assistant", require("assistant.ui").show, {})
 end
 
