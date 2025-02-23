@@ -298,6 +298,7 @@ function AstRunner:process_queue()
       self:_execute(self.queue[1])
       self.concurrency_count = self.concurrency_count + 1
       table.remove(self.queue, 1)
+      vim.wait(100)
     else
       self.queue = {}
       state.set_by_key("tests", function(value)
