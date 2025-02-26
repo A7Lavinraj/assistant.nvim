@@ -1,4 +1,4 @@
-<h1 align="center">Assistant.nvim</h1>
+<h1 align="center">Assistant.nvim - Neovim Plugin for Competitive Programming</h1>
 
 <br>
 
@@ -13,8 +13,7 @@
 
 <br>
 
-<p align="center"><strong>Assistant.nvim</strong> is a modern neovim testing manager for competitive programmers. It comes with various basic and advanced features which automate the testing workflow
-</p>
+<p align="center"><strong>Assistant.nvim</strong> is a powerful and efficient Neovim plugin designed for competitive programmers. It automates the testing workflow, making it faster and more convenient to run test cases directly inside Neovim.</p>
 
 <br>
 
@@ -22,26 +21,34 @@
 
 <br>
 
-> [!WARNING]
-> One important factor in competitive programming is **Speed**.
-> Make sure you don't compromise on that while using some fancy plugin or software.
+> [!NOTE]
+> Speed is crucial in competitive programming. Ensure that using this plugin enhances your workflow rather than slowing you down.
 
 <br>
+
+## Features
+
+- **Automated Test Case Management**: Easily fetch and organize test cases from online judges.
+- **Customizable Execution Commands**: Support for multiple programming languages with configurable commands.
+- **Interactive UI**: A user-friendly interface for managing test cases.
+- **Asynchronous Processing**: Ensures Neovim remains responsive during execution.
 
 ## Requirements
 
-- **NEOVIM VERSION** >= `0.9.5`
-- [Competitive Companion Browser extension](https://github.com/jmerle/competitive-companion)
+- **Neovim** `>= 0.9.5`
+- [Competitive Companion Browser Extension](https://github.com/jmerle/competitive-companion)
 
 <br>
 
-### Quick start (latest version)
+## Installation
+
+### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
 {
     "A7lavinraj/assistant.nvim",
     dependencies = { "folke/snacks.nvim" }, -- optional but recommended
-    lazy = false, -- if you want to start TCP Listener on neovim startup
+    lazy = false, -- Start TCP Listener on Neovim startup
     keys = {
       { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
     },
@@ -52,20 +59,18 @@
 <br>
 
 > [!NOTE]
-> If you are facing any problem with the new updates, you can change to most stable version
+> If you encounter issues with the latest updates, consider switching to the most stable version
 
 <br>
-
-### Quick start (recent stable version)
 
 ```lua
 {
     "A7lavinraj/assistant.nvim",
     commit = "ca42f5231203ff3c9356180f2d4ca96061a70ef4",
-    dependencies = { "folke/snacks.nvim" }, -- optional but recommended
-    lazy = false, -- if you want to start TCP Listener on neovim startup
+    dependencies = { "folke/snacks.nvim" },
+    lazy = false,
     keys = {
-      { "<leader>a", "<cmd>AssistantToggle<cr>", desc = "Assistant.nvim" }
+      { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
     },
     opts = {}
 }
@@ -73,121 +78,94 @@
 
 <br>
 
-### Default configuration
+## Default Configuration
 
 ```lua
-  {
-    commands = {
-      python = {
-        extension = "py",
-        template = nil,
-        compile = nil,
-        execute = {
-          main = "python3",
-          args = { "$FILENAME_WITH_EXTENSION" },
-        },
-      },
-      cpp = {
-        extension = "cpp",
-        template = nil,
-        compile = {
-          main = "g++",
-          args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
-        },
-        execute = {
-          main = "./$FILENAME_WITHOUT_EXTENSION",
-          args = nil,
-        },
+{
+  commands = {
+    python = {
+      extension = "py",
+      template = nil,
+      compile = nil,
+      execute = {
+        main = "python3",
+        args = { "$FILENAME_WITH_EXTENSION" },
       },
     },
-    ui = {
-      width = 0.8,
-      height = 0.8,
-      backdrop = 60,
-      border = "single",
-      icons = {
-        title = " ",
-        success = " ",
-        failure = " ",
-        unknown = " ",
-        loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
+    cpp = {
+      extension = "cpp",
+      template = nil,
+      compile = {
+        main = "g++",
+        args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
+      },
+      execute = {
+        main = "./$FILENAME_WITHOUT_EXTENSION",
+        args = nil,
       },
     },
-    core = {
-      process_budget = 5000,
+  },
+  ui = {
+    width = 0.8,
+    height = 0.8,
+    backdrop = 60,
+    border = "single",
+    icons = {
+      title = " ",
+      success = " ",
+      failure = " ",
+      unknown = " ",
+      loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
     },
-  }
+  },
+  core = {
+    process_budget = 5000,
+  },
+}
 ```
 
-<br>
+## Custom Command Configuration
 
-## How to create custom command?
-
-<br>
-
-```sh
-g++ example.cpp -o example # {main} {arg1} {args2} {arg3}
-```
-
-<br>
-
-Above code snippet is a command to compile a C++ file, If you take a closure look
-on the comment right in front of command you can guess
-`main = g++`, `arg1 = example.cpp`, `arg2 = -o` and `arg3 = example`,
-So if i want to extend the configuration for `Python`,
-I just need to add following code snippet to commands table.
-
-<br>
+To extend the configuration for **Python**, add the following to the `commands` table:
 
 ```lua
 python = {
-    extension = "py", -- your preferred file extension for python file
-    compile = nil, -- since python code doesn't get compiled so pass a nil
-    execute = { -- {main} command and array of {args} as we saw earlier.
+    extension = "py",
+    compile = nil, -- Python doesn't require compilation
+    execute = {
         main = "python3",
         args = { "$FILENAME_WITH_EXTENSION" }
     },
 },
 ```
 
-<br />
-
-> [!NOTE]
-> key to the new table is **type of file you want to run**. In this case is `python`,
-> you can get the correct file-type of file by just open that file inside neovim
-> and type the following command.
-
-<br />
+To check the file type of an open file in Neovim, run:
 
 ```lua
 :lua print(vim.bo.filetype)
 ```
 
-<br />
-
-> There is only one command to interact with plugin `Assistant`
-> which toggle the UI window of plugin and rest operations are done by key-mappings.
-
-<br />
+## Commands & Key Bindings
 
 ```lua
- -- command to open and close plugin window
 :Assistant
 ```
 
-<br />
+| Key       | Operation                             |
+| --------- | ------------------------------------- |
+| `q`       | Close window                          |
+| `r`       | Run current or selected test cases    |
+| `c`       | Create an empty test case             |
+| `d`       | Delete current or selected test cases |
+| `e`       | Open edit window                      |
+| `s`       | Toggle current test case selection    |
+| `a`       | Toggle all test case selections       |
+| `j`       | Move to next test case                |
+| `k`       | Move to previous test case            |
+| `<enter>` | Confirm changes in prompt             |
+| `<c-l>`   | Navigate to right window              |
+| `<c-h>`   | Navigate to left window               |
 
-| Key       | Operation                            |
-| --------- | ------------------------------------ |
-| `q`       | Close window                         |
-| `r`       | Run current or selected testcases    |
-| `c`       | Create an empty testcase             |
-| `d`       | Delete current or selected testcases |
-| `e`       | Open edit window                     |
-| `s`       | Toggle current testcase selection    |
-| `a`       | Toggle all testcase selection        |
-| `j`       | Move to next testcase                |
-| `k`       | Move to previous testcase            |
-| `<enter>` | Confirm changes in prompt            |
-| `<c-l>`   | Navigate to available right window   |
-| `<c-h>`   | Navigate to available left window    |
+## Want to contribute?
+
+Please read [CONTRIBUTING.md](https://github.com/A7Lavinraj/assistant.nvim/blob/main/CONTRIBUTING.md) to get started
