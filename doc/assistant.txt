@@ -65,6 +65,7 @@ Using |lazy.nvim| plugin manager
     },
     core = {
       process_budget = 5000,
+      port = 10043,
     },
   }
 <
