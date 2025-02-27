@@ -5,7 +5,7 @@ local luv = vim.uv or vim.loop
 
 local M = {}
 
-local function is_port_in_use(host, port, callback)
+function M.is_port_in_use(host, port, callback)
   local check = luv.new_tcp()
 
   if not check then
@@ -26,19 +26,19 @@ local function is_port_in_use(host, port, callback)
   end)
 end
 
-local function wait_for_unbind(host, port, attempt, max_attempts, callback)
+function M.wait_for_unbind(host, port, attempt, max_attempts, callback)
   if attempt > max_attempts then
     utils.notify_err("Existing server did not unbind in time")
     return
   end
 
-  is_port_in_use(host, port, function(in_use)
+  M.is_port_in_use(host, port, function(in_use)
     if not in_use then
       callback()
     else
       local delay = math.min(1000 * 2 ^ (attempt - 1), 10000)
       vim.defer_fn(function()
-        wait_for_unbind(host, port, attempt + 1, max_attempts, callback)
+        M.wait_for_unbind(host, port, attempt + 1, max_attempts, callback)
       end, delay)
     end
   end)
@@ -126,7 +126,7 @@ function M.start()
 end
 
 function M.init()
-  is_port_in_use("127.0.0.1", opts.core.port, function(in_use)
+  M.is_port_in_use("127.0.0.1", opts.core.port, function(in_use)
     if in_use then
       -- utils.notify_info("Stopping existing server before initializing")
       local stop_signal = luv.new_tcp()
@@ -139,7 +139,7 @@ function M.init()
         if not err then
           stop_signal:write("shutdown", function()
             stop_signal:close()
-            wait_for_unbind("127.0.0.1", opts.core.port, 1, 5, M.start)
+            M.wait_for_unbind("127.0.0.1", opts.core.port, 1, 5, M.start)
           end)
         else
           M.start()
