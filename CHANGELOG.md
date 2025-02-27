@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v4.1.0 (2025-02-27)
+
+### features
+
+- Add option to change `TCPListener` in configuration
+
+### fixes
+
+- Unbind existing `TCPListener` before binding new
+
 ## v4.0.0 (2025-02-22)
 
 ## What's new
