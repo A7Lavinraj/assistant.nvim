@@ -1,3 +1,5 @@
+all: fmt lint test
+
 fmt:
 	stylua lua --config-path=./.stylua.toml
 
@@ -6,5 +8,3 @@ lint:
 
 test:
 	nvim -l scripts/minit.lua
-
-all: fmt lint test
