@@ -1,5 +1,6 @@
 ---@class Ast.Config.Core
 ---@field process_budget integer
+---@field port integer
 
 ---@class Ast.Config.UI
 ---@field width number
@@ -62,6 +63,7 @@ M._defaults = {
   },
   core = {
     process_budget = 5000,
+    port = 10043,
   },
 }
 

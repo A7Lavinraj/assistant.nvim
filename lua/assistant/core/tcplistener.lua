@@ -1,4 +1,5 @@
 local fs = require("assistant.core.filesystem").new()
+local opts = require("assistant.config").opts
 local utils = require("assistant.utils")
 local luv = vim.uv or vim.loop
 
@@ -80,7 +81,7 @@ function M.start()
   end
 
   local success, err = pcall(function()
-    M.server:bind("127.0.0.1", 10043)
+    M.server:bind("127.0.0.1", opts.core.port)
   end)
 
   if not success then
@@ -125,7 +126,7 @@ function M.start()
 end
 
 function M.init()
-  is_port_in_use("127.0.0.1", 10043, function(in_use)
+  is_port_in_use("127.0.0.1", opts.core.port, function(in_use)
     if in_use then
       -- utils.notify_info("Stopping existing server before initializing")
       local stop_signal = luv.new_tcp()
@@ -134,11 +135,11 @@ function M.init()
         return
       end
 
-      stop_signal:connect("127.0.0.1", 10043, function(err)
+      stop_signal:connect("127.0.0.1", opts.core.port, function(err)
         if not err then
           stop_signal:write("shutdown", function()
             stop_signal:close()
-            wait_for_unbind("127.0.0.1", 10043, 1, 5, M.start)
+            wait_for_unbind("127.0.0.1", opts.core.port, 1, 5, M.start)
           end)
         else
           M.start()
