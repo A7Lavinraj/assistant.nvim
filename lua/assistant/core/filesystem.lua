@@ -3,6 +3,52 @@ local utils = require("assistant.utils")
 local FileSystem = {}
 local luv = vim.uv or vim.loop
 
+local snacks_status, snacks = pcall(require, "snacks")
+
+local function custom_picker(items, on_choice)
+  if not snacks_status then
+    utils.notify_warn("Snacks.nvim not found, Please visit setup guide in README.md")
+    vim.ui.select(items, { prompt = "Sources" }, on_choice)
+  else
+    local picker_opts = {
+      prompt = "sources",
+      format_item = function(item)
+        return item
+      end,
+      kind = "string",
+    }
+
+    local finder_items = {}
+    for idx, item in ipairs(items) do
+      table.insert(finder_items, {
+        formatted = item,
+        text = idx .. " " .. item,
+        item = item,
+        idx = idx,
+      })
+    end
+
+    snacks.picker.pick({
+      source = "select",
+      items = finder_items,
+      format = snacks.picker.format.ui_select(picker_opts.kind, #items),
+      title = picker_opts.prompt,
+      layout = "vscode",
+      actions = {
+        confirm = function(picker, item)
+          picker:close()
+          vim.schedule(function()
+            on_choice(item and item.item, item and item.idx)
+          end)
+        end,
+      },
+      on_close = function()
+        vim.schedule(on_choice)
+      end,
+    })
+  end
+end
+
 function FileSystem.new()
   return setmetatable({}, { __index = FileSystem })
 end
@@ -36,7 +82,7 @@ function FileSystem.create(filename)
     table.insert(sources, key)
   end
 
-  vim.ui.select(sources, { prompt = "select source" }, function(source)
+  custom_picker(sources, function(source)
     if source then
       local extension = opts.commands[source].extension
       vim.cmd(string.format("edit %s.%s | w", filename, extension))
