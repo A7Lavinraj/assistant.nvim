@@ -195,6 +195,7 @@ function M.show()
       end)
 
       M.view.render:render_tasks()
+      M.view.render:toggle_selection({ test_id }, state.get_test_by_id(test_id).checked)
 
       state.write_all()
     end
@@ -232,22 +233,32 @@ function M.show()
       end
     end
 
+    local checked_ids = {}
+
     if all_checked then
       state.set_by_key("tests", function(value)
         for i = 1, #value do
+          table.insert(checked_ids, i)
           value[i].checked = false
         end
 
         return value
       end)
+
+      M.view.render:toggle_selection(checked_ids, false)
     else
       state.set_by_key("tests", function(value)
         for i = 1, #value do
-          value[i].checked = true
+          if not value[i].checked then
+            table.insert(checked_ids, i)
+            value[i].checked = true
+          end
         end
 
         return value
       end)
+
+      M.view.render:toggle_selection(checked_ids, true)
     end
 
     M.view.render:render_tasks()

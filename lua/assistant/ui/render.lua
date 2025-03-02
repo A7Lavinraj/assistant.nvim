@@ -263,4 +263,20 @@ function AstRender:executed()
   self.render(self.layout.view.pane_config.Actions.buf, lines)
 end
 
+---@param ids integer[]
+---@param is_checked boolean
+function AstRender:toggle_selection(ids, is_checked)
+  local text = AstText.new()
+
+  if type(ids) == "table" then
+    text:append(is_checked and "SELECT " or "UNSELECT ", "AstTextH1")
+
+    for _, i in ipairs(ids) do
+      text:append(string.format("#%d", i), "AstTextP")
+    end
+  end
+
+  self.render(self.layout.view.pane_config.Actions.buf, text)
+end
+
 return AstRender
