@@ -33,6 +33,7 @@ wizard_options.root = Window.new {
         'FloatTitle:AssistantTitle',
       }, ','),
     },
+    -- TODO: Needs a better way to set keymaps on `ref` windows
     keys = {
       n = {
         ['<C-h>'] = require('assistant.actions.interface').focus_wizard,
