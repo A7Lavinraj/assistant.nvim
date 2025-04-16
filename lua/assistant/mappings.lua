@@ -6,7 +6,7 @@ mappings.default_mappings = config.values.mappings
   or {
     picker = {
       n = {
-        ['?'] = actions.show_help,
+        ['?'] = actions.which_key,
         ['q'] = actions.quit,
         ['<ESC>'] = actions.quit,
         ['<C-c>'] = actions.quit,
@@ -15,7 +15,7 @@ mappings.default_mappings = config.values.mappings
     },
     wizard = {
       n = {
-        ['?'] = actions.show_help,
+        ['?'] = actions.which_key,
         ['q'] = actions.quit,
         ['<ESC>'] = actions.quit,
         ['<C-c>'] = actions.quit,
@@ -29,7 +29,7 @@ mappings.default_mappings = config.values.mappings
     },
     dialog = {
       n = {
-        ['?'] = actions.show_help,
+        ['?'] = actions.which_key,
         ['q'] = actions.quit,
         ['<ESC>'] = actions.quit,
         ['<C-c>'] = actions.quit,
@@ -37,7 +37,7 @@ mappings.default_mappings = config.values.mappings
     },
     editor = {
       n = {
-        ['?'] = actions.show_help,
+        ['?'] = actions.which_key,
         ['q'] = actions.quit,
         ['<ESC>'] = actions.quit,
         ['<C-c>'] = actions.quit,

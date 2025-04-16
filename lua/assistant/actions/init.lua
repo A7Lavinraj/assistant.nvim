@@ -175,7 +175,7 @@ function actions.save_prompt_content()
   actions.quit()
 end
 
-function actions.show_help()
+function actions.which_key()
   local text = require('assistant.lib.text').new()
   local mappings = require('assistant.mappings').default_mappings
   local dialog = require 'assistant.interfaces.dialog'
@@ -203,7 +203,7 @@ function actions.show_help()
     text:nl(2)
   end
   dialog:display(text)
-  dialog.root:set_window_config { title = ' Dialog - Help ' }
+  dialog.root:set_window_config { title = ' Dialog - Which key ' }
 end
 
 return require('assistant.actions.meta').transform_mod(actions)
