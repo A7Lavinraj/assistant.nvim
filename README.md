@@ -154,6 +154,7 @@ To check the file type of an open file in Neovim, run:
 
 | Key       | Operation                             |
 | --------- | ------------------------------------- |
+| `?`       | which key                             |
 | `q`       | Close window                          |
 | `r`       | Run current or selected test cases    |
 | `c`       | Create an empty test case             |

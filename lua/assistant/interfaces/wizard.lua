@@ -33,6 +33,11 @@ wizard_options.root = Window.new {
         'FloatTitle:AssistantTitle',
       }, ','),
     },
+    keys = {
+      n = {
+        ['<C-h>'] = require('assistant.actions.interface').focus_wizard,
+      },
+    },
   },
   bo = {
     filetype = 'assistant_wizard',

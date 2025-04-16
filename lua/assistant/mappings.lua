@@ -25,6 +25,7 @@ mappings.default_mappings = config.values.mappings
         ['c'] = actions.add_test,
         ['d'] = actions.remove_tests,
         ['e'] = actions.edit_test,
+        ['<C-l>'] = require('assistant.actions.interface').focus_detail,
       },
     },
     dialog = {

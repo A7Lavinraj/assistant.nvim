@@ -56,6 +56,10 @@ function interface_actions.focus_wizard()
   focus_interface(require('assistant.interfaces.wizard').root.winid)
 end
 
+function interface_actions.focus_detail()
+  focus_interface(require('assistant.interfaces.wizard').root.ref.winid)
+end
+
 function interface_actions.hide_current()
   local interface = vim.bo.filetype:match '^assistant_(%w+)$'
   if not interface then
