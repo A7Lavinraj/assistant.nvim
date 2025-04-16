@@ -1,65 +1,49 @@
----@class Ast.Config.Core
+---@class Assistant.Config.Core
 ---@field process_budget integer
 ---@field port integer
 
----@class Ast.Config.UI
----@field width number
----@field height number
----@field backdrop integer
+---@class Assistant.Config.UI
 ---@field border string
----@field icons table<string, string|string[]>
 
----@class Ast.Config.Command.Opts
----@field extension? string
----@field compile? { main?: string, args?: string[] }
----@field execute? { main?: string, args?: string[] }
+---@class Assistant.Config.Defaults
+---@field mappings? table<string, table<"i"|"n"|"v", table<string, Assistant.Action|function>>>
+---@field commands table<string, Assistant.Processor.SourceConfig>
+---@field ui Assistant.Config.UI
+---@field core Assistant.Config.Core
 
----@alias Ast.Config.Command table<string, Ast.Config.Command.Opts>
-
----@class Ast.Config.Defaults
----@field commands Ast.Config.Command[]
----@field ui Ast.Config.UI
----@field core Ast.Config.Core
-
----@class Ast.Config
----@field private _defaults Ast.Config.Defaults
----@field opts Ast.Config.Defaults
+---@class Assistant.Config
+---@field private _defaults Assistant.Config.Defaults
+---@field namespace integer
+---@field opts Assistant.Config.Defaults
 local M = {}
+
+M.namespace = vim.api.nvim_create_namespace 'assistant-nvim'
+M.augroup = vim.api.nvim_create_namespace 'assistant-nvim'
 
 M._defaults = {
   commands = {
     python = {
-      extension = "py",
+      extension = 'py',
       compile = nil,
       execute = {
-        main = "python3",
-        args = { "$FILENAME_WITH_EXTENSION" },
+        main = 'python3',
+        args = { '$FILENAME_WITH_EXTENSION' },
       },
     },
     cpp = {
-      extension = "cpp",
+      extension = 'cpp',
       compile = {
-        main = "g++",
-        args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
+        main = 'g++',
+        args = { '$FILENAME_WITH_EXTENSION', '-o', '$FILENAME_WITHOUT_EXTENSION' },
       },
       execute = {
-        main = "./$FILENAME_WITHOUT_EXTENSION",
+        main = './$FILENAME_WITHOUT_EXTENSION',
         args = nil,
       },
     },
   },
   ui = {
-    width = 0.8,
-    height = 0.8,
-    backdrop = 60,
-    border = "single",
-    icons = {
-      title = " ",
-      success = " ",
-      failure = " ",
-      unknown = " ",
-      loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
-    },
+    border = 'rounded',
   },
   core = {
     process_budget = 5000,
@@ -67,8 +51,8 @@ M._defaults = {
   },
 }
 
-function M.init(opts)
-  M.opts = vim.tbl_deep_extend("force", M._defaults, opts or {})
+function M.overwrite(opts)
+  M.values = vim.tbl_deep_extend('force', M._defaults, opts or {})
 end
 
 return M
