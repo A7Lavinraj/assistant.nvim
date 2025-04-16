@@ -7,4 +7,4 @@ lint:
 	luacheck lua --globals vim describe it assert
 
 test:
-	nvim -l scripts/minit.lua
+	nvim -l scripts/minitest.lua
