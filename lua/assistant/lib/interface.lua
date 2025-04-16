@@ -53,7 +53,7 @@ function Interface:show()
       for k, v in pairs(mappings) do
         vim.keymap.set(mode, k, function()
           v()
-        end, { desc = v:get_name(), silent = true, noremap = true })
+        end, { desc = v:get_name(), silent = true, noremap = true, buffer = root.bufnr })
       end
     end
     parent = root
