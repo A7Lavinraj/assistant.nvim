@@ -1,67 +1,58 @@
-							      *assistant.nvim*
-============================================================================
+                                                              *assistant.nvim*
+==============================================================================
 
-A modern neovim testing manager for competitive programmers. It comes with
-various basic and advanced features which automate the testing workflow
+A modern Neovim testing manager for competitive programmers. It comes with
+various basic and advanced features that automate the testing workflow.
 
-						 *assistant.nvim-installation*
-============================================================================
+                                                  *assistant.nvim-installation*
+==============================================================================
 
-Using |lazy.nvim| plugin manager
+Using |lazy.nvim| plugin manager:
 
 >lua
   {
     "A7Lavinraj/assistant.nvim",
-    dependencies = { "folke/snacks.nvim" }, -- optional but recommended
-    lazy = false, -- if you want to start TCP Listener on neovim startup
+    dependencies = { "folke/snacks.nvim" }, -- Optional but recommended
+    lazy = false, -- Start TCP listener on Neovim startup
     keys = {
       { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
-    }
-    opts = {} -- config options
+    },
+    opts = {} -- Config options
   }
 <
 
-					      *assistant.nvim-default-options*
-============================================================================
+                                              *assistant.nvim-default-options*
+===============================================================================
 
-|assistant.nvim| comes with defualt options as follows
+|assistant.nvim| comes with default options as follows:
+
 >lua
   {
     commands = {
       python = {
-	extension = "py",
+        extension = "py",
         template = nil,
-	compile = nil,
-	execute = {
-	  main = "python3",
-	  args = { "$FILENAME_WITH_EXTENSION" },
-	},
+        compile = nil,
+        execute = {
+          main = "python3",
+          args = { "$FILENAME_WITH_EXTENSION" },
+        },
       },
       cpp = {
-	extension = "cpp",
+        extension = "cpp",
         template = nil,
-	compile = {
-	  main = "g++",
-	  args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
-	},
-	execute = {
-	  main = "./$FILENAME_WITHOUT_EXTENSION",
-	  args = nil,
-	},
+        compile = {
+          main = "g++",
+          args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
+        },
+        execute = {
+          main = "./$FILENAME_WITHOUT_EXTENSION",
+          args = nil,
+        },
       },
     },
     ui = {
-      width = 0.8,
-      height = 0.8,
-      backdrop = 60,
-      border = "single",
-      icons = {
-	title = " ",
-	success = " ",
-	failure = " ",
-	unknown = " ",
-	loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
-      },
+      border = "rounded",
     },
     core = {
       process_budget = 5000,
@@ -70,4 +61,4 @@ Using |lazy.nvim| plugin manager
   }
 <
 
-vim:tw=78:ts=8:noet:ft=help:norl:
+ vim:tw=78:ts=8:ft=help:norl:
