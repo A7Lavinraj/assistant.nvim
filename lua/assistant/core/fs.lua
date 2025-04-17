@@ -1,8 +1,8 @@
 local fs = {}
 local luv = vim.uv or vim.loop
 
----@return string
-function fs.find_or_make_root()
+---@return string|nil
+function fs.find_root()
   local current_dir = luv.cwd()
 
   while current_dir ~= '/' do
@@ -10,17 +10,22 @@ function fs.find_or_make_root()
     if vim.fn.isdirectory(ast_dir) == 1 then
       return current_dir
     end
-
     current_dir = vim.fn.fnamemodify(current_dir, ':h')
   end
 
   if vim.fn.isdirectory '/.ast' == 1 then
     return '/'
-  else
-    luv.fs_mkdir(string.format('%s/.ast', vim.fn.expand '%:p:h'), 493)
   end
 
-  return vim.fn.expand '%:p:h'
+  return nil
+end
+
+---@return string
+function fs.make_root()
+  local fallback_dir = vim.fn.expand '%:p:h'
+  local ast_path = string.format('%s/.ast', fallback_dir)
+  luv.fs_mkdir(ast_path, 493)
+  return fallback_dir
 end
 
 ---@param path string
