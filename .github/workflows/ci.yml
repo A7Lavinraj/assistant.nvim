@@ -42,4 +42,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          nvim -l scripts/minit.lua
+          nvim -l scripts/minitest.lua
