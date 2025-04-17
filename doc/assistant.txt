@@ -12,7 +12,6 @@ Using |lazy.nvim| plugin manager:
 >lua
   {
     "A7Lavinraj/assistant.nvim",
-    dependencies = { "folke/snacks.nvim" }, -- Optional but recommended
     lazy = false, -- Start TCP listener on Neovim startup
     keys = {
       { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
@@ -28,6 +27,7 @@ Using |lazy.nvim| plugin manager:
 
 >lua
   {
+    mappings = { ... },
     commands = {
       python = {
         extension = "py",

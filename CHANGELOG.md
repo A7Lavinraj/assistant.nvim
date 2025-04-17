@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v4.2.0 (2025-04-17)
+- Implement builtin select picker
+- Implement help for key mappings
+- Implement plugins actions to make flexible key mappings
+- Better editing tests properties
+- Fix neovim freezing on compilation
+- Remove `action-bar`
+- Change tests display format
+
 ## v4.1.0 (2025-02-27)
 - Add TCPListener configuration option
 - Unbind existing TCPListener before binding new
