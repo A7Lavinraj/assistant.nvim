@@ -11,9 +11,10 @@ end
 
 function state.sync_with_fs()
   local fs = require 'assistant.core.fs'
-  local filename = state.get_global_key 'filename'
-  local root_dir = fs.find_or_make_root()
-  local filepath = string.format('%s/.ast/%s.json', root_dir, filename)
+  local filepath = fs.get_state_filepath()
+  if not filepath then
+    return
+  end
   fs.write(filepath, vim.json.encode(AssistantHashTable))
 end
 

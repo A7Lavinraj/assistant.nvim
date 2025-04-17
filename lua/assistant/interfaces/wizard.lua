@@ -54,21 +54,28 @@ wizard_options.root = Window.new {
   },
   keys = require('assistant.mappings').default_mappings.wizard,
 }
----@param self Assistant.Interface
-function wizard_options.be_show(self)
+function wizard_options.be_show()
   local fs = require 'assistant.core.fs'
   local state = require 'assistant.state'
-  local filename = vim.fn.expand '%:t:r'
-  local root_dir = fs.find_or_make_root()
-  local filepath = string.format('%s/.ast/%s.json', root_dir, filename)
+  local root_dir = fs.find_root() or fs.make_root()
+  state.set_global_key('filename', vim.fn.expand '%:t:r')
+  state.set_global_key('extension', vim.fn.expand '%:e')
+  if not root_dir then
+    return
+  end
+  local filepath = fs.get_state_filepath()
+  if not filepath then
+    return
+  end
   local bytes = fs.read(filepath)
   local parsed = vim.json.decode(bytes or '{}')
   for k, v in pairs(parsed) do
     state.set_global_key(k, v)
   end
-  state.set_global_key('filename', filename)
-  state.set_global_key('extension', vim.fn.expand '%:e')
-  self.root.title = string.format(' Tests - %s ', filename == '' and '?' or filename)
+  if not state.get_global_key 'tests' then
+    state.set_global_key('tests', {})
+  end
+  vim.fn.execute 'write'
 end
 
 ---@param self table|Assistant.Interface
@@ -92,6 +99,8 @@ function wizard_options.on_show(self)
     })
   end)
 
+  local filename = require('assistant.state').get_global_key 'filename'
+  self.root:set_window_config { title = string.format(' Tests - %s ', filename == '' and '?' or filename) }
   self:render_tests()
 end
 

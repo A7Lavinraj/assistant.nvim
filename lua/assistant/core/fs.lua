@@ -28,6 +28,19 @@ function fs.make_root()
   return fallback_dir
 end
 
+---@return string|nil
+function fs.get_state_filepath()
+  local state = require 'assistant.state'
+  if state.get_global_key 'filename' == '' and state.get_global_key 'extension' == '' then
+    return nil
+  end
+  local root_dir = fs.find_root()
+  if not root_dir then
+    return nil
+  end
+  return ('%s/.ast/%s.json'):format(root_dir, require('assistant.state').get_global_key 'filename')
+end
+
 ---@param path string
 ---@return string?
 function fs.read(path)

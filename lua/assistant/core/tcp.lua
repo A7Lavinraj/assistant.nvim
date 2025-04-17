@@ -141,7 +141,7 @@ local function start_server()
 
           picker:select(sources, function(source)
             local test_class_snake = utils.to_snake_case(data.languages.java.taskClass)
-            local filepath = string.format('%s/.ast/%s.json', fs.find_or_make_root(), test_class_snake)
+            local filepath = string.format('%s/.ast/%s.json', fs.find_root() or fs.make_root(), test_class_snake)
             fs.write(filepath, chunk)
 
             if not source then
