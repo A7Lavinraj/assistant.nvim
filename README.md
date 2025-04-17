@@ -4,20 +4,31 @@
 
 <p align="center">
   <img alt="Latest release" src="https://img.shields.io/github/v/release/A7Lavinraj/assistant.nvim?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41&include_prerelease&sort=semver" />
-  <img alt="Last commit" src="https://img.shields.io/github/last-commit/A7Lavinraj/assistant.nvim?style=for-the-badge&logo=starship&color=8bd5ca&logoColor=D9E0EE&labelColor=302D41"/>
   <img alt="License" src="https://img.shields.io/github/license/A7Lavinraj/assistant.nvim?style=for-the-badge&logo=starship&color=ee999f&logoColor=D9E0EE&labelColor=302D41" />
   <img alt="Stars" src="https://img.shields.io/github/stars/A7Lavinraj/assistant.nvim?style=for-the-badge&logo=starship&color=c69ff5&logoColor=D9E0EE&labelColor=302D41" />
-  <img alt="Issues" src="https://img.shields.io/github/issues/A7Lavinraj/assistant.nvim?style=for-the-badge&logo=bilibili&color=F5E0DC&logoColor=D9E0EE&labelColor=302D41" />
-  <img alt="Repo Size" src="https://img.shields.io/github/repo-size/A7Lavinraj/assistant.nvim?color=%23DDB6F2&label=SIZE&logo=codesandbox&style=for-the-badge&logoColor=D9E0EE&labelColor=302D41" />
 </p>
 
 <br>
 
-<p align="center"><strong>Assistant.nvim</strong> is a powerful and efficient Neovim plugin designed for competitive programmers. It automates the testing workflow, making it faster and more convenient to run test cases directly inside Neovim.</p>
+<p align="center">
+    <strong>Assistant.nvim</strong> is a powerful and efficient Neovim plugin designed for competitive programmers. It automates the testing workflow, making it faster and more convenient to run test cases directly inside Neovim.
+</p>
 
 <br>
 
-![DEMO](https://github.com/user-attachments/assets/24a89357-8ae9-48fa-9c81-5bf97160550a)
+![DEMO](https://github.com/user-attachments/assets/123f3b3f-600c-4dde-8cc8-dbc6324fda2f)
+
+<br>
+
+## Sample fetching
+
+https://github.com/user-attachments/assets/f5adea87-f2f8-4da7-94d7-5da726a5845c
+
+<br>
+
+## Running tests
+
+https://github.com/user-attachments/assets/41002e98-109b-4486-9587-4a2fc1cc0769
 
 <br>
 
@@ -47,10 +58,9 @@
 ```lua
 {
     "A7lavinraj/assistant.nvim",
-    dependencies = { "folke/snacks.nvim" }, -- optional but recommended
     lazy = false, -- Start TCP Listener on Neovim startup
     keys = {
-      { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
+        { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
     },
     opts = {}
 }
@@ -66,11 +76,11 @@
 ```lua
 {
     "A7lavinraj/assistant.nvim",
-    commit = "ca42f5231203ff3c9356180f2d4ca96061a70ef4",
+    commit = "70f5d65b4af38945962a3409a1c4a343cdd6e003",
     dependencies = { "folke/snacks.nvim" },
     lazy = false,
     keys = {
-      { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
+        { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
     },
     opts = {}
 }
@@ -78,50 +88,93 @@
 
 <br>
 
-## Default Configuration
+## Default setup
 
 ```lua
 {
-  commands = {
-    python = {
-      extension = "py",
-      template = nil,
-      compile = nil,
-      execute = {
-        main = "python3",
-        args = { "$FILENAME_WITH_EXTENSION" },
-      },
+    'A7Lavinraj/assistant.nvim',
+    lazy = false,
+    keys = {
+        { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
     },
-    cpp = {
-      extension = "cpp",
-      template = nil,
-      compile = {
-        main = "g++",
-        args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
-      },
-      execute = {
-        main = "./$FILENAME_WITHOUT_EXTENSION",
-        args = nil,
-      },
-    },
-  },
-  ui = {
-    width = 0.8,
-    height = 0.8,
-    backdrop = 60,
-    border = "single",
-    icons = {
-      title = " ",
-      success = " ",
-      failure = " ",
-      unknown = " ",
-      loading_frames = { "󰸴 ", "󰸵 ", "󰸸 ", "󰸷 ", "󰸶 " },
-    },
-  },
-  core = {
-    process_budget = 5000,
-    port = 10043,
-  },
+    config = function()
+        local actions = require 'assistant.actions'
+        require('assistant').setup({
+            mappings = {
+                picker = {
+                    n = {
+                        ['?'] = actions.which_key,
+                        ['q'] = actions.quit,
+                        ['<ESC>'] = actions.quit,
+                        ['<C-c>'] = actions.quit,
+                        ['<CR>'] = actions.picker_select,
+                    },
+                },
+                wizard = {
+                    n = {
+                        ['?'] = actions.which_key,
+                        ['q'] = actions.quit,
+                        ['<ESC>'] = actions.quit,
+                        ['<C-c>'] = actions.quit,
+                        ['r'] = actions.run_tests,
+                        ['s'] = actions.toggle_test_selection,
+                        ['a'] = actions.toggle_all_test_selection,
+                        ['c'] = actions.add_test,
+                        ['d'] = actions.remove_tests,
+                        ['e'] = actions.edit_test,
+                        ['<C-l>'] = require('assistant.actions.interface').focus_detail,
+                    },
+                },
+                dialog = {
+                    n = {
+                        ['?'] = actions.which_key,
+                        ['q'] = actions.quit,
+                        ['<ESC>'] = actions.quit,
+                        ['<C-c>'] = actions.quit,
+                    },
+                },
+                editor = {
+                    n = {
+                        ['?'] = actions.which_key,
+                        ['q'] = actions.quit,
+                        ['<ESC>'] = actions.quit,
+                        ['<C-c>'] = actions.quit,
+                        ['<CR>'] = actions.save_prompt_content,
+                    },
+                },
+            },
+            commands = {
+                python = {
+                    extension = "py",
+                    template = nil,
+                    compile = nil,
+                    execute = {
+                        main = "python3",
+                        args = { "$FILENAME_WITH_EXTENSION" },
+                    },
+                },
+                cpp = {
+                    extension = "cpp",
+                    template = nil,
+                    compile = {
+                        main = "g++",
+                        args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
+                    },
+                    execute = {
+                        main = "./$FILENAME_WITHOUT_EXTENSION",
+                        args = nil,
+                    },
+                },
+            },
+            ui = {
+                border = "single",
+            },
+            core = {
+                process_budget = 5000,
+                port = 10043,
+            },
+        })
+    end
 }
 ```
 
@@ -154,7 +207,7 @@ To check the file type of an open file in Neovim, run:
 
 | Key       | Operation                             |
 | --------- | ------------------------------------- |
-| `?`       | which key                             |
+| `?`       | Which key                             |
 | `q`       | Close window                          |
 | `r`       | Run current or selected test cases    |
 | `c`       | Create an empty test case             |
