@@ -88,6 +88,7 @@ function Wizard:show()
   local root_dir = fs.find_root() or fs.make_root()
 
   state.set_global_key('filename', vim.fn.expand '%:t:r')
+  state.set_global_key('filetype', vim.bo.filetype)
   state.set_global_key('extension', vim.fn.expand '%:e')
 
   if not root_dir then

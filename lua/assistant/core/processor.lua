@@ -25,7 +25,7 @@ local function get_source_config()
       :gsub('%$FILENAME_WITHOUT_EXTENSION', filename)
   end
 
-  local command = vim.deepcopy(config.values.commands[state.get_global_key 'extension'])
+  local command = vim.deepcopy(config.values.commands[state.get_global_key 'filetype'])
 
   if command.compile then
     command.compile.main = format(command.compile.main)
@@ -64,6 +64,16 @@ local function get_process(cmd, stdin, on_exit)
   end
 
   return coroutine.create(function()
+    if not cmd then
+      on_exit(0, 0, {
+        stdout = '',
+        stderr = '',
+        process_started_at = 0,
+        process_ended_at = 0,
+      })
+      return
+    end
+
     local stdio = {
       luv.new_pipe(false),
       luv.new_pipe(false),
@@ -207,7 +217,7 @@ end
 ---@param test_IDS integer[]
 function Processor.run_tests(test_IDS)
   local state = require 'assistant.state'
-  local dialog = require 'assistant.dialog'
+  local dialog = require('assistant.builtins.dialog').standard
   local wizard = state.get_global_key 'assistant_wizard'
   local cmd = get_source_config()
 
@@ -220,8 +230,7 @@ function Processor.run_tests(test_IDS)
 
     if build_status ~= 'OK' then
       vim.schedule(function()
-        dialog.display(build_logs.stderr or build_logs.stdout)
-        dialog.window:set_win_config { title = ' Dialog - Build Error ' }
+        dialog:display(build_logs.stderr or build_logs.stdout, { prompt = ' Dialog - Build Error ' })
       end)
       return
     end
