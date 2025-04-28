@@ -69,7 +69,7 @@ end
 local function start_server()
   local utils = require 'assistant.utils'
   local config = require 'assistant.config'
-  local picker = require 'assistant.interfaces.picker'
+  local picker = require 'assistant.picker'
   local fs = require 'assistant.core.fs'
   if server then
     utils.warn 'Server is already running'
@@ -139,7 +139,7 @@ local function start_server()
             table.insert(sources, key)
           end
 
-          picker:select(sources, function(source)
+          picker.select(sources, { prompt = 'source' }, function(source)
             local test_class_snake = utils.to_snake_case(data.languages.java.taskClass)
             local filepath = string.format('%s/.ast/%s.json', fs.find_root() or fs.make_root(), test_class_snake)
             fs.write(filepath, chunk)
@@ -149,14 +149,14 @@ local function start_server()
             end
 
             local extension = config.values.commands[source].extension
-            vim.cmd(string.format('edit %s.%s | write', test_class_snake, extension))
+            vim.fn.execute(string.format('edit %s.%s | write', test_class_snake, extension))
 
             if not config.values.commands[source].template then
               return
             end
 
             utils.info('populating with ' .. config.values.commands[source].template)
-            vim.cmd(string.format('0read %s', config.values.commands[source].template))
+            vim.fn.execute(string.format('0read %s', config.values.commands[source].template))
           end)
         end)
       end)

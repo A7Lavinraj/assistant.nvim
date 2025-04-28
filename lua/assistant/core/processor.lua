@@ -24,6 +24,7 @@ local function get_source_config()
       :gsub('%$FILENAME_WITH_EXTENSION', string.format('%s.%s', filename, extension))
       :gsub('%$FILENAME_WITHOUT_EXTENSION', filename)
   end
+
   local command = vim.deepcopy(config.values.commands[state.get_global_key 'extension'])
 
   if command.compile then
@@ -102,8 +103,8 @@ local function get_process(cmd, stdin, on_exit)
 
       on_exit(code, signal, logs)
     end)
-    logs.process_started_at = luv.now()
 
+    logs.process_started_at = luv.now()
     process.timer:start(require('assistant.config').values.core.process_budget, 0, function()
       if not process.timer:is_closing() then
         logs.process_ended_at = luv.now()
@@ -118,6 +119,7 @@ local function get_process(cmd, stdin, on_exit)
     luv.read_start(stdio[2], function(err, chunk)
       if err or not chunk then
         luv.read_stop(stdio[2])
+
         if not luv.is_closing(stdio[2]) then
           luv.close(stdio[2])
         end
@@ -129,6 +131,7 @@ local function get_process(cmd, stdin, on_exit)
     luv.read_start(stdio[3], function(err, chunk)
       if err or not chunk then
         luv.read_stop(stdio[3])
+
         if not luv.is_closing(stdio[3]) then
           luv.close(stdio[3])
         end
@@ -160,6 +163,7 @@ local function str_cmp(str_a, str_b)
   local function process_str(str)
     return (str or ''):gsub('\n', ' '):gsub('%s+', ' '):gsub('^%s', ''):gsub('%s$', '')
   end
+
   return process_str(str_a) == process_str(str_b)
 end
 
@@ -200,29 +204,36 @@ local function get_process_status(code, signal)
   return exit_status[code] or 'FL'
 end
 
----@param testIDS integer[]
-function Processor.run_tests(testIDS)
+---@param test_IDS integer[]
+function Processor.run_tests(test_IDS)
   local state = require 'assistant.state'
-  local wizard = require 'assistant.interfaces.wizard'
-  local dialog = require 'assistant.interfaces.dialog'
+  local dialog = require 'assistant.dialog'
+  local wizard = state.get_global_key 'assistant_wizard'
   local cmd = get_source_config()
+
   scheduler:schedule(get_process(cmd.compile, nil, function(build_code, build_signal, build_logs)
     vim.schedule(function()
-      wizard.root:set_window_config { title = string.format(' Tests - %s ', state.get_global_key 'filename') }
+      wizard.window:set_win_config { title = string.format(' Wizard - %s ', state.get_global_key 'filename') }
     end)
+
     local build_status = get_process_status(build_code, build_signal)
+
     if build_status ~= 'OK' then
       vim.schedule(function()
-        dialog:display(build_logs.stderr or build_logs.stdout)
-        dialog.root:set_window_config { title = ' Dialog - Build Error ' }
+        dialog.display(build_logs.stderr or build_logs.stdout)
+        dialog.window:set_win_config { title = ' Dialog - Build Error ' }
       end)
       return
     end
+
     local tests = state.get_global_key 'tests'
-    for _, testID in ipairs(testIDS) do
-      local test = tests[testID]
-      scheduler:schedule(get_process(cmd.execute, tests[testID].input, function(exec_code, exec_signal, exec_logs)
+
+    for _, test_ID in ipairs(test_IDS) do
+      local test = tests[test_ID]
+
+      scheduler:schedule(get_process(cmd.execute, tests[test_ID].input, function(exec_code, exec_signal, exec_logs)
         local exec_status = get_process_status(exec_code, exec_signal)
+
         test.stdout = exec_logs.stdout
         test.stderr = exec_logs.stderr
         test.time_taken = (exec_logs.process_ended_at - exec_logs.process_started_at) * 0.001
@@ -232,17 +243,21 @@ function Processor.run_tests(testIDS)
         else
           test.status = exec_status
         end
+
         vim.schedule(function()
-          wizard:render_tests()
+          wizard.canvas:set(wizard.window.bufnr)
         end)
       end))
-      tests[testID].status = 'RN'
+
+      tests[test_ID].status = 'RN'
+
       vim.schedule(function()
-        wizard:render_tests()
+        wizard.canvas:set(wizard.window.bufnr)
       end)
     end
   end))
-  wizard.root:set_window_config { title = string.format(' Tests - %s: COMPILING ', state.get_global_key 'filename') }
+
+  wizard.window:set_win_config { title = string.format(' Wizard - %s: COMPILING ', state.get_global_key 'filename') }
 end
 
 return Processor
