@@ -1,7 +1,7 @@
 ---@alias Assistant.Text.Line { str: string, hl: string }
 
 ---@class Assistant.Text.Options
----@field left_margin integer
+---@field left_margin? integer
 
 ---@class Assistant.Text : Assistant.Text.Options
 ---@field lines Assistant.Text.Line[][]
@@ -41,6 +41,9 @@ end
 function Text:render(bufnr)
   local ns = require('assistant.config').namespace
   local start_line = 0
+  if not (bufnr and vim.api.nvim_buf_is_valid(bufnr)) then
+    return
+  end
 
   local was_modifiable = vim.bo[bufnr].modifiable
 
