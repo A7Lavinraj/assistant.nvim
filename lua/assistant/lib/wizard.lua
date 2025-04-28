@@ -1,8 +1,10 @@
 local Window = require 'assistant.lib.window'
 
 ---@class Assistant.Wizard.Options
----@field previewer Assistant.Previewer
 ---@field canvas Assistant.Canvas
+---@field previewer Assistant.Previewer
+---@field patcher Assistant.Patcher
+---@field picker Assistant.Picker
 
 ---@class Assistant.Wizard : Assistant.Wizard.Options
 ---@field window Assistant.Window
