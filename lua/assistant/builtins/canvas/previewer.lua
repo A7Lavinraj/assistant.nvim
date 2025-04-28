@@ -1,8 +1,8 @@
-local CanvasMeta = require 'assistant.lib.canvas'
+local Canvas = require 'assistant.lib.canvas'
 local Text = require 'assistant.lib.text'
 local canvas = {}
 
-canvas.standard = CanvasMeta.new {
+canvas.standard = Canvas.new {
   fn = function(bufnr, testcase)
     local utils = require 'assistant.utils'
     local text = Text.new {}

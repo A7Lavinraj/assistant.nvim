@@ -1,9 +1,9 @@
-local CanvasMeta = require 'assistant.lib.canvas'
+local Canvas = require 'assistant.lib.canvas'
 local Text = require 'assistant.lib.text'
 local state = require 'assistant.state'
 local canvas = {}
 
-canvas.standard = CanvasMeta.new {
+canvas.standard = Canvas.new {
   fn = function(bufnr)
     local text = Text.new {}
     local tests = state.get_global_key 'tests'
