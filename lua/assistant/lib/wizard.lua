@@ -146,10 +146,10 @@ function Wizard:show()
 
   self.window:attach_autocmd('CursorMoved', {
     callback = function()
-      local test_ID = self.canvas:get(self.window.bufnr, self.window.winid)
+      local testcase_ID = self.canvas:get(self.window.bufnr, self.window.winid)
 
-      if test_ID then
-        self.previewer:preview(test_ID)
+      if testcase_ID then
+        self.previewer:preview(testcase_ID)
       end
     end,
   })

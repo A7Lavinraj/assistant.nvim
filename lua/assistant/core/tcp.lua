@@ -140,8 +140,8 @@ local function start_server()
           end
 
           picker:pick(sources, { prompt = 'source' }, function(source)
-            local test_class_snake = utils.to_snake_case(data.languages.java.taskClass)
-            local filepath = string.format('%s/.ast/%s.json', fs.find_root() or fs.make_root(), test_class_snake)
+            local testcase_class_snake = utils.to_snake_case(data.languages.java.taskClass)
+            local filepath = string.format('%s/.ast/%s.json', fs.find_root() or fs.make_root(), testcase_class_snake)
             fs.write(filepath, chunk)
 
             if not source then
@@ -149,7 +149,7 @@ local function start_server()
             end
 
             local extension = config.values.commands[source].extension
-            vim.fn.execute(string.format('edit %s.%s | write', test_class_snake, extension))
+            vim.fn.execute(string.format('edit %s.%s | write', testcase_class_snake, extension))
 
             if not config.values.commands[source].template then
               return

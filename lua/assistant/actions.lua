@@ -50,31 +50,31 @@ end
 
 function actions.run_testcases()
   local processor = require 'assistant.core.processor'
-  local tests = state.get_global_key 'tests'
+  local testcases = state.get_global_key 'tests'
   local selected = {}
 
-  for i, test in ipairs(tests or {}) do
-    if test.selected then
+  for i, testcase in ipairs(testcases or {}) do
+    if testcase.selected then
       table.insert(selected, i)
     end
   end
 
   if vim.tbl_isempty(selected) then
-    local test_ID = get_cur_testcase_ID()
-    if test_ID then
-      processor.run_tests { test_ID }
+    local testcase_ID = get_cur_testcase_ID()
+    if testcase_ID then
+      processor.run_testcases { testcase_ID }
     end
   else
-    processor.run_tests(selected)
+    processor.run_testcases(selected)
   end
 end
 
 function actions.toggle_cur_selection()
-  local test_ID = get_cur_testcase_ID()
+  local testcase_ID = get_cur_testcase_ID()
 
-  if test_ID then
-    local test = state.get_global_key('tests')[test_ID]
-    test.selected = not test.selected
+  if testcase_ID then
+    local testcase = state.get_global_key('tests')[testcase_ID]
+    testcase.selected = not testcase.selected
 
     vim.schedule(function()
       state.get_global_key('assistant_wizard').canvas:set(state.get_global_key('assistant_wizard').window.bufnr)
@@ -83,11 +83,11 @@ function actions.toggle_cur_selection()
 end
 
 function actions.toggle_all_selection()
-  local tests = state.get_global_key 'tests'
+  local testcases = state.get_global_key 'tests'
   local all_selected = true
 
-  for _, test in ipairs(tests or {}) do
-    if not test.selected then
+  for _, testcase in ipairs(testcases or {}) do
+    if not testcase.selected then
       all_selected = false
       break
     end
@@ -96,15 +96,15 @@ function actions.toggle_all_selection()
   local selected_ids = {}
 
   if all_selected then
-    for i = 1, #tests do
+    for i = 1, #testcases do
       table.insert(selected_ids, i)
-      tests[i].selected = false
+      testcases[i].selected = false
     end
   else
-    for i = 1, #tests do
-      if not tests[i].selected then
+    for i = 1, #testcases do
+      if not testcases[i].selected then
         table.insert(selected_ids, i)
-        tests[i].selected = true
+        testcases[i].selected = true
       end
     end
   end
@@ -122,20 +122,20 @@ function actions.create_new_testcase()
 end
 
 function actions.remove_testcases()
-  local tests = state.get_global_key 'tests'
+  local testcases = state.get_global_key 'tests'
   local selected = {}
 
-  for test_id, test in ipairs(tests or {}) do
-    if test.selected then
-      table.insert(selected, test_id)
+  for testcase_ID, testcase in ipairs(testcases or {}) do
+    if testcase.selected then
+      table.insert(selected, testcase_ID)
     end
   end
 
   if vim.tbl_isempty(selected) then
-    local test_id = get_cur_testcase_ID()
+    local testcase_ID = get_cur_testcase_ID()
 
-    if test_id then
-      table.insert(selected, test_id)
+    if testcase_ID then
+      table.insert(selected, testcase_ID)
     end
   end
 
@@ -143,8 +143,8 @@ function actions.remove_testcases()
     return a > b
   end)
 
-  for _, test_ID in ipairs(selected) do
-    table.remove(tests, test_ID)
+  for _, testcase_ID in ipairs(selected) do
+    table.remove(testcases, testcase_ID)
   end
 
   vim.schedule(function()
@@ -155,15 +155,15 @@ end
 function actions.patch_testcase()
   local existing_wizard = state.get_global_key 'assistant_wizard'
   existing_wizard.picker:pick({ 'input', 'output' }, { prompt = 'field' }, function(choice)
-    local test_ID = get_cur_testcase_ID()
+    local testcase_ID = get_cur_testcase_ID()
 
-    if not test_ID then
+    if not testcase_ID then
       return
     end
 
     local testcases = state.get_global_key 'tests'
-    existing_wizard.patcher:update(testcases[test_ID][choice] or '', { prompt = choice }, function(content)
-      testcases[test_ID][choice] = content
+    existing_wizard.patcher:update(testcases[testcase_ID][choice] or '', { prompt = choice }, function(content)
+      testcases[testcase_ID][choice] = content
     end)
   end)
 end

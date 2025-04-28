@@ -12,7 +12,7 @@ function wizard.standard()
     canvas = Canvas.new {
       fn = function(bufnr)
         local text = Text.new {}
-        local tests = state.get_global_key 'tests'
+        local testcases = state.get_global_key 'tests'
         local gap = 5
         local get_group = setmetatable({ AC = 'AssistantSuccess', WA = 'AssistantFailure' }, {
           __index = function()
@@ -20,8 +20,8 @@ function wizard.standard()
           end,
         })
 
-        for i, test in ipairs(tests or {}) do
-          if test.selected then
+        for i, testcase in ipairs(testcases or {}) do
+          if testcase.selected then
             text:append(' ', 'AssistantFailure')
           else
             text:append('  ', 'AssistantParagraph')
@@ -30,16 +30,16 @@ function wizard.standard()
           text:append(string.format('Testcase #%d', i), 'AssistantParagraph')
           text:append(string.rep(' ', gap), 'AssistantParagraph')
 
-          if test.status then
-            text:append(test.status or 'UNKNOWN', get_group[test.status])
+          if testcase.status then
+            text:append(testcase.status or 'UNKNOWN', get_group[testcase.status])
           end
 
           text:append(string.rep(' ', gap), 'AssistantParagraph')
-          if test.time_taken then
-            text:append(string.format('%.3f', test.time_taken or 0), 'AssistantParagraph')
+          if testcase.time_taken then
+            text:append(string.format('%.3f', testcase.time_taken or 0), 'AssistantParagraph')
           end
 
-          if i < #tests then
+          if i < #testcases then
             text:nl()
           end
         end

@@ -214,8 +214,8 @@ local function get_process_status(code, signal)
   return exit_status[code] or 'FL'
 end
 
----@param test_IDS integer[]
-function Processor.run_tests(test_IDS)
+---@param testcase_IDS integer[]
+function Processor.run_testcases(testcase_IDS)
   local state = require 'assistant.state'
   local dialog = require('assistant.builtins.dialog').standard
   local wizard = state.get_global_key 'assistant_wizard'
@@ -235,30 +235,32 @@ function Processor.run_tests(test_IDS)
       return
     end
 
-    local tests = state.get_global_key 'tests'
+    local testcases = state.get_global_key 'tests'
 
-    for _, test_ID in ipairs(test_IDS) do
-      local test = tests[test_ID]
+    for _, testcase_ID in ipairs(testcase_IDS) do
+      local testcase = testcases[testcase_ID]
 
-      scheduler:schedule(get_process(cmd.execute, tests[test_ID].input, function(exec_code, exec_signal, exec_logs)
-        local exec_status = get_process_status(exec_code, exec_signal)
+      scheduler:schedule(
+        get_process(cmd.execute, testcases[testcase_ID].input, function(exec_code, exec_signal, exec_logs)
+          local exec_status = get_process_status(exec_code, exec_signal)
 
-        test.stdout = exec_logs.stdout
-        test.stderr = exec_logs.stderr
-        test.time_taken = (exec_logs.process_ended_at - exec_logs.process_started_at) * 0.001
+          testcase.stdout = exec_logs.stdout
+          testcase.stderr = exec_logs.stderr
+          testcase.time_taken = (exec_logs.process_ended_at - exec_logs.process_started_at) * 0.001
 
-        if exec_status == 'OK' then
-          test.status = str_cmp(test.stdout, test.output) and 'AC' or 'WA'
-        else
-          test.status = exec_status
-        end
+          if exec_status == 'OK' then
+            testcase.status = str_cmp(testcase.stdout, testcase.output) and 'AC' or 'WA'
+          else
+            testcase.status = exec_status
+          end
 
-        vim.schedule(function()
-          wizard.canvas:set(wizard.window.bufnr)
+          vim.schedule(function()
+            wizard.canvas:set(wizard.window.bufnr)
+          end)
         end)
-      end))
+      )
 
-      tests[test_ID].status = 'RN'
+      testcases[testcase_ID].status = 'RN'
 
       vim.schedule(function()
         wizard.canvas:set(wizard.window.bufnr)

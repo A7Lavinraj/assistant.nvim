@@ -21,9 +21,9 @@ function Previewer:init(options)
   return self
 end
 
----@param test_ID integer
-function Previewer:preview(test_ID)
-  self.canvas:set(self.window.bufnr, require('assistant.state').get_global_key('tests')[test_ID])
+---@param testcase_ID integer
+function Previewer:preview(testcase_ID)
+  self.canvas:set(self.window.bufnr, require('assistant.state').get_global_key('tests')[testcase_ID])
 end
 
 return Previewer
