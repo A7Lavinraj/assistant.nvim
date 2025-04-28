@@ -177,7 +177,9 @@ function actions.which_key()
     i = 'Insert',
     v = 'Visual',
   }
+
   text:append('Press following described keys to execute corresponding action', 'AssistantBorder'):nl(2)
+
   for interface, mapping in pairs(mappings) do
     text:append(string.rep(' ', 15) .. interface:upper() .. string.rep(' ', 15), 'AssistantTitle'):nl()
     for mode, keys in pairs(mapping) do
@@ -194,7 +196,8 @@ function actions.which_key()
     end
     text:nl(2)
   end
-  require('assistant.dialog').display(text, { prompt = 'which key' })
+
+  require('assistant.builtins.dialog').standard:display(text, { prompt = 'which key' })
 end
 
 return require('assistant.lib.action').transform_mod(actions)
