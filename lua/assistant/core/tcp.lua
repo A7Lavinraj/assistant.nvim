@@ -69,7 +69,7 @@ end
 local function start_server()
   local utils = require 'assistant.utils'
   local config = require 'assistant.config'
-  local picker = require 'assistant.picker'
+  local picker = require('assistant.builtins.picker').standard
   local fs = require 'assistant.core.fs'
   if server then
     utils.warn 'Server is already running'
@@ -139,7 +139,7 @@ local function start_server()
             table.insert(sources, key)
           end
 
-          picker.select(sources, { prompt = 'source' }, function(source)
+          picker:pick(sources, { prompt = 'source' }, function(source)
             local test_class_snake = utils.to_snake_case(data.languages.java.taskClass)
             local filepath = string.format('%s/.ast/%s.json', fs.find_root() or fs.make_root(), test_class_snake)
             fs.write(filepath, chunk)

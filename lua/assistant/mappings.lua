@@ -21,9 +21,9 @@ mappings.default_mappings = vim.tbl_deep_extend('force', {
       ['r'] = actions.run_testcases,
       ['s'] = actions.toggle_cur_selection,
       ['a'] = actions.toggle_all_selection,
-      ['c'] = actions.add_test,
-      ['d'] = actions.remove_tests,
-      ['e'] = actions.edit_test,
+      ['c'] = actions.create_new_testcase,
+      ['d'] = actions.remove_testcases,
+      ['e'] = actions.patch_testcase,
       ['<C-l>'] = actions.focus_previewer,
     },
   },
@@ -44,7 +44,7 @@ mappings.default_mappings = vim.tbl_deep_extend('force', {
       ['<C-c>'] = actions.close_current,
     },
   },
-  prompt = {
+  patcher = {
     n = {
       ['?'] = actions.which_key,
       ['q'] = actions.close_current,

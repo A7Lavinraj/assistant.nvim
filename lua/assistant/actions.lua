@@ -3,7 +3,7 @@ local state = require 'assistant.state'
 local actions = {}
 
 ---@return number?
-local function get_current_test_number()
+local function get_cur_testcase_ID()
   ---@type Assistant.Wizard
   local existing_wizard = state.get_global_key 'assistant_wizard'
 
@@ -60,7 +60,7 @@ function actions.run_testcases()
   end
 
   if vim.tbl_isempty(selected) then
-    local test_ID = get_current_test_number()
+    local test_ID = get_cur_testcase_ID()
     if test_ID then
       processor.run_tests { test_ID }
     end
@@ -70,7 +70,7 @@ function actions.run_testcases()
 end
 
 function actions.toggle_cur_selection()
-  local test_ID = get_current_test_number()
+  local test_ID = get_cur_testcase_ID()
 
   if test_ID then
     local test = state.get_global_key('tests')[test_ID]
@@ -114,14 +114,14 @@ function actions.toggle_all_selection()
   end)
 end
 
-function actions.add_test()
+function actions.create_new_testcase()
   table.insert(state.get_global_key 'tests', { input = '', output = '' })
   vim.schedule(function()
     state.get_global_key('assistant_wizard').canvas:set(state.get_global_key('assistant_wizard').window.bufnr)
   end)
 end
 
-function actions.remove_tests()
+function actions.remove_testcases()
   local tests = state.get_global_key 'tests'
   local selected = {}
 
@@ -132,7 +132,7 @@ function actions.remove_tests()
   end
 
   if vim.tbl_isempty(selected) then
-    local test_id = get_current_test_number()
+    local test_id = get_cur_testcase_ID()
 
     if test_id then
       table.insert(selected, test_id)
@@ -152,17 +152,18 @@ function actions.remove_tests()
   end)
 end
 
-function actions.edit_test()
-  require('assistant.picker').select({ 'input', 'output' }, { prompt = 'field' }, function(choice)
-    local test_ID = get_current_test_number()
+function actions.patch_testcase()
+  local existing_wizard = state.get_global_key 'assistant_wizard'
+  existing_wizard.picker:pick({ 'input', 'output' }, { prompt = 'field' }, function(choice)
+    local test_ID = get_cur_testcase_ID()
 
     if not test_ID then
       return
     end
 
-    local test = state.get_global_key('tests')[test_ID]
-    require('assistant.prompt').update(test[choice] or '', { prompt = choice }, function(content)
-      state.get_global_key('tests')[test_ID][choice] = content
+    local testcases = state.get_global_key 'tests'
+    existing_wizard.patcher:update(testcases[test_ID][choice] or '', { prompt = choice }, function(content)
+      testcases[test_ID][choice] = content
     end)
   end)
 end
