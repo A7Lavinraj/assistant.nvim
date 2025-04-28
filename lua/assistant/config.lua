@@ -18,7 +18,7 @@
 local M = {}
 
 M.namespace = vim.api.nvim_create_namespace 'assistant-nvim'
-M.augroup = vim.api.nvim_create_namespace 'assistant-nvim'
+M.augroup = vim.api.nvim_create_augroup('assistant-nvim', { clear = true })
 
 M._defaults = {
   commands = {
