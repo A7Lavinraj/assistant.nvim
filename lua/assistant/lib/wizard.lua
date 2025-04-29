@@ -188,8 +188,10 @@ function Wizard:show()
 end
 
 function Wizard:hide()
-  self.window:close()
-  self.previewer.window:close()
+  for _, window in ipairs { self.window, self.previewer.window } do
+    window:close()
+  end
+
   state.sync_with_fs()
   state.clean()
 end

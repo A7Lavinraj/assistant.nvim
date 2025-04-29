@@ -221,8 +221,6 @@ function Processor.run_testcases(testcase_IDS)
   local wizard = state.get_local_key 'assistant_wizard'
   local cmd = get_source_config()
 
-  vim.fn.execute 'write'
-
   scheduler:schedule(get_process(cmd.compile, nil, function(build_code, build_signal, build_logs)
     vim.schedule(function()
       wizard.window:set_win_config { title = string.format(' Wizard - %s ', state.get_local_key 'filename') }
