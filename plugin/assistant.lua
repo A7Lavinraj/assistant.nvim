@@ -25,11 +25,11 @@ vim.api.nvim_create_user_command('Assistant', require('assistant.builtins.wizard
 vim.api.nvim_create_autocmd('VimResized', {
   callback = function()
     for _, interface in pairs {
-      dialog = state.get_global_key 'assistant_dialog',
-      editor = state.get_global_key 'assistant_editor',
-      picker = state.get_global_key 'assistant_picker',
-      previewer = state.get_global_key 'assistant_previewer',
-      wizard = state.get_global_key 'assistant_wizard',
+      dialog = state.get_local_key 'assistant_dialog',
+      editor = state.get_local_key 'assistant_editor',
+      picker = state.get_local_key 'assistant_picker',
+      previewer = state.get_local_key 'assistant_previewer',
+      wizard = state.get_local_key 'assistant_wizard',
     } do
       if interface.window.winid and vim.api.nvim_win_is_valid(interface.window.winid) then
         vim.api.nvim_win_set_config(interface.window.winid, interface.window:get_win_config())

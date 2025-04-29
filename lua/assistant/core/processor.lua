@@ -18,14 +18,14 @@ local function get_source_config()
   ---@param str string
   ---@return string, integer
   local function format(str)
-    local filename = state.get_global_key 'filename'
-    local extension = state.get_global_key 'extension'
+    local filename = state.get_local_key 'filename'
+    local extension = state.get_local_key 'extension'
     return str
       :gsub('%$FILENAME_WITH_EXTENSION', string.format('%s.%s', filename, extension))
       :gsub('%$FILENAME_WITHOUT_EXTENSION', filename)
   end
 
-  local command = vim.deepcopy(config.values.commands[state.get_global_key 'filetype'])
+  local command = vim.deepcopy(config.values.commands[state.get_local_key 'filetype'])
 
   if command.compile then
     command.compile.main = format(command.compile.main)
@@ -218,12 +218,14 @@ end
 function Processor.run_testcases(testcase_IDS)
   local state = require 'assistant.state'
   local dialog = require('assistant.builtins.dialog').standard
-  local wizard = state.get_global_key 'assistant_wizard'
+  local wizard = state.get_local_key 'assistant_wizard'
   local cmd = get_source_config()
+
+  vim.fn.execute 'write'
 
   scheduler:schedule(get_process(cmd.compile, nil, function(build_code, build_signal, build_logs)
     vim.schedule(function()
-      wizard.window:set_win_config { title = string.format(' Wizard - %s ', state.get_global_key 'filename') }
+      wizard.window:set_win_config { title = string.format(' Wizard - %s ', state.get_local_key 'filename') }
     end)
 
     local build_status = get_process_status(build_code, build_signal)
@@ -268,7 +270,7 @@ function Processor.run_testcases(testcase_IDS)
     end
   end))
 
-  wizard.window:set_win_config { title = string.format(' Wizard - %s: COMPILING ', state.get_global_key 'filename') }
+  wizard.window:set_win_config { title = string.format(' Wizard - %s: COMPILING ', state.get_local_key 'filename') }
 end
 
 return Processor

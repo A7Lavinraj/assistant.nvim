@@ -44,18 +44,18 @@ end
 ---@param options? table
 ---@param on_update fun(content: string)
 function Patcher:update(content, options, on_update)
-  local existing_patcher = state.get_global_key 'assistant_patcher'
+  local existing_patcher = state.get_local_key 'assistant_patcher'
 
   if existing_patcher then
     existing_patcher.window:close()
-    state.set_global_key('assistant_patcher', nil)
+    state.set_local_key('assistant_patcher', nil)
   end
 
   options = options or {}
 
   self.window:open()
 
-  state.set_global_key('assistant_patcher', self)
+  state.set_local_key('assistant_patcher', self)
 
   self.window:attach_autocmd('WinClosed', {
     callback = function()

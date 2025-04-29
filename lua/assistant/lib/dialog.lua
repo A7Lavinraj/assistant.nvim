@@ -47,7 +47,7 @@ function Dialog:display(content, options)
   options = options or {}
   self.window:open()
 
-  state.set_global_key('assistant_dialog', self)
+  state.set_local_key('assistant_dialog', self)
 
   self.window:attach_autocmd('WinClosed', {
     callback = function()

@@ -5,6 +5,7 @@ local dialog = {}
 
 dialog.standard = Dialog.new {
   canvas = Canvas.new {
+    ---@param content string|Assistant.Text
     fn = function(bufnr, content)
       if type(content) == 'string' then
         local lines = vim.split(content, '\n')

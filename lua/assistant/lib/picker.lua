@@ -46,11 +46,11 @@ end
 ---@param options table
 ---@param on_choice fun(item: T)
 function Picker:pick(items, options, on_choice)
-  local existing_picker = state.get_global_key 'assistant_picker'
+  local existing_picker = state.get_local_key 'assistant_picker'
 
   if existing_picker then
     existing_picker.window:close()
-    state.set_global_key('assistant_picker', nil)
+    state.set_local_key('assistant_picker', nil)
   end
 
   options = options or {}
@@ -74,7 +74,7 @@ function Picker:pick(items, options, on_choice)
 
   self.window:open()
 
-  state.set_global_key('assistant_picker', self)
+  state.set_local_key('assistant_picker', self)
 
   self.window:attach_autocmd('WinClosed', {
     callback = function()

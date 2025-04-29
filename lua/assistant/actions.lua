@@ -5,7 +5,7 @@ local actions = {}
 ---@return number?
 local function get_cur_testcase_ID()
   ---@type Assistant.Wizard
-  local existing_wizard = state.get_global_key 'assistant_wizard'
+  local existing_wizard = state.get_local_key 'assistant_wizard'
 
   if
     not (existing_wizard and existing_wizard.window.bufnr and vim.api.nvim_buf_is_valid(existing_wizard.window.bufnr))
@@ -20,7 +20,7 @@ function actions.close_current()
   local match = string.match(vim.bo.filetype, 'assistant_%w+')
 
   if match then
-    local existing_match = state.get_global_key(match)
+    local existing_match = state.get_local_key(match)
 
     if existing_match then
       existing_match.window:close()
@@ -29,7 +29,7 @@ function actions.close_current()
 end
 
 function actions.focus_wizard()
-  local existing_wizard = state.get_global_key 'assistant_wizard'
+  local existing_wizard = state.get_local_key 'assistant_wizard'
 
   if existing_wizard and existing_wizard.window.winid and vim.api.nvim_win_is_valid(existing_wizard.window.winid) then
     vim.fn.win_gotoid(existing_wizard.window.winid)
@@ -37,7 +37,7 @@ function actions.focus_wizard()
 end
 
 function actions.focus_previewer()
-  local existing_previewer = state.get_global_key 'assistant_previewer'
+  local existing_previewer = state.get_local_key 'assistant_previewer'
 
   if
     existing_previewer
@@ -77,7 +77,7 @@ function actions.toggle_cur_selection()
     testcase.selected = not testcase.selected
 
     vim.schedule(function()
-      state.get_global_key('assistant_wizard').canvas:set(state.get_global_key('assistant_wizard').window.bufnr)
+      state.get_local_key('assistant_wizard').canvas:set(state.get_local_key('assistant_wizard').window.bufnr)
     end)
   end
 end
@@ -110,14 +110,14 @@ function actions.toggle_all_selection()
   end
 
   vim.schedule(function()
-    state.get_global_key('assistant_wizard').canvas:set(state.get_global_key('assistant_wizard').window.bufnr)
+    state.get_local_key('assistant_wizard').canvas:set(state.get_local_key('assistant_wizard').window.bufnr)
   end)
 end
 
 function actions.create_new_testcase()
   table.insert(state.get_global_key 'tests', { input = '', output = '' })
   vim.schedule(function()
-    state.get_global_key('assistant_wizard').canvas:set(state.get_global_key('assistant_wizard').window.bufnr)
+    state.get_local_key('assistant_wizard').canvas:set(state.get_local_key('assistant_wizard').window.bufnr)
   end)
 end
 
@@ -148,12 +148,12 @@ function actions.remove_testcases()
   end
 
   vim.schedule(function()
-    state.get_global_key('assistant_wizard').canvas:set(state.get_global_key('assistant_wizard').window.bufnr)
+    state.get_local_key('assistant_wizard').canvas:set(state.get_local_key('assistant_wizard').window.bufnr)
   end)
 end
 
 function actions.patch_testcase()
-  local existing_wizard = state.get_global_key 'assistant_wizard'
+  local existing_wizard = state.get_local_key 'assistant_wizard'
   existing_wizard.picker:pick({ 'input', 'output' }, { prompt = 'field' }, function(choice)
     local testcase_ID = get_cur_testcase_ID()
 

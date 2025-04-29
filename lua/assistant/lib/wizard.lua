@@ -1,4 +1,6 @@
 local Window = require 'assistant.lib.window'
+local fs = require 'assistant.core.fs'
+local state = require 'assistant.state'
 
 ---@class Assistant.Wizard.Options
 ---@field canvas Assistant.Canvas
@@ -83,50 +85,37 @@ function Wizard:init(options)
 end
 
 function Wizard:show()
-  local state = require 'assistant.state'
-  local fs = require 'assistant.core.fs'
-  local root_dir = fs.find_root() or fs.make_root()
-
-  state.set_global_key('filename', vim.fn.expand '%:t:r')
-  state.set_global_key('filetype', vim.bo.filetype)
-  state.set_global_key('extension', vim.fn.expand '%:e')
-
-  if not root_dir then
-    return
-  end
-
+  state.set_local_key('filename', vim.fn.expand '%:t:r')
+  state.set_local_key('filetype', vim.bo.filetype)
+  state.set_local_key('extension', vim.fn.expand '%:e')
   local filepath = fs.get_state_filepath()
 
-  if not filepath then
-    return
-  end
+  if filepath then
+    local bytes = fs.read(filepath)
+    local parsed = vim.json.decode(bytes or '{}')
 
-  local bytes = fs.read(filepath)
-  local parsed = vim.json.decode(bytes or '{}')
-
-  for k, v in pairs(parsed) do
-    state.set_global_key(k, v)
+    for k, v in pairs(parsed) do
+      state.set_global_key(k, v)
+    end
   end
 
   if not state.get_global_key 'tests' then
     state.set_global_key('tests', {})
   end
 
-  vim.fn.execute 'write'
-
-  local existing_wizard = state.get_global_key 'assistant_wizard'
+  local existing_wizard = state.get_local_key 'assistant_wizard'
 
   if existing_wizard then
     existing_wizard:hide()
-    state.set_global_key('assistant_wizard', nil)
+    state.set_local_key('assistant_wizard', nil)
   end
 
   self.window:open()
 
-  state.set_global_key('assistant_wizard', self)
+  state.set_local_key('assistant_wizard', self)
 
   self.window:set_win_config {
-    title = string.format(' Wizard - %s ', state.get_global_key 'filename'),
+    title = string.format(' Wizard - %s ', state.get_local_key 'filename'),
   }
 
   self.window:set_buf_options {
@@ -167,7 +156,7 @@ function Wizard:show()
   if self.previewer then
     self.previewer.window:open()
 
-    state.set_global_key('assistant_previewer', self.previewer)
+    state.set_local_key('assistant_previewer', self.previewer)
 
     self.previewer.window:attach_autocmd('WinClosed', {
       callback = function()
@@ -201,6 +190,8 @@ end
 function Wizard:hide()
   self.window:close()
   self.previewer.window:close()
+  state.sync_with_fs()
+  state.clean()
 end
 
 ---@return integer?
