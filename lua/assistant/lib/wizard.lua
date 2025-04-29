@@ -192,8 +192,7 @@ function Wizard:hide()
     window:close()
   end
 
-  state.sync_with_fs()
-  state.clean()
+  state.sync_and_clean()
 end
 
 ---@return integer?

@@ -17,7 +17,7 @@ function state.get_local_key(key)
   return HashTable.local_data[key]
 end
 
-function state.sync_with_fs()
+function state.sync_and_clean()
   local fs = require 'assistant.core.fs'
 
   if vim.tbl_isempty(HashTable.global_data.tests or {}) then
@@ -35,10 +35,11 @@ function state.sync_with_fs()
   end
 
   fs.write(filepath, vim.json.encode(HashTable.global_data))
-end
 
-function state.clean()
-  HashTable = { global_data = {}, local_data = {} }
+  HashTable = {
+    global_data = {},
+    local_data = {},
+  }
 end
 
 return state
