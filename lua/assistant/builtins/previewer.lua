@@ -1,6 +1,7 @@
 local Canvas = require 'assistant.lib.canvas'
 local Previewer = require 'assistant.lib.previewer'
 local Text = require 'assistant.lib.text'
+local config = require 'assistant.config'
 local previewer = {}
 
 previewer.standard = Previewer.new {
@@ -46,17 +47,27 @@ previewer.standard = Previewer.new {
       if testcase.stdout and #testcase.stdout ~= 0 then
         text:append('Stdout', 'AssistantHeading'):nl(2)
 
-        for _, line in ipairs(utils.slice_first_n_lines(testcase.stdout, 100)) do
-          if line then
-            text:append(line, 'AssistantParagraph'):nl()
+        if config.values.ui.diff_mode then
+          for _, line in ipairs(require('assistant.algos.diff').get_higlighted_text(testcase.output, testcase.stdout)) do
+            if vim.tbl_isempty(line or {}) then
+              text:nl()
+            else
+              text:append(line.str, line.hl)
+            end
           end
-        end
+        else
+          for _, line in ipairs(utils.slice_first_n_lines(testcase.stdout, 100)) do
+            if line then
+              text:append(line, 'AssistantParagraph'):nl()
+            end
+          end
 
-        text:nl()
-        local _, cnt = string.gsub(testcase.stdout or '', '\n', '')
+          text:nl()
+          local _, cnt = string.gsub(testcase.stdout or '', '\n', '')
 
-        if cnt > 100 then
-          text:append('-- REACHED MAXIMUM RENDER LIMIT --', 'AssistantFailure')
+          if cnt > 100 then
+            text:append('-- REACHED MAXIMUM RENDER LIMIT --', 'AssistantFailure')
+          end
         end
       end
 

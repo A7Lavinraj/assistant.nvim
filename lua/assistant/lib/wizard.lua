@@ -1,4 +1,5 @@
 local Window = require 'assistant.lib.window'
+local config = require 'assistant.config'
 local fs = require 'assistant.core.fs'
 local state = require 'assistant.state'
 
@@ -176,7 +177,7 @@ function Wizard:show()
   end
 
   self.previewer.window:set_win_config {
-    title = ' Previewer ',
+    title = ' Previewer ' .. (config.values.ui.diff_mode and '(Diff Mode ON) ' or '(Diff Mode OFF) '),
   }
 
   self.previewer.window:set_buf_options {

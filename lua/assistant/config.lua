@@ -4,6 +4,7 @@
 
 ---@class Assistant.Config.UI
 ---@field border string
+---@field diff_mode boolean
 
 ---@class Assistant.Config.Defaults
 ---@field mappings? table<string, table<"i"|"n"|"v", table<string, Assistant.Action|function>>>
@@ -43,6 +44,7 @@ M._defaults = {
     },
   },
   ui = {
+    diff_mode = false,
     border = 'rounded',
   },
   core = {
