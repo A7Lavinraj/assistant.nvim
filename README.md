@@ -1,6 +1,8 @@
-<h1 align="center">Assistant.nvim - Neovim Plugin for Competitive Programming</h1>
+<p align="center">
+  <img width="128" height="128" alt='Assistant.nvim Logo' src="https://github.com/user-attachments/assets/97e16790-cefd-4e3f-993f-78f05895234c" />
+</p>
 
-<br>
+<h1 align="center">Assistant.nvim</h1>
 
 <p align="center">
   <img alt="Latest release" src="https://img.shields.io/github/v/release/A7Lavinraj/assistant.nvim?style=for-the-badge&logo=starship&color=C9CBFF&logoColor=D9E0EE&labelColor=302D41&include_prerelease&sort=semver" />
@@ -8,27 +10,15 @@
   <img alt="Stars" src="https://img.shields.io/github/stars/A7Lavinraj/assistant.nvim?style=for-the-badge&logo=starship&color=c69ff5&logoColor=D9E0EE&labelColor=302D41" />
 </p>
 
-<br>
-
-<p align="center">
-    <strong>Assistant.nvim</strong> is a powerful and efficient Neovim plugin designed for competitive programmers. It automates the testing workflow, making it faster and more convenient to run test cases directly inside Neovim.
-</p>
+<p align="center">A powerful and efficient Neovim plugin designed for competitive programmers. It automates the testing workflow, making it faster and more convenient to run test cases directly inside Neovim</p>
 
 <br>
 
-![DEMO](https://github.com/user-attachments/assets/123f3b3f-600c-4dde-8cc8-dbc6324fda2f)
+<div align="center">
 
-<br>
+  ![showcase](https://github.com/user-attachments/assets/3f4e910e-deea-4946-ad0d-7ab2541084f7)
 
-## Sample fetching
-
-https://github.com/user-attachments/assets/f5adea87-f2f8-4da7-94d7-5da726a5845c
-
-<br>
-
-## Running tests
-
-https://github.com/user-attachments/assets/41002e98-109b-4486-9587-4a2fc1cc0769
+</div>
 
 <br>
 
@@ -44,6 +34,8 @@ https://github.com/user-attachments/assets/41002e98-109b-4486-9587-4a2fc1cc0769
 - **Interactive UI**: A user-friendly interface for managing test cases.
 - **Asynchronous Processing**: Ensures Neovim remains responsive during execution.
 
+<br>
+
 ## Requirements
 
 - **Neovim** `>= 0.9.5`
@@ -51,14 +43,14 @@ https://github.com/user-attachments/assets/41002e98-109b-4486-9587-4a2fc1cc0769
 
 <br>
 
-## Installation
+## Installation Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
-### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
+### latest setup
 
 ```lua
 {
     "A7lavinraj/assistant.nvim",
-    lazy = false, -- Start TCP Listener on Neovim startup
+    lazy = false,
     keys = {
         { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
     },
@@ -66,12 +58,7 @@ https://github.com/user-attachments/assets/41002e98-109b-4486-9587-4a2fc1cc0769
 }
 ```
 
-<br>
-
-> [!NOTE]
-> If you encounter issues with the latest updates, consider switching to the most stable version
-
-<br>
+### stable setup
 
 ```lua
 {
@@ -88,139 +75,49 @@ https://github.com/user-attachments/assets/41002e98-109b-4486-9587-4a2fc1cc0769
 
 <br>
 
-## Default setup
+## Default configuration
 
 ```lua
 {
-    'A7Lavinraj/assistant.nvim',
-    lazy = false,
-    keys = {
-        { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
+    mappings = {},
+    commands = {
+        python = {
+            extension = 'py',
+            template = nil,
+            compile = nil,
+            execute = {
+                main = 'python3',
+                args = { '$FILENAME_WITH_EXTENSION' },
+            },
+        },
+        cpp = {
+            extension = 'cpp',
+            template = nil,
+            compile = {
+                main = 'g++',
+                args = { '$FILENAME_WITH_EXTENSION', '-o', '$FILENAME_WITHOUT_EXTENSION' },
+            },
+            execute = {
+                main = './$FILENAME_WITHOUT_EXTENSION',
+                args = nil,
+            },
+        },
     },
-    config = function()
-        local actions = require 'assistant.actions'
-        require('assistant').setup({
-            mappings = {
-                picker = {
-                    n = {
-                        ['?'] = actions.which_key,
-                        ['q'] = actions.quit,
-                        ['<ESC>'] = actions.quit,
-                        ['<C-c>'] = actions.quit,
-                        ['<CR>'] = actions.picker_select,
-                    },
-                },
-                wizard = {
-                    n = {
-                        ['?'] = actions.which_key,
-                        ['q'] = actions.quit,
-                        ['<ESC>'] = actions.quit,
-                        ['<C-c>'] = actions.quit,
-                        ['r'] = actions.run_tests,
-                        ['s'] = actions.toggle_test_selection,
-                        ['a'] = actions.toggle_all_test_selection,
-                        ['c'] = actions.add_test,
-                        ['d'] = actions.remove_tests,
-                        ['e'] = actions.edit_test,
-                        ['<C-l>'] = require('assistant.actions.interface').focus_detail,
-                    },
-                },
-                dialog = {
-                    n = {
-                        ['?'] = actions.which_key,
-                        ['q'] = actions.quit,
-                        ['<ESC>'] = actions.quit,
-                        ['<C-c>'] = actions.quit,
-                    },
-                },
-                editor = {
-                    n = {
-                        ['?'] = actions.which_key,
-                        ['q'] = actions.quit,
-                        ['<ESC>'] = actions.quit,
-                        ['<C-c>'] = actions.quit,
-                        ['<CR>'] = actions.save_prompt_content,
-                    },
-                },
-            },
-            commands = {
-                python = {
-                    extension = "py",
-                    template = nil,
-                    compile = nil,
-                    execute = {
-                        main = "python3",
-                        args = { "$FILENAME_WITH_EXTENSION" },
-                    },
-                },
-                cpp = {
-                    extension = "cpp",
-                    template = nil,
-                    compile = {
-                        main = "g++",
-                        args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
-                    },
-                    execute = {
-                        main = "./$FILENAME_WITHOUT_EXTENSION",
-                        args = nil,
-                    },
-                },
-            },
-            ui = {
-                border = "single",
-            },
-            core = {
-                process_budget = 5000,
-                port = 10043,
-            },
-        })
-    end
+    ui = {
+        border = 'single',
+        diff_mode = false,
+    },
+    core = {
+        process_budget = 5000,
+        port = 10043,
+    },
 }
 ```
 
-## Custom Command Configuration
+<br>
 
-To extend the configuration for **Python**, add the following to the `commands` table:
+<div align="center">
+  <h2>Want to contribute?</h2>
 
-```lua
-python = {
-    extension = "py",
-    compile = nil, -- Python doesn't require compilation
-    execute = {
-        main = "python3",
-        args = { "$FILENAME_WITH_EXTENSION" }
-    },
-},
-```
-
-To check the file type of an open file in Neovim, run:
-
-```lua
-:lua print(vim.bo.filetype)
-```
-
-## Commands & Key Bindings
-
-```lua
-:Assistant
-```
-
-| Key       | Operation                             |
-| --------- | ------------------------------------- |
-| `?`       | Which key                             |
-| `q`       | Close window                          |
-| `r`       | Run current or selected test cases    |
-| `c`       | Create an empty test case             |
-| `d`       | Delete current or selected test cases |
-| `e`       | Open edit window                      |
-| `s`       | Toggle current test case selection    |
-| `a`       | Toggle all test case selections       |
-| `j`       | Move to next test case                |
-| `k`       | Move to previous test case            |
-| `<enter>` | Confirm changes in prompt             |
-| `<c-l>`   | Navigate to right window              |
-| `<c-h>`   | Navigate to left window               |
-
-## Want to contribute?
-
-Please read [CONTRIBUTING.md](https://github.com/A7Lavinraj/assistant.nvim/blob/main/CONTRIBUTING.md) to get started
+  Please read [CONTRIBUTING.md](https://github.com/A7Lavinraj/assistant.nvim/blob/main/CONTRIBUTING.md) to get started
+</div>
