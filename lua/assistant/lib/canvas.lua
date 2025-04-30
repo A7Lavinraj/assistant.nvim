@@ -1,5 +1,5 @@
 ---@class Assistant.Canvas.Options
----@field fn fun(bufnr: integer, ...)
+---@field fn fun(bufnr: integer, ...?: any)
 ---@field gn? fun(bufnr: integer, winid: integer): integer?
 
 ---@class Assistant.Canvas : Assistant.Canvas.Options

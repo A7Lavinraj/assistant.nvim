@@ -1,11 +1,11 @@
 local Window = require 'assistant.lib.window'
 local state = require 'assistant.state'
+local utils = require 'assistant.utils'
 
 ---@class Assistant.Picker.Options
 ---@field canvas Assistant.Canvas
 
 ---@class Assistant.Picker : Assistant.Picker.Options
----@field window Assistant.Window
 local Picker = {}
 
 ---@param options Assistant.Picker.Options
@@ -21,23 +21,6 @@ function Picker:init(options)
     self[k] = v
   end
 
-  self.window = Window.new {
-    enter = true,
-    zindex = 3,
-    width = function(vw, _)
-      return math.ceil(vw * 0.3)
-    end,
-    height = function()
-      return 5
-    end,
-    col = function(vw, _)
-      return math.floor((1 - 0.3) * 0.5 * vw)
-    end,
-    row = function()
-      return 0
-    end,
-  }
-
   return self
 end
 
@@ -46,23 +29,23 @@ end
 ---@param options table
 ---@param on_choice fun(item: T)
 function Picker:pick(items, options, on_choice)
-  local existing_picker = state.get_local_key 'assistant_picker'
+  options = options or {}
+  local existing_picker_window = state.get_local_key 'assistant-picker-window'
 
-  if existing_picker then
-    existing_picker.window:close()
-    state.set_local_key('assistant_picker', nil)
+  if existing_picker_window then
+    utils.remove_window(existing_picker_window)
+    state.set_local_key('assistant-picker-window', nil)
+    state.set_local_key('assistant-picker-canvas', nil)
   end
 
-  options = options or {}
-
-  self.window = Window.new {
+  local picker_window = Window.new {
     enter = true,
     zindex = 3,
     width = function(vw, _)
       return math.ceil(vw * 0.3)
     end,
     height = function()
-      return math.min(5, #items)
+      return math.min(#items, 5)
     end,
     col = function(vw, _)
       return math.floor((1 - 0.3) * 0.5 * vw)
@@ -72,53 +55,54 @@ function Picker:pick(items, options, on_choice)
     end,
   }
 
-  self.window:open()
+  utils.create_window(picker_window)
 
-  state.set_local_key('assistant_picker', self)
+  state.set_local_key('assistant-picker-window', picker_window)
+  state.set_local_key('assistant-picker-canvas', self.canvas)
 
-  self.window:attach_autocmd('WinClosed', {
+  utils.create_autocmd('WinClosed', {
     callback = function()
-      self.window:close()
+      utils.remove_window(picker_window)
     end,
   })
 
-  self.window:set_win_config {
+  utils.set_win_config(picker_window.winid, {
     title = string.format(' %s ', options.prompt or 'picker'),
     title_pos = 'center',
-  }
+  })
 
-  self.window:set_buf_options {
-    modifiable = false,
-    filetype = 'assistant_picker',
-  }
+  utils.set_buf_option(picker_window, 'modifiable', false)
+  utils.set_buf_option(picker_window, 'filetype', 'assistant-picker')
 
-  self.window:set_win_options {
-    cursorline = true,
-  }
+  utils.set_win_option(picker_window, 'cursorline', true)
 
-  self.window:set_keymap {
+  utils.set_keymap {
     mode = 'n',
     lhs = '<cr>',
     rhs = function()
       local current_line = vim.api.nvim_get_current_line()
-
-      self.window:close()
-
+      utils.remove_window(picker_window)
       on_choice(current_line)
     end,
+    options = {
+      buffer = picker_window.bufnr,
+    },
   }
 
   for mode, mappings in pairs(require('assistant.mappings').default_mappings.picker or {}) do
     for k, v in pairs(mappings) do
-      self.window:set_keymap {
+      utils.set_keymap {
         mode = mode,
         lhs = k,
         rhs = v,
+        options = {
+          buffer = picker_window.bufnr,
+        },
       }
     end
   end
 
-  self.canvas:set(self.window.bufnr, items)
+  self.canvas:set(picker_window.bufnr, items)
 end
 
 return Picker

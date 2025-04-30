@@ -1,86 +1,29 @@
 local Window = require 'assistant.lib.window'
-local config = require 'assistant.config'
 local fs = require 'assistant.core.fs'
 local state = require 'assistant.state'
+local utils = require 'assistant.utils'
 
 ---@class Assistant.Wizard.Options
----@field canvas Assistant.Canvas
+---@field width number
+---@field height number
+---@field panel Assistant.Panel
 ---@field previewer Assistant.Previewer
----@field patcher Assistant.Patcher
----@field picker Assistant.Picker
 
 ---@class Assistant.Wizard : Assistant.Wizard.Options
----@field window Assistant.Window
 local Wizard = {}
 
----@param options? Assistant.Wizard.Options
----@return Assistant.Wizard
+---@param options Assistant.Wizard.Options
 function Wizard.new(options)
-  return setmetatable({}, { __index = Wizard }):init(options)
+  return setmetatable({}, {
+    __index = Wizard,
+  }):init(options)
 end
 
----@param options? Assistant.Wizard.Options
----@return Assistant.Wizard
+---@param options Assistant.Wizard.Options
 function Wizard:init(options)
   for k, v in pairs(options or {}) do
     self[k] = v
   end
-
-  local layout_config = {
-    width = 0.85,
-    height = 0.65,
-  }
-
-  self.window = Window.new {
-    enter = true,
-    zindex = 1,
-    width = function(vw, _)
-      if not self.previewer then
-        return math.ceil(vw * layout_config.width)
-      end
-      return math.ceil(vw * layout_config.width * 0.4)
-    end,
-
-    height = function(_, vh)
-      return math.ceil(vh * layout_config.height)
-    end,
-
-    col = function(vw, _)
-      if self.previewer then
-        return math.floor((1 - layout_config.width) * vw * 0.5) - 1
-      end
-      return math.floor((1 - layout_config.width) * vw * 0.5)
-    end,
-
-    row = function(_, vh)
-      return math.floor((1 - layout_config.height) * vh * 0.5) - 1
-    end,
-  }
-
-  self.previewer.window.zindex = 1
-
-  self.previewer.window.width = self.previewer.window.width
-    or function(vw, _)
-      return math.ceil(vw * layout_config.width * 0.6)
-    end
-
-  self.previewer.window.height = self.previewer.window.height
-    or function(_, vh)
-      return math.ceil(vh * layout_config.height)
-    end
-
-  self.previewer.window.col = self.previewer.window.col
-    or function(vw, _)
-      if self.previewer then
-        return math.floor((1 - layout_config.width) * vw * 0.5) + math.ceil(vw * layout_config.width * 0.4) + 1
-      end
-      return math.floor((1 - layout_config.width) * vw * 0.5) + math.ceil(vw * layout_config.width * 0.4)
-    end
-
-  self.previewer.window.row = self.previewer.window.row
-    or function(_, vh)
-      return math.floor((1 - layout_config.height) * vh * 0.5) - 1
-    end
 
   return self
 end
@@ -104,101 +47,146 @@ function Wizard:show()
     state.set_global_key('tests', {})
   end
 
-  local existing_wizard = state.get_local_key 'assistant_wizard'
+  utils.remove_window(state.get_local_key 'assistant-panel-window')
+  utils.remove_window(state.get_local_key 'assistant-previewer-window')
+  state.set_local_key('assistant-panel-window', nil)
+  state.set_local_key('assistant-previewer-window', nil)
+  state.set_local_key('assistant-panel-canvas', nil)
+  state.set_local_key('assistant-previewer-canvas', nil)
 
-  if existing_wizard then
-    existing_wizard:hide()
-    state.set_local_key('assistant_wizard', nil)
-  end
-
-  self.window:open()
-
-  state.set_local_key('assistant_wizard', self)
-
-  self.window:set_win_config {
-    title = string.format(' Wizard - %s ', state.get_local_key 'filename'),
+  self.panel_window = Window.new {
+    enter = true,
+    zindex = 1,
+    width = function(vw, _)
+      return math.ceil(vw * self.width * (1 - self.previewer.width))
+    end,
+    height = function(_, vh)
+      return math.ceil(vh * self.height)
+    end,
+    col = function(vw, _)
+      return math.floor((1 - self.width) * vw * 0.5) - 1
+    end,
+    row = function(_, vh)
+      return math.floor((1 - self.height) * vh * 0.5)
+    end,
   }
 
-  self.window:set_buf_options {
-    modifiable = false,
-    filetype = 'assistant_wizard',
+  self.previewer_window = Window.new {
+    zindex = 1,
+    width = function(vw, _)
+      return math.ceil(vw * self.width * self.previewer.width)
+    end,
+    height = function(_, vh)
+      return math.ceil(vh * self.height)
+    end,
+    col = function(vw, _)
+      return math.floor((1 - self.width) * vw * 0.5) + math.ceil(vw * self.width * (1 - self.previewer.width)) + 1
+    end,
+    row = function(_, vh)
+      return math.floor((1 - self.height) * vh * 0.5)
+    end,
   }
 
-  self.window:set_win_options {
-    cursorline = true,
-  }
+  utils.create_window(self.panel_window)
+  utils.create_window(self.previewer_window)
+  state.set_local_key('assistant-panel-window', self.panel_window)
+  state.set_local_key('assistant-previewer-window', self.previewer_window)
+  state.set_local_key('assistant-panel-canvas', self.panel.canvas)
+  state.set_local_key('assistant-previewer-canvas', self.previewer.canvas)
 
-  self.window:attach_autocmd('WinClosed', {
+  utils.set_win_config(self.panel_window.winid, {
+    title = {
+      { ' Panel', 'AssistantTitle' },
+      { string.format(' (%s) ', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
+    },
+  })
+  utils.set_win_config(self.previewer_window.winid, {
+    title = {
+      { ' Previewer', 'AssistantTitle' },
+      {
+        string.format(' (%s) ', require('assistant.config').values.ui.diff_mode and 'DIFF MODE ON' or 'DIFF MODE OFF'),
+        require('assistant.config').values.ui.diff_mode and 'AssistantSuccess' or 'AssistantFailure',
+      },
+    },
+  })
+
+  utils.set_win_option(
+    self.panel_window,
+    'winhighlight',
+    table.concat({
+      'Normal:AssistantNormal',
+      'FloatBorder:AssistantBorder',
+      'FloatTitle:AssistantTitle',
+    }, ',')
+  )
+  utils.set_win_option(
+    self.previewer_window,
+    'winhighlight',
+    table.concat({
+      'Normal:AssistantNormal',
+      'FloatBorder:AssistantBorder',
+      'FloatTitle:AssistantTitle',
+    }, ',')
+  )
+
+  utils.set_buf_option(self.panel_window, 'modifiable', false)
+  utils.set_buf_option(self.panel_window, 'filetype', 'assistant-panel')
+  utils.set_buf_option(self.previewer_window, 'modifiable', false)
+  utils.set_buf_option(self.previewer_window, 'filetype', 'assistant-previewer')
+
+  utils.set_win_option(self.panel_window, 'cursorline', true)
+
+  utils.create_autocmd('WinClosed', {
+    buffer = self.panel_window.bufnr,
     callback = function()
       self:hide()
     end,
   })
 
-  self.window:attach_autocmd('CursorMoved', {
+  utils.create_autocmd('CursorMoved', {
+    buffer = self.panel_window.bufnr,
     callback = function()
-      local testcase_ID = self.canvas:get(self.window.bufnr, self.window.winid)
+      local testcase_ID = self.panel.canvas:get(self.panel_window.bufnr, self.panel_window.winid)
 
       if testcase_ID then
-        self.previewer:preview(testcase_ID)
+        self.previewer.canvas:set(self.previewer_window.bufnr, state.get_global_key('tests')[testcase_ID])
       end
     end,
   })
 
-  for mode, mappings in pairs(require('assistant.mappings').default_mappings.wizard or {}) do
+  for mode, mappings in pairs(require('assistant.mappings').default_mappings.panel or {}) do
     for k, v in pairs(mappings) do
-      self.window:set_keymap {
+      utils.set_keymap {
         mode = mode,
         lhs = k,
         rhs = v,
+        options = {
+          buffer = self.panel_window.bufnr,
+        },
       }
     end
   end
 
-  if self.previewer then
-    self.previewer.window:open()
-
-    state.set_local_key('assistant_previewer', self.previewer)
-
-    self.previewer.window:attach_autocmd('WinClosed', {
-      callback = function()
-        self:hide()
-      end,
-    })
-
-    for mode, mappings in pairs(require('assistant.mappings').default_mappings.previewer or {}) do
-      for k, v in pairs(mappings) do
-        self.previewer.window:set_keymap {
-          mode = mode,
-          lhs = k,
-          rhs = v,
-        }
-      end
+  for mode, mappings in pairs(require('assistant.mappings').default_mappings.previewer or {}) do
+    for k, v in pairs(mappings) do
+      utils.set_keymap {
+        mode = mode,
+        lhs = k,
+        rhs = v,
+        options = {
+          buffer = self.previewer_window.bufnr,
+        },
+      }
     end
   end
 
-  self.previewer.window:set_win_config {
-    title = ' Previewer ' .. (config.values.ui.diff_mode and '(Diff Mode ON) ' or '(Diff Mode OFF) '),
-  }
-
-  self.previewer.window:set_buf_options {
-    modifiable = false,
-    filetype = 'assistant_previewer',
-  }
-
-  self.canvas:set(self.window.bufnr)
+  self.panel.canvas:set(self.panel_window.bufnr)
 end
 
 function Wizard:hide()
-  for _, window in ipairs { self.window, self.previewer.window } do
-    window:close()
-  end
-
+  utils.remove_window(self.panel_window)
+  utils.remove_window(self.previewer_window)
   state.sync_and_clean()
-end
-
----@return integer?
-function Wizard:get_current()
-  return self.canvas:get(self.window.bufnr, self.window.winid)
 end
 
 return Wizard

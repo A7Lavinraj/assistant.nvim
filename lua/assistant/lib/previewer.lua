@@ -1,15 +1,15 @@
-local Window = require 'assistant.lib.window'
-
 ---@class Assistant.Previewer.Options
 ---@field canvas Assistant.Canvas
+---@field width number
 
 ---@class Assistant.Previewer : Assistant.Previewer.Options
----@field window Assistant.Window
 local Previewer = {}
 
 ---@param options? Assistant.Previewer.Options
 function Previewer.new(options)
-  return setmetatable({}, { __index = Previewer }):init(options)
+  return setmetatable({}, {
+    __index = Previewer,
+  }):init(options)
 end
 
 ---@param options? Assistant.Previewer.Options
@@ -17,13 +17,8 @@ function Previewer:init(options)
   for k, v in pairs(options or {}) do
     self[k] = v
   end
-  self.window = Window.new {}
-  return self
-end
 
----@param testcase_ID integer
-function Previewer:preview(testcase_ID)
-  self.canvas:set(self.window.bufnr, require('assistant.state').get_global_key('tests')[testcase_ID])
+  return self
 end
 
 return Previewer

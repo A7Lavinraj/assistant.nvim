@@ -1,5 +1,6 @@
 local Window = require 'assistant.lib.window'
 local state = require 'assistant.state'
+local utils = require 'assistant.utils'
 
 ---@class Assistant.Patcher.Options
 ---@field canvas Assistant.Canvas
@@ -20,7 +21,23 @@ function Patcher:init(options)
     self[k] = v
   end
 
-  self.window = Window.new {
+  return self
+end
+
+---@param content string
+---@param options? table
+---@param on_update fun(content: string)
+function Patcher:update(content, options, on_update)
+  options = options or {}
+  local existing_patcher_window = state.get_local_key 'assistant-patcher-window'
+
+  if existing_patcher_window then
+    utils.remove_window(existing_patcher_window)
+    state.set_local_key('assistant-patcher-window', nil)
+    state.set_local_key('assistant-patcher-canvas', nil)
+  end
+
+  local patcher_window = Window.new {
     enter = true,
     zindex = 2,
     width = function(vw, _)
@@ -33,68 +50,56 @@ function Patcher:init(options)
       return math.floor((1 - 0.85) * 0.5 * vw) - 1
     end,
     row = function(_, vh)
-      return math.floor((1 - 0.65) * 0.5 * vh) - 1
+      return math.floor((1 - 0.65) * 0.5 * vh)
     end,
   }
 
-  return self
-end
+  utils.create_window(patcher_window)
 
----@param content string
----@param options? table
----@param on_update fun(content: string)
-function Patcher:update(content, options, on_update)
-  local existing_patcher = state.get_local_key 'assistant_patcher'
+  state.set_local_key('assistant-patcher-window', patcher_window)
+  state.set_local_key('assistant-patcher-canvas', self.canvas)
 
-  if existing_patcher then
-    existing_patcher.window:close()
-    state.set_local_key('assistant_patcher', nil)
-  end
-
-  options = options or {}
-
-  self.window:open()
-
-  state.set_local_key('assistant_patcher', self)
-
-  self.window:attach_autocmd('WinClosed', {
+  utils.create_autocmd('WinClosed', {
     callback = function()
-      self.window:close()
+      utils.remove_window(patcher_window)
     end,
   })
 
-  self.window:set_win_config {
+  utils.set_win_config(patcher_window.winid, {
     title = string.format(' %s ', options.self or 'patcher'),
     title_pos = 'center',
-  }
+  })
 
-  self.window:set_buf_options {
-    filetype = 'assistant_patcher',
-  }
+  utils.set_buf_option(patcher_window, 'filetype', 'assistant-patcher')
 
-  self.window:set_keymap {
+  utils.set_keymap {
     mode = 'n',
     lhs = '<cr>',
     rhs = function()
-      local lines = vim.api.nvim_buf_get_lines(self.window.bufnr, 0, -1, false)
+      local lines = vim.api.nvim_buf_get_lines(patcher_window.bufnr, 0, -1, false)
 
-      self.window:close()
-
+      utils.remove_window(patcher_window)
       on_update(table.concat(lines, '\n'))
     end,
+    options = {
+      buffer = patcher_window.bufnr,
+    },
   }
 
   for mode, mappings in pairs(require('assistant.mappings').default_mappings.patcher or {}) do
     for k, v in pairs(mappings) do
-      self.window:set_keymap {
+      utils.set_keymap {
         mode = mode,
         lhs = k,
         rhs = v,
+        options = {
+          buffer = patcher_window.bufnr,
+        },
       }
     end
   end
 
-  self.canvas:set(self.window.bufnr, content)
+  self.canvas:set(patcher_window.bufnr, content)
 end
 
 return Patcher
