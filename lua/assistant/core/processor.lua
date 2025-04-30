@@ -1,4 +1,5 @@
 local Scheduler = require 'assistant.algos.scheduler'
+local utils = require 'assistant.utils'
 local luv = vim.uv or vim.loop
 local scheduler = Scheduler.new()
 local Processor = {}
@@ -217,13 +218,16 @@ end
 ---@param testcase_IDS integer[]
 function Processor.run_testcases(testcase_IDS)
   local state = require 'assistant.state'
-  local dialog = require('assistant.builtins.dialog').standard
-  local wizard = state.get_local_key 'assistant_wizard'
+  local dialog = require('assistant.builtins.__dialog').standard
+  local panel_window = state.get_local_key 'assistant-panel-window'
+  local panel_canvas = state.get_local_key 'assistant-panel-canvas'
   local cmd = get_source_config()
 
   scheduler:schedule(get_process(cmd.compile, nil, function(build_code, build_signal, build_logs)
     vim.schedule(function()
-      wizard.window:set_win_config { title = string.format(' Wizard - %s ', state.get_local_key 'filename') }
+      utils.set_win_config(panel_window.winid, {
+        title = string.format(' Wizard - %s ', state.get_local_key 'filename'),
+      })
     end)
 
     local build_status = get_process_status(build_code, build_signal)
@@ -255,7 +259,7 @@ function Processor.run_testcases(testcase_IDS)
           end
 
           vim.schedule(function()
-            wizard.canvas:set(wizard.window.bufnr)
+            panel_canvas:set(panel_window.bufnr)
           end)
         end)
       )
@@ -263,12 +267,14 @@ function Processor.run_testcases(testcase_IDS)
       testcases[testcase_ID].status = 'RN'
 
       vim.schedule(function()
-        wizard.canvas:set(wizard.window.bufnr)
+        panel_canvas:set(panel_window.bufnr)
       end)
     end
   end))
 
-  wizard.window:set_win_config { title = string.format(' Wizard - %s: COMPILING ', state.get_local_key 'filename') }
+  utils.set_win_config(panel_window.winid, {
+    title = string.format(' Wizard - %s: COMPILING ', state.get_local_key 'filename'),
+  })
 end
 
 return Processor

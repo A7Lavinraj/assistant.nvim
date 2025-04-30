@@ -69,7 +69,7 @@ end
 local function start_server()
   local utils = require 'assistant.utils'
   local config = require 'assistant.config'
-  local picker = require('assistant.builtins.picker').standard
+  local picker = require('assistant.builtins.__picker').standard
   local fs = require 'assistant.core.fs'
   if server then
     utils.warn 'Server is already running'

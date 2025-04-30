@@ -12,7 +12,7 @@ mappings.default_mappings = vim.tbl_deep_extend('force', {
       ['<CR>'] = actions.picker_select,
     },
   },
-  wizard = {
+  panel = {
     n = {
       ['?'] = actions.which_key,
       ['q'] = actions.close_current,
@@ -33,7 +33,7 @@ mappings.default_mappings = vim.tbl_deep_extend('force', {
       ['q'] = actions.close_current,
       ['<ESC>'] = actions.close_current,
       ['<C-c>'] = actions.close_current,
-      ['<C-h>'] = actions.focus_wizard,
+      ['<C-h>'] = actions.focus_panel,
     },
   },
   dialog = {

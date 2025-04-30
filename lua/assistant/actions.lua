@@ -1,50 +1,50 @@
 local Text = require 'assistant.lib.text'
 local state = require 'assistant.state'
+local utils = require 'assistant.utils'
 local actions = {}
 
 ---@return number?
 local function get_cur_testcase_ID()
-  ---@type Assistant.Wizard
-  local existing_wizard = state.get_local_key 'assistant_wizard'
+  local panel_window = state.get_local_key 'assistant-panel-window' ---@type Assistant.Window
+  local panel_canvas = state.get_local_key 'assistant-panel-canvas' ---@type Assistant.Canvas
 
-  if
-    not (existing_wizard and existing_wizard.window.bufnr and vim.api.nvim_buf_is_valid(existing_wizard.window.bufnr))
-  then
+  if not (panel_window and panel_window.bufnr and vim.api.nvim_buf_is_valid(panel_window.bufnr)) then
     return
   end
 
-  return existing_wizard:get_current()
+  return panel_canvas:get(panel_window.bufnr, panel_window.winid)
 end
 
 function actions.close_current()
-  local match = string.match(vim.bo.filetype, 'assistant_%w+')
+  local match = string.match(vim.bo.filetype, '^[^-]+-(.+)$')
 
   if match then
-    local existing_match = state.get_local_key(match)
-
-    if existing_match then
-      existing_match.window:close()
+    if vim.tbl_contains({ 'panel', 'previewer' }, match) then
+      for _, window in ipairs {
+        state.get_local_key 'assistant-panel-window',
+        state.get_local_key 'assistant-previewer-window',
+      } do
+        utils.remove_window(window)
+      end
+    else
+      utils.remove_window(state.get_local_key(string.format('assistant-%s-window', match)))
     end
   end
 end
 
-function actions.focus_wizard()
-  local existing_wizard = state.get_local_key 'assistant_wizard'
+function actions.focus_panel()
+  local panel_window = state.get_local_key 'assistant-panel-window'
 
-  if existing_wizard and existing_wizard.window.winid and vim.api.nvim_win_is_valid(existing_wizard.window.winid) then
-    vim.fn.win_gotoid(existing_wizard.window.winid)
+  if panel_window and panel_window.winid and vim.api.nvim_win_is_valid(panel_window.winid) then
+    vim.fn.win_gotoid(panel_window.winid)
   end
 end
 
 function actions.focus_previewer()
-  local existing_previewer = state.get_local_key 'assistant_previewer'
+  local previewer_window = state.get_local_key 'assistant-previewer-window'
 
-  if
-    existing_previewer
-    and existing_previewer.window.winid
-    and vim.api.nvim_win_is_valid(existing_previewer.window.winid)
-  then
-    vim.fn.win_gotoid(existing_previewer.window.winid)
+  if previewer_window and previewer_window.winid and vim.api.nvim_win_is_valid(previewer_window.winid) then
+    vim.fn.win_gotoid(previewer_window.winid)
   end
 end
 
@@ -74,10 +74,12 @@ function actions.toggle_cur_selection()
 
   if testcase_ID then
     local testcase = state.get_global_key('tests')[testcase_ID]
+    local panel_window = state.get_local_key 'assistant-panel-window'
+    local panel_canvas = state.get_local_key 'assistant-panel-canvas'
     testcase.selected = not testcase.selected
 
     vim.schedule(function()
-      state.get_local_key('assistant_wizard').canvas:set(state.get_local_key('assistant_wizard').window.bufnr)
+      panel_canvas:set(panel_window.bufnr)
     end)
   end
 end
@@ -109,15 +111,22 @@ function actions.toggle_all_selection()
     end
   end
 
+  local panel_window = state.get_local_key 'assistant-panel-window'
+  local panel_canvas = state.get_local_key 'assistant-panel-canvas'
+
   vim.schedule(function()
-    state.get_local_key('assistant_wizard').canvas:set(state.get_local_key('assistant_wizard').window.bufnr)
+    panel_canvas:set(panel_window.bufnr)
   end)
 end
 
 function actions.create_new_testcase()
+  local panel_window = state.get_local_key 'assistant-panel-window'
+  local panel_canvas = state.get_local_key 'assistant-panel-canvas'
+
   table.insert(state.get_global_key 'tests', { input = '', output = '' })
+
   vim.schedule(function()
-    state.get_local_key('assistant_wizard').canvas:set(state.get_local_key('assistant_wizard').window.bufnr)
+    panel_canvas:set(panel_window.bufnr)
   end)
 end
 
@@ -147,14 +156,16 @@ function actions.remove_testcases()
     table.remove(testcases, testcase_ID)
   end
 
+  local panel_window = state.get_local_key 'assistant-panel-window'
+  local panel_canvas = state.get_local_key 'assistant-panel-canvas'
+
   vim.schedule(function()
-    state.get_local_key('assistant_wizard').canvas:set(state.get_local_key('assistant_wizard').window.bufnr)
+    panel_canvas:set(panel_window.bufnr)
   end)
 end
 
 function actions.patch_testcase()
-  local existing_wizard = state.get_local_key 'assistant_wizard'
-  existing_wizard.picker:pick({ 'input', 'output' }, { prompt = 'field' }, function(choice)
+  require('assistant.builtins.__picker').standard:pick({ 'input', 'output' }, { prompt = 'field' }, function(choice)
     local testcase_ID = get_cur_testcase_ID()
 
     if not testcase_ID then
@@ -162,9 +173,14 @@ function actions.patch_testcase()
     end
 
     local testcases = state.get_global_key 'tests'
-    existing_wizard.patcher:update(testcases[testcase_ID][choice] or '', { prompt = choice }, function(content)
-      testcases[testcase_ID][choice] = content
-    end)
+
+    require('assistant.builtins.__patcher').standard:update(
+      testcases[testcase_ID][choice] or '',
+      { prompt = choice },
+      function(content)
+        testcases[testcase_ID][choice] = content
+      end
+    )
   end)
 end
 
@@ -182,6 +198,7 @@ function actions.which_key()
 
   for interface, mapping in pairs(mappings) do
     text:append(string.rep(' ', 15) .. interface:upper() .. string.rep(' ', 15), 'AssistantTitle'):nl()
+
     for mode, keys in pairs(mapping) do
       for k, v in pairs(keys) do
         text
@@ -197,7 +214,7 @@ function actions.which_key()
     text:nl(2)
   end
 
-  require('assistant.builtins.dialog').standard:display(text, { prompt = 'which key' })
+  require('assistant.builtins.__dialog').standard:display(text, { prompt = 'which key' })
 end
 
 return require('assistant.lib.action').transform_mod(actions)
