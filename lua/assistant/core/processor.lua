@@ -226,7 +226,10 @@ function Processor.run_testcases(testcase_IDS)
   scheduler:schedule(get_process(cmd.compile, nil, function(build_code, build_signal, build_logs)
     vim.schedule(function()
       utils.set_win_config(panel_window.winid, {
-        title = string.format(' Wizard - %s ', state.get_local_key 'filename'),
+        title = {
+          { ' Panel', 'AssistantTitle' },
+          { string.format(' (%s) ', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
+        },
       })
     end)
 
@@ -273,7 +276,11 @@ function Processor.run_testcases(testcase_IDS)
   end))
 
   utils.set_win_config(panel_window.winid, {
-    title = string.format(' Wizard - %s: COMPILING ', state.get_local_key 'filename'),
+    title = {
+      { ' Panel', 'AssistantTitle' },
+      { string.format(' (%s)', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
+      { ' COMPILING ', 'AssistantWarning' },
+    },
   })
 end
 
