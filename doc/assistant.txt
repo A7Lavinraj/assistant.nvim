@@ -1,63 +1,315 @@
-                                                              *assistant.nvim*
-==============================================================================
+================================================================================
+INTRODUCTION                                                    *assistant.nvim*
 
-A modern Neovim testing manager for competitive programmers. It comes with
-various basic and advanced features that automate the testing workflow.
+Assistant.nvim is a modern neovim plugin for automating testing workflow for
+competitive programmers.
 
-                                                  *assistant.nvim-installation*
-==============================================================================
+Getting started with assistant:
+  1. Run `:checkhealth assistant` to make sure is setup correctly.
+  2. Run `:Assistant` to launch plugin user interface.
 
-Using |lazy.nvim| plugin manager:
+Explore |assistant.config| to customize assistant.
 
+
+================================================================================
+CONFIGURATION                                                 *assistant.config*
+
+You can pass custom configuration to change assisant behaviour. Following are
+the default configuration for reference
 >lua
-  {
-    "A7Lavinraj/assistant.nvim",
-    lazy = false, -- Start TCP listener on Neovim startup
-    keys = {
-      { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
-    },
-    opts = {} -- Config options
-  }
-<
-
-                                              *assistant.nvim-default-options*
-===============================================================================
-
-|assistant.nvim| comes with default options as follows:
-
->lua
-  {
-    mappings = { ... },
+  local default = {
     commands = {
       python = {
-        extension = "py",
-        template = nil,
+        extension = 'py',
         compile = nil,
         execute = {
-          main = "python3",
-          args = { "$FILENAME_WITH_EXTENSION" },
+          main = 'python3',
+          args = { '$FILENAME_WITH_EXTENSION' },
         },
       },
       cpp = {
-        extension = "cpp",
-        template = nil,
+        extension = 'cpp',
         compile = {
-          main = "g++",
-          args = { "$FILENAME_WITH_EXTENSION", "-o", "$FILENAME_WITHOUT_EXTENSION" },
+          main = 'g++',
+          args = { '$FILENAME_WITH_EXTENSION', '-o', '$FILENAME_WITHOUT_EXTENSION' },
         },
         execute = {
-          main = "./$FILENAME_WITHOUT_EXTENSION",
+          main = './$FILENAME_WITHOUT_EXTENSION',
           args = nil,
         },
       },
     },
     ui = {
-      border = "rounded",
+      diff_mode = false,
+      border = 'rounded',
     },
     core = {
       process_budget = 5000,
       port = 10043,
     },
+  }
+<
+
+1. An example to change default `port` on which assistant listen for browser:
+>lua
+  require('assistant').setup({
+    core = {
+      port = 8000
+    }
+  })
+<
+
+2. An example to change default mappings for panel:
+>lua
+  local actions = require('assistant.actions')
+  require('assistant').setup({
+    mappings = {
+      panel = {
+        n = {
+          ['m'] = actions.toggle_cur_selection
+        }
+      }
+    }
+  })
+<
+
+================================================================================
+TCP SERVER                                                       *assistant.tcp*
+
+It is a wrapper module which maintain a single tcp connection with browser. If
+more than one neovim instance are running at same time, then only latest neovim
+instance will get connected to browser.
+
+
+================================================================================
+WIZARD                                                        *assistant.wizard*
+
+Wizard is a plugin launcher which consists of following two core
+components:
+  1. |assistant.panel|
+  2. |assistant.previewer|
+
+┌───────────────────────────────┐┌───────────────────────────────────────┐
+│                               ││                                       │
+│                               ││                                       │
+│                               ││                                       │
+│                               ││                                       │
+│            (Panel)            ││              (Previewer)              │
+│                               ││                                       │
+│                               ││                                       │
+│                               ││                                       │
+│                               ││                                       │
+└───────────────────────────────┘└───────────────────────────────────────┘
+
+Example of creating a wizard instance:
+
+>lua
+  require('assistant.lib.wizard').new({
+    width = 0.85, -- width with respect to vim.o.columns
+    height = 0.65, -- height with respect to vim.o.lines
+    panel = require('assistant.lib.panel').new {
+      -- custom panel options
+    },
+    previewer = require('assistant.lib.previewer').new {
+      -- custom previewer options
+    }
+  }):show() -- launch the wizard with provided `panel` and `previewer`
+<
+
+
+================================================================================
+PANEL                                                          *assistant.panel*
+
+Panel is a core component of |assistant.wizard| which manages overview of
+available testcases, Below is an example of creating a simple panel:
+>lua
+  require('assistant.lib.panel').new {
+    canvas = require('assistant.lib.canvas').new {
+      fn = function(bufnr)
+        -- canvas.set function
+      end,
+      gn = function(bufnr, winid)
+        -- canvas.get function
+      end
+    }
+  }
+<
+
+Panel takes an |assistant.canvas| which consists of two functions:
+  1. `setter` renders testcases in your defined format.
+  1. `getter` returns testcase ID on which cursor is currently holding on.
+
+`getter` is optional while creating canvas but mandatory in case of panel.
+
+
+================================================================================
+PREVIEWER                                                  *assistant.previewer*
+
+Previewer is a core component of |assistant.wizard| which manages details of a
+testcase corresponding to the `testcase ID` provided by |assistant.panel|.
+
+Example of creating previewer:
+>lua
+  require('assistant.lib.previewer').new {
+    canvas = require('assistant.lib.previewer').new {
+      fn = function(bufnr, testcase)
+        -- canvas.set function
+      end,
+    }
+  }
+<
+
+Previewer takes an |assistant.canvas| which consists of only one `setter`
+function which renders testcase details in your defined format. Unlike
+|assistant.panel|, |assistant.previewer| doesn't need any getter because there
+is nothing to be query from the previewer yet.
+
+
+================================================================================
+CANVAS                                                        *assistant.canvas*
+
+Canvas module handle two things:
+  1. Displays provided data in the corresponding buffers.
+  2. Query results from the same buffer where it displays data.
+
+Exmaple of canvas for |assistant.panel|:
+>lua
+  require('assistant.lib.canvas').new {
+    fn = function(bufnr, testcases)
+      local text = require('assistant.lib.text').new {}
+      local gap = 5
+      local get_group = setmetatable({ AC = 'AssistantSuccess', WA = 'AssistantFailure' }, {
+        __index = function()
+          return 'AssistantWarning'
+        end,
+      })
+
+      for i, testcase in ipairs(testcases or {}) do
+        if testcase.selected then
+          text:append(' ', 'AssistantFailure')
+        else
+          text:append('  ', 'AssistantParagraph')
+        end
+
+        text:append(string.format('Testcase #%d', i), 'AssistantParagraph')
+        text:append(string.rep(' ', gap), 'AssistantParagraph')
+
+        if testcase.status then
+          text:append(testcase.status or 'UNKNOWN', get_group[testcase.status])
+        end
+
+        text:append(string.rep(' ', gap), 'AssistantParagraph')
+        if testcase.time_taken then
+          text:append(string.format('%.3f', testcase.time_taken or 0), 'AssistantParagraph')
+        end
+
+        if i < #testcases then
+          text:nl()
+        end
+      end
+
+      text:render(bufnr)
+    end,
+    gn = function(bufnr, winid)
+      if not (bufnr and vim.api.nvim_buf_is_valid(bufnr)) then
+        return nil
+      end
+      local cursor_position = vim.api.nvim_win_get_cursor(winid)
+      local current_line = vim.api.nvim_buf_get_lines(bufnr, cursor_position[1] - 1, cursor_position[1], false)
+      return tonumber(current_line[1]:match '^%s*.+%s*Testcase #(%d+)')
+    end,
+  }
+<
+
+Example of canvas for |assistant.previewer|:
+>lua
+  require('assistant.lib.canvas').new {
+    fn = function(bufnr, testcase)
+      local utils = require 'assistant.utils'
+      local text = require('assistant.lib.text').new {}
+
+      if testcase.input and #testcase.input ~= 0 then
+        text:append('Input', 'AssistantHeading'):nl(2)
+
+        for _, line in ipairs(utils.slice_first_n_lines(testcase.input or '', 100)) do
+          if line then
+            text:append(line, 'AssistantParagraph'):nl()
+          end
+        end
+
+        text:nl()
+        local _, cnt = string.gsub(testcase.input or '', '\n', '')
+
+        if cnt > 100 then
+          text:append('-- REACHED MAXIMUM RENDER LIMIT --', 'AssistantFailure')
+        end
+      end
+
+      if testcase.output and #testcase.output ~= 0 then
+        text:append('Expect', 'AssistantHeading'):nl(2)
+
+        for _, line in ipairs(utils.slice_first_n_lines(testcase.output or '', 100)) do
+          if line then
+            text:append(line, 'AssistantParagraph'):nl()
+          end
+        end
+
+        text:nl()
+        local _, cnt = string.gsub(testcase.output or '', '\n', '')
+
+        if cnt > 100 then
+          text:append('-- REACHED MAXIMUM RENDER LIMIT --', 'AssistantFailure')
+        end
+      end
+
+      if testcase.stdout and #testcase.stdout ~= 0 then
+        text:append('Stdout', 'AssistantHeading'):nl(2)
+
+        if require('assistant.config').values.ui.diff_mode then
+          for _, line in
+            ipairs(require('assistant.algos.diff').get_higlighted_text(testcase.output, testcase.stdout))
+          do
+            if vim.tbl_isempty(line or {}) then
+              text:nl()
+            else
+              text:append(line.str, line.hl)
+            end
+          end
+        else
+          for _, line in ipairs(utils.slice_first_n_lines(testcase.stdout, 100)) do
+            if line then
+              text:append(line, 'AssistantParagraph'):nl()
+            end
+          end
+
+          text:nl()
+          local _, cnt = string.gsub(testcase.stdout or '', '\n', '')
+
+          if cnt > 100 then
+            text:append('-- REACHED MAXIMUM RENDER LIMIT --', 'AssistantFailure')
+          end
+        end
+      end
+
+      if testcase.stderr and #testcase.stderr ~= 0 then
+        text:nl():append('Stderr', 'AssistantHeading'):nl(2)
+
+        for _, line in ipairs(utils.slice_first_n_lines(testcase.stderr, 100)) do
+          if line then
+            text:append(line, 'AssistantParagraph'):nl()
+          end
+        end
+
+        text:nl()
+        local _, cnt = string.gsub(testcase.stderr or '', '\n', '')
+
+        if cnt > 100 then
+          text:append('-- REACHED MAXIMUM RENDER LIMIT --', 'AssistantFailure')
+        end
+      end
+
+      text:render(bufnr)
+    end,
   }
 <
 
