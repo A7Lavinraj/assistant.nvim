@@ -110,6 +110,7 @@
     core = {
         process_budget = 5000,
         port = 10043,
+        filename_generator = nil
     },
 }
 ```
