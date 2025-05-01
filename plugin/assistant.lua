@@ -26,6 +26,9 @@ vim.api.nvim_create_autocmd('VimResized', {
     for _, window in pairs {
       panel = state.get_local_key 'assistant-panel-window',
       previewer = state.get_local_key 'assistant-previewer-window',
+      picker = state.get_local_key 'assistant-picker-window',
+      patcher = state.get_local_key 'assistant-patcher-window',
+      dialog = state.get_local_key 'assistant-dialog-window',
     } do
       if window and window.winid and vim.api.nvim_win_is_valid(window.winid) then
         utils.set_win_config(window.winid, utils.get_win_config(window))
