@@ -50,8 +50,22 @@ function Schedular:start_processing()
 
       if co and coroutine.status(co) == 'suspended' then
         self.process_count = self.process_count + 1
+
         coroutine.resume(co)
-        self.process_count = self.process_count - 1
+
+        if coroutine.status(co) == 'dead' then
+          self.process_count = self.process_count - 1
+        else
+          vim.defer_fn(function()
+            if coroutine.status(co) == 'dead' then
+              self.process_count = self.process_count - 1
+            else
+              vim.defer_fn(function()
+                process()
+              end, 10)
+            end
+          end, 10)
+        end
       end
 
       vim.schedule(process)
