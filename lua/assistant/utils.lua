@@ -31,16 +31,17 @@ end
 ---@param str string
 function utils.to_snake_case(str)
   return str
-    :gsub('(%s)', '_')
-    :gsub('(%u%l)', '_%1')
-    :gsub('(%l)(%u)', '%1_%2')
-    :gsub('^_', '')
     :gsub('^%s*(.-)%s*$', '%1')
-    :gsub('%s+', '_')
+    :gsub('[^%w%s_]', '')
+    :gsub('(%u+)(%u%l)', '%1_%2')
     :gsub('(%l)(%u)', '%1_%2')
-    :gsub('(%l)(%d)', '%1_%2')
-    :gsub('(%d)(%l)', '%1_%2')
-    :gsub('(%d)(%u)', '%1_%2')
+    :gsub('(%d)(%a)', '%1_%2')
+    :gsub('(%a)(%d)', '%1_%2')
+    :gsub('%s+', '_')
+    :gsub('_+', '_')
+    :gsub('^_', '')
+    :gsub('_$', '')
+    :lower()
 end
 
 ---@param str string

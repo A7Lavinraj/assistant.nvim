@@ -1,6 +1,7 @@
 ---@class Assistant.Config.Core
 ---@field process_budget integer
 ---@field port integer
+---@field filename_generator fun(str: string): string
 
 ---@class Assistant.Config.UI
 ---@field border string

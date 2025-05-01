@@ -139,8 +139,10 @@ local function start_server()
             table.insert(sources, key)
           end
 
+          local generator = config.values.core.filename_generator or utils.to_snake_case
+
           picker:pick(sources, { prompt = 'source' }, function(source)
-            local testcase_class_snake = utils.to_snake_case(data.languages.java.taskClass)
+            local testcase_class_snake = generator(data.languages.java.taskClass)
             local filepath = string.format('%s/.ast/%s.json', fs.find_root() or fs.make_root(), testcase_class_snake)
             fs.write(filepath, chunk)
 
