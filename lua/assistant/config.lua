@@ -6,22 +6,15 @@
 ---@field border string
 ---@field diff_mode boolean
 
----@class Assistant.Config.Defaults
----@field mappings? table<string, table<"i"|"n"|"v", table<string, Assistant.Action|function>>>
+---@class Assistant.Config
+---@field mappings table<string, table<"i"|"n"|"v", table<string, Assistant.Action|function>>>
 ---@field commands table<string, Assistant.Processor.SourceConfig>
 ---@field ui Assistant.Config.UI
 ---@field core Assistant.Config.Core
 
----@class Assistant.Config
----@field private _defaults Assistant.Config.Defaults
----@field namespace integer
----@field opts Assistant.Config.Defaults
-local M = {}
+local config = {}
 
-M.namespace = vim.api.nvim_create_namespace 'assistant-nvim'
-M.augroup = vim.api.nvim_create_augroup('assistant-nvim', { clear = true })
-
-M._defaults = {
+local defaults = {
   commands = {
     python = {
       extension = 'py',
@@ -53,8 +46,11 @@ M._defaults = {
   },
 }
 
-function M.overwrite(opts)
-  M.values = vim.tbl_deep_extend('force', M._defaults, opts or {})
+---@param opts? Assistant.Config
+function config.overwrite(opts)
+  config.values = vim.tbl_deep_extend('force', defaults, opts or {})
+  config.namespace = vim.api.nvim_create_namespace 'assistant-nvim'
+  config.augroup = vim.api.nvim_create_augroup('assistant-nvim', { clear = true })
 end
 
-return M
+return config
