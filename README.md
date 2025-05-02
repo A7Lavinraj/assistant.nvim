@@ -117,6 +117,11 @@
 
 <br>
 
+<h4 align="center">
+  <span>Explore more about assistant on</span>
+  <a href="https://github.com/A7Lavinraj/assistant.nvim/wiki">Wiki</a>
+</h4>
+
 <div align="center">
   <h2>Want to contribute?</h2>
 
