@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="128" height="128" alt='Assistant.nvim Logo' src="https://github.com/user-attachments/assets/97e16790-cefd-4e3f-993f-78f05895234c" />
+  <img width="128" height="128" alt='Assistant.nvim Logo' src="https://github.com/user-attachments/assets/720b55eb-9fa3-4eb7-9bc0-a439859d007f" />
 </p>
 
 <h1 align="center">Assistant.nvim</h1>
