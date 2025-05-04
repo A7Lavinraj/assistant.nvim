@@ -1,51 +1,9 @@
+local Process = require 'assistant.lib.process'
 local Scheduler = require 'assistant.algos.scheduler'
 local utils = require 'assistant.utils'
 local luv = vim.uv or vim.loop
 local scheduler = Scheduler.new()
 local Processor = {}
-
----@alias Assistant.Processor.Command { main?: string, args?: string[] }
-
----@class Assistant.Processor.SourceConfig
----@field extension string
----@field compile? Assistant.Processor.Command
----@field execute? Assistant.Processor.Command
----@field template? string
-
----@return Assistant.Processor.SourceConfig
-local function get_source_config()
-  local state = require 'assistant.state'
-  local config = require 'assistant.config'
-  ---@param str string
-  ---@return string, integer
-  local function format(str)
-    local filename = state.get_local_key 'filename'
-    local extension = state.get_local_key 'extension'
-    return str
-      :gsub('%$FILENAME_WITH_EXTENSION', string.format('%s.%s', filename, extension))
-      :gsub('%$FILENAME_WITHOUT_EXTENSION', filename)
-  end
-
-  local command = vim.deepcopy(config.values.commands[state.get_local_key 'filetype'])
-
-  if command.compile then
-    command.compile.main = format(command.compile.main)
-
-    for i = 1, #command.compile.args do
-      command.compile.args[i] = format(command.compile.args[i])
-    end
-  end
-
-  if command.execute then
-    command.execute.main = format(command.execute.main)
-
-    for i = 1, #(command.execute.args or {}) do
-      command.execute.args[i] = format(command.execute.args[i])
-    end
-  end
-
-  return command
-end
 
 ---@class Assistant.Processor.Logs
 ---@field stdout string
@@ -53,118 +11,119 @@ end
 ---@field process_started_at integer
 ---@field process_ended_at integer
 
----@param cmd Assistant.Processor.Command
+---@param command Assistant.Processor.Command
 ---@param stdin? string
 ---@param on_exit fun(code: integer, signal: integer, logs: Assistant.Processor.Logs)
----@return thread
-local function get_process(cmd, stdin, on_exit)
+---@return Assistant.Process
+local function get_process(command, stdin, on_exit)
   ---@param data string
   ---@return string
   local function get_stream_data(data)
     return table.concat(vim.split(string.gsub(data, '\r\n', '\n'), '\n', { plain = true }), '\n')
   end
 
-  return coroutine.create(function()
-    if not cmd then
-      on_exit(0, 0, {
-        stdout = '',
-        stderr = '',
-        process_started_at = 0,
-        process_ended_at = 0,
-      })
-      return
-    end
+  return Process.new {
+    _co = coroutine.create(function()
+      if command then
+        local stdio = {
+          luv.new_pipe(false),
+          luv.new_pipe(false),
+          luv.new_pipe(false),
+        }
 
-    local stdio = {
-      luv.new_pipe(false),
-      luv.new_pipe(false),
-      luv.new_pipe(false),
-    }
+        local logs = {
+          stdout = '',
+          stderr = '',
+        }
 
-    local logs = {
-      stdout = '',
-      stderr = '',
-    }
+        local process = {
+          timer = luv.new_timer(),
+        }
 
-    local process = {
-      timer = luv.new_timer(),
-    }
+        local co = coroutine.running()
 
-    local co = coroutine.running()
+        ---@diagnostic disable-next-line: missing-fields
+        process.handle, process.pid = luv.spawn(command.main, {
+          args = command.args,
+          stdio = stdio,
+        }, function(code, signal)
+          for _, pipe in ipairs(stdio) do
+            if not luv.is_closing(pipe) then
+              luv.close(pipe)
+            end
+          end
 
-    ---@diagnostic disable-next-line: missing-fields
-    process.handle, process.pid = luv.spawn(cmd.main, {
-      args = cmd.args,
-      stdio = stdio,
-    }, function(code, signal)
-      for _, pipe in ipairs(stdio) do
-        if not luv.is_closing(pipe) then
-          luv.close(pipe)
+          if not luv.is_closing(process.timer) then
+            logs.process_ended_at = luv.now()
+            luv.close(process.timer)
+          end
+
+          if coroutine.status(co) == 'suspended' then
+            coroutine.resume(co)
+          end
+
+          on_exit(code, signal, logs)
+        end)
+
+        logs.process_started_at = luv.now()
+        process.timer:start(require('assistant.config').values.core.process_budget, 0, function()
+          if not process.timer:is_closing() then
+            logs.process_ended_at = luv.now()
+            process.timer:close()
+          end
+
+          if process.handle and process.handle:is_active() then
+            luv.kill(process.pid, 15)
+          end
+        end)
+
+        luv.read_start(stdio[2], function(err, chunk)
+          if err or not chunk then
+            luv.read_stop(stdio[2])
+
+            if not luv.is_closing(stdio[2]) then
+              luv.close(stdio[2])
+            end
+          else
+            logs.stdout = logs.stdout .. get_stream_data(chunk)
+          end
+        end)
+
+        luv.read_start(stdio[3], function(err, chunk)
+          if err or not chunk then
+            luv.read_stop(stdio[3])
+
+            if not luv.is_closing(stdio[3]) then
+              luv.close(stdio[3])
+            end
+          else
+            logs.stderr = logs.stderr .. get_stream_data(chunk)
+          end
+        end)
+
+        if stdin then
+          luv.write(stdio[1], stdin, function()
+            if not luv.is_closing(stdio[1]) then
+              luv.close(stdio[1])
+            end
+          end)
+        else
+          if not luv.is_closing(stdio[1]) then
+            luv.close(stdio[1])
+          end
         end
-      end
 
-      if not luv.is_closing(process.timer) then
-        logs.process_ended_at = luv.now()
-        luv.close(process.timer)
-      end
-
-      if coroutine.status(co) == 'suspended' then
-        coroutine.resume(co)
-      end
-
-      on_exit(code, signal, logs)
-    end)
-
-    logs.process_started_at = luv.now()
-    process.timer:start(require('assistant.config').values.core.process_budget, 0, function()
-      if not process.timer:is_closing() then
-        logs.process_ended_at = luv.now()
-        process.timer:close()
-      end
-
-      if process.handle and process.handle:is_active() then
-        luv.kill(process.pid, 15)
-      end
-    end)
-
-    luv.read_start(stdio[2], function(err, chunk)
-      if err or not chunk then
-        luv.read_stop(stdio[2])
-
-        if not luv.is_closing(stdio[2]) then
-          luv.close(stdio[2])
-        end
+        coroutine.yield()
       else
-        logs.stdout = logs.stdout .. get_stream_data(chunk)
+        on_exit(0, 0, {
+          stdout = '',
+          stderr = '',
+          process_started_at = 0,
+          process_ended_at = 0,
+        })
       end
-    end)
-
-    luv.read_start(stdio[3], function(err, chunk)
-      if err or not chunk then
-        luv.read_stop(stdio[3])
-
-        if not luv.is_closing(stdio[3]) then
-          luv.close(stdio[3])
-        end
-      else
-        logs.stderr = logs.stderr .. get_stream_data(chunk)
-      end
-    end)
-
-    if stdin then
-      luv.write(stdio[1], stdin, function()
-        if not luv.is_closing(stdio[1]) then
-          luv.close(stdio[1])
-        end
-      end)
-    else
-      if not luv.is_closing(stdio[1]) then
-        luv.close(stdio[1])
-      end
-    end
-
-    coroutine.yield()
-  end)
+    end),
+  }
 end
 
 ---@param str_a string
@@ -221,9 +180,9 @@ function Processor.run_testcases(testcase_IDS)
   local dialog = require('assistant.builtins.__dialog').standard
   local panel_window = state.get_local_key 'assistant-panel-window'
   local panel_canvas = state.get_local_key 'assistant-panel-canvas'
-  local cmd = get_source_config()
+  local command = utils.get_source_config()
 
-  scheduler:schedule(get_process(cmd.compile, nil, function(build_code, build_signal, build_logs)
+  scheduler:schedule(get_process(command.compile, nil, function(build_code, build_signal, build_logs)
     vim.schedule(function()
       utils.set_win_config(panel_window.winid, {
         title = {
@@ -248,7 +207,7 @@ function Processor.run_testcases(testcase_IDS)
       local testcase = testcases[testcase_ID]
 
       scheduler:schedule(
-        get_process(cmd.execute, testcases[testcase_ID].input, function(exec_code, exec_signal, exec_logs)
+        get_process(command.execute, testcases[testcase_ID].input, function(exec_code, exec_signal, exec_logs)
           local exec_status = get_process_status(exec_code, exec_signal)
 
           testcase.stdout = exec_logs.stdout
@@ -275,13 +234,15 @@ function Processor.run_testcases(testcase_IDS)
     end
   end))
 
-  utils.set_win_config(panel_window.winid, {
-    title = {
-      { ' Panel', 'AssistantTitle' },
-      { string.format(' (%s)', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
-      { ' COMPILING ', 'AssistantWarning' },
-    },
-  })
+  vim.schedule(function()
+    utils.set_win_config(panel_window.winid, {
+      title = {
+        { ' Panel', 'AssistantTitle' },
+        { string.format(' (%s)', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
+        { ' COMPILING ', 'AssistantWarning' },
+      },
+    })
+  end)
 end
 
 return Processor

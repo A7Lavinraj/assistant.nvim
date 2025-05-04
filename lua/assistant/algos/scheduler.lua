@@ -1,3 +1,5 @@
+local Queue = require 'assistant.algos.queue'
+
 ---@class Assistant.Scheduler.Options
 ---@field max_parallelism? integer
 
@@ -19,11 +21,11 @@ function Schedular:init(opts)
   self.max_parallelism = opts.max_parallelism or luv.available_parallelism()
   self.is_running = false
   self.process_count = 0
-  self.queue = require('assistant.algos.queue').new()
+  self.queue = Queue.new()
   return self
 end
 
----@param process thread
+---@param process Assistant.Process
 function Schedular:schedule(process)
   self.queue:push(process)
 
@@ -39,42 +41,30 @@ function Schedular:start_processing()
 
   self.is_running = true
 
-  local function process()
+  local function process_loop()
     if self.queue:empty() then
       self.is_running = false
       return
     end
 
     if self.process_count < self.max_parallelism then
-      local co = self.queue:pop()
+      local process = self.queue:pop() ---@type Assistant.Process
 
-      if co and coroutine.status(co) == 'suspended' then
+      if process and process:is_suspended() then
         self.process_count = self.process_count + 1
 
-        coroutine.resume(co)
-
-        if coroutine.status(co) == 'dead' then
+        process:spawn(function()
           self.process_count = self.process_count - 1
-        else
-          vim.defer_fn(function()
-            if coroutine.status(co) == 'dead' then
-              self.process_count = self.process_count - 1
-            else
-              vim.defer_fn(function()
-                process()
-              end, 10)
-            end
-          end, 10)
-        end
+        end)
       end
 
-      vim.schedule(process)
+      vim.schedule(process_loop)
     else
-      vim.defer_fn(process, 10)
+      vim.defer_fn(process_loop, 10)
     end
   end
 
-  vim.schedule(process)
+  vim.schedule(process_loop)
 end
 
 return Schedular
