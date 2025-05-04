@@ -45,29 +45,28 @@
 
 ## Installation Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
-### latest setup
+### latest version
 
 ```lua
 {
-    "A7lavinraj/assistant.nvim",
+    'A7lavinraj/assistant.nvim',
     lazy = false,
     keys = {
-        { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
+        { '<leader>a', '<cmd>Assistant<cr>', desc = 'Assistant.nvim' }
     },
     opts = {}
 }
 ```
 
-### stable setup
+### stable version
 
 ```lua
 {
-    "A7lavinraj/assistant.nvim",
-    commit = "70f5d65b4af38945962a3409a1c4a343cdd6e003",
-    dependencies = { "folke/snacks.nvim" },
+    'A7lavinraj/assistant.nvim',
+    branch = 'stable',
     lazy = false,
     keys = {
-        { "<leader>a", "<cmd>Assistant<cr>", desc = "Assistant.nvim" }
+        { '<leader>a', '<cmd>Assistant<cr>', desc = 'Assistant.nvim' }
     },
     opts = {}
 }
