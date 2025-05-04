@@ -61,12 +61,17 @@ function actions.run_testcases()
 
   if vim.tbl_isempty(selected) then
     local testcase_ID = get_cur_testcase_ID()
+
     if testcase_ID then
       processor.run_testcases { testcase_ID }
     end
   else
     processor.run_testcases(selected)
   end
+end
+
+function actions.run_interactive()
+  require('assistant.lib.terminal').new({ command = utils.get_source_config().execute }):spawn()
 end
 
 function actions.toggle_cur_selection()
@@ -194,17 +199,17 @@ function actions.which_key()
     v = 'Visual',
   }
 
-  text:append('Press following described keys to execute corresponding action', 'AssistantBorder'):nl(2)
+  text:append('"MODE" | "KEY" | "ACTION"', 'AssistantBorder'):nl(2)
 
   for interface, mapping in pairs(mappings) do
-    text:append(string.rep(' ', 15) .. interface:upper() .. string.rep(' ', 15), 'AssistantTitle'):nl()
+    text:append(string.format(' %s ', interface) .. string.rep('─', 34), 'AssistantTitle'):nl()
 
     for mode, keys in pairs(mapping) do
       for k, v in pairs(keys) do
         text
           :append('  ', 'AssistantBorder')
           :append(mode_map[mode] .. string.rep(' ', gap), 'AssistantBorder')
-          :append('  ', 'AssistantHeading')
+          :append('   ', 'AssistantHeading')
           :append(k .. string.rep(' ', 2 * gap - #k), 'AssistantHeading')
           :append(' 󱐌 ', 'String')
           :append(v:get_name(), 'String')
@@ -214,7 +219,7 @@ function actions.which_key()
     text:nl(2)
   end
 
-  require('assistant.builtins.__dialog').standard:display(text, { prompt = 'which key' })
+  require('assistant.builtins.__dialog').standard:display(text, { prompt = 'Which Key ?' })
 end
 
 return require('assistant.lib.action').transform_mod(actions)

@@ -18,6 +18,7 @@ mappings.default_mappings = vim.tbl_deep_extend('force', {
       ['q'] = actions.close_current,
       ['<ESC>'] = actions.close_current,
       ['<C-c>'] = actions.close_current,
+      ['i'] = actions.run_interactive,
       ['r'] = actions.run_testcases,
       ['s'] = actions.toggle_cur_selection,
       ['a'] = actions.toggle_all_selection,

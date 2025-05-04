@@ -184,4 +184,44 @@ function utils.get_win_config(window)
   }
 end
 
+---@class Assistant.Processor.SourceConfig
+---@field extension string
+---@field compile? Assistant.Processor.Command
+---@field execute? Assistant.Processor.Command
+---@field template? string
+
+---@return Assistant.Processor.SourceConfig
+function utils.get_source_config()
+  local state = require 'assistant.state'
+  ---@param str string
+  ---@return string, integer
+  local function format(str)
+    local filename = state.get_local_key 'filename'
+    local extension = state.get_local_key 'extension'
+    return str
+      :gsub('%$FILENAME_WITH_EXTENSION', string.format('%s.%s', filename, extension))
+      :gsub('%$FILENAME_WITHOUT_EXTENSION', filename)
+  end
+
+  local command = vim.deepcopy(config.values.commands[state.get_local_key 'filetype'])
+
+  if command.compile then
+    command.compile.main = format(command.compile.main)
+
+    for i = 1, #command.compile.args do
+      command.compile.args[i] = format(command.compile.args[i])
+    end
+  end
+
+  if command.execute then
+    command.execute.main = format(command.execute.main)
+
+    for i = 1, #(command.execute.args or {}) do
+      command.execute.args[i] = format(command.execute.args[i])
+    end
+  end
+
+  return command
+end
+
 return utils
