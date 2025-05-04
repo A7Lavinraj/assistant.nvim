@@ -41,7 +41,7 @@ function Patcher:update(content, options, on_update)
     enter = true,
     zindex = 2,
     width = function(vw, _)
-      return math.ceil(vw * 0.85) + 3
+      return math.ceil(vw * 0.85) + 2
     end,
     height = function(_, vh)
       return math.ceil(vh * 0.65)
@@ -66,11 +66,21 @@ function Patcher:update(content, options, on_update)
   })
 
   utils.set_win_config(patcher_window.winid, {
-    title = string.format(' %s ', options.self or 'patcher'),
+    title = string.format(' %s ', options.self or 'Patcher'),
     title_pos = 'center',
   })
 
   utils.set_buf_option(patcher_window, 'filetype', 'assistant-patcher')
+
+  utils.set_win_option(
+    patcher_window,
+    'winhighlight',
+    table.concat({
+      'Normal:AssistantNormal',
+      'FloatBorder:AssistantBorder',
+      'FloatTitle:AssistantTitle',
+    }, ',')
+  )
 
   utils.set_keymap {
     mode = 'n',

@@ -41,7 +41,7 @@ function Dialog:display(content, options)
     enter = true,
     zindex = 2,
     width = function(vw, _)
-      return math.ceil(vw * 0.85) + 3
+      return math.ceil(vw * 0.85) + 2
     end,
     height = function(_, vh)
       return math.ceil(vh * 0.65)
@@ -73,6 +73,16 @@ function Dialog:display(content, options)
 
   utils.set_buf_option(dialog_window, 'modifiable', false)
   utils.set_buf_option(dialog_window, 'filetype', 'assistant-dialog')
+
+  utils.set_win_option(
+    dialog_window,
+    'winhighlight',
+    table.concat({
+      'Normal:AssistantNormal',
+      'FloatBorder:AssistantBorder',
+      'FloatTitle:AssistantTitle',
+    }, ',')
+  )
 
   for mode, mappings in pairs(require('assistant.mappings').default_mappings.dialog or {}) do
     for k, v in pairs(mappings) do
