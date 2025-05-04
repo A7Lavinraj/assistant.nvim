@@ -75,6 +75,15 @@ function Picker:pick(items, options, on_choice)
   utils.set_buf_option(picker_window, 'filetype', 'assistant-picker')
 
   utils.set_win_option(picker_window, 'cursorline', true)
+  utils.set_win_option(
+    picker_window,
+    'winhighlight',
+    table.concat({
+      'Normal:AssistantNormal',
+      'FloatBorder:AssistantBorder',
+      'FloatTitle:AssistantTitle',
+    }, ',')
+  )
 
   utils.set_keymap {
     mode = 'n',
