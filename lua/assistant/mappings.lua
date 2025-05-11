@@ -2,7 +2,7 @@ local actions = require 'assistant.actions'
 local config = require 'assistant.config'
 local mappings = {}
 
-mappings.default_mappings = vim.tbl_deep_extend('force', {
+mappings.default_mappings = {
   picker = {
     n = {
       ['?'] = actions.which_key,
@@ -53,6 +53,16 @@ mappings.default_mappings = vim.tbl_deep_extend('force', {
       ['<C-c>'] = actions.close_current,
     },
   },
-}, config.values.mappings or {})
+}
+
+if not vim.tbl_isempty(config.values.mappings or {}) then
+  for window, map_group in pairs(config.values.mappings or {}) do
+    for mode, mapping in pairs(map_group) do
+      for k, v in pairs(mapping) do
+        mappings.default_mappings[window][mode][k] = v
+      end
+    end
+  end
+end
 
 return mappings
