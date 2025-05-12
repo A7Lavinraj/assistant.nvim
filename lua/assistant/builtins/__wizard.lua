@@ -3,7 +3,6 @@ local Panel = require 'assistant.lib.panel'
 local Previewer = require 'assistant.lib.previewer'
 local Text = require 'assistant.lib.text'
 local Wizard = require 'assistant.lib.wizard'
-local state = require 'assistant.state'
 local wizard = {}
 
 function wizard.standard()
@@ -12,9 +11,8 @@ function wizard.standard()
     height = 0.65,
     panel = Panel.new {
       canvas = Canvas.new {
-        fn = function(bufnr)
+        fn = function(bufnr, testcases)
           local text = Text.new {}
-          local testcases = state.get_global_key 'tests'
           local gap = 5
           local get_group = setmetatable({ AC = 'AssistantSuccess', WA = 'AssistantFailure' }, {
             __index = function()

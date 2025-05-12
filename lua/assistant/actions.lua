@@ -84,7 +84,7 @@ function actions.toggle_cur_selection()
     testcase.selected = not testcase.selected
 
     vim.schedule(function()
-      panel_canvas:set(panel_window.bufnr)
+      panel_canvas:set(panel_window.bufnr, state.get_global_key 'tests')
     end)
   end
 end
@@ -120,7 +120,7 @@ function actions.toggle_all_selection()
   local panel_canvas = state.get_local_key 'assistant-panel-canvas'
 
   vim.schedule(function()
-    panel_canvas:set(panel_window.bufnr)
+    panel_canvas:set(panel_window.bufnr, testcases)
   end)
 end
 
@@ -131,7 +131,7 @@ function actions.create_new_testcase()
   table.insert(state.get_global_key 'tests', { input = '', output = '' })
 
   vim.schedule(function()
-    panel_canvas:set(panel_window.bufnr)
+    panel_canvas:set(panel_window.bufnr, state.get_global_key 'tests')
   end)
 end
 
@@ -165,7 +165,7 @@ function actions.remove_testcases()
   local panel_canvas = state.get_local_key 'assistant-panel-canvas'
 
   vim.schedule(function()
-    panel_canvas:set(panel_window.bufnr)
+    panel_canvas:set(panel_window.bufnr, testcases)
   end)
 end
 

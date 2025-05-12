@@ -126,7 +126,7 @@ available testcases, Below is an example of creating a simple panel:
 >lua
   require('assistant.lib.panel').new {
     canvas = require('assistant.lib.canvas').new {
-      fn = function(bufnr)
+      fn = function(bufnr, testcases)
         -- canvas.set function
       end,
       gn = function(bufnr, winid)

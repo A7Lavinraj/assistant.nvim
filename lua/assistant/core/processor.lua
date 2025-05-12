@@ -221,7 +221,7 @@ function Processor.run_testcases(testcase_IDS)
           end
 
           vim.schedule(function()
-            panel_canvas:set(panel_window.bufnr)
+            panel_canvas:set(panel_window.bufnr, testcases)
           end)
         end)
       )
@@ -229,7 +229,7 @@ function Processor.run_testcases(testcase_IDS)
       testcases[testcase_ID].status = 'RN'
 
       vim.schedule(function()
-        panel_canvas:set(panel_window.bufnr)
+        panel_canvas:set(panel_window.bufnr, testcases)
       end)
     end
   end))

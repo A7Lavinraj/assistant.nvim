@@ -180,7 +180,7 @@ function Wizard:show()
     end
   end
 
-  self.panel.canvas:set(self.panel_window.bufnr)
+  self.panel.canvas:set(self.panel_window.bufnr, state.get_global_key 'tests')
 end
 
 function Wizard:hide()
