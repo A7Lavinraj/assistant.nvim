@@ -9,7 +9,6 @@ mappings.default_mappings = {
       ['q'] = actions.close_current,
       ['<ESC>'] = actions.close_current,
       ['<C-c>'] = actions.close_current,
-      ['<CR>'] = actions.picker_select,
     },
   },
   panel = {
