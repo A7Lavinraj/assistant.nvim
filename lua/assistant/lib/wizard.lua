@@ -53,6 +53,7 @@ function Wizard:show()
   state.set_local_key('assistant-previewer-window', nil)
   state.set_local_key('assistant-panel-canvas', nil)
   state.set_local_key('assistant-previewer-canvas', nil)
+  state.set_local_key('status', {})
 
   self.panel_window = Window.new {
     enter = true,

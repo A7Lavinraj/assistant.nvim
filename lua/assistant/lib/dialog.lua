@@ -41,7 +41,7 @@ function Dialog:display(content, options)
     enter = true,
     zindex = 2,
     width = function(vw, _)
-      return math.ceil(vw * 0.85) + 2
+      return math.ceil(vw * 0.85) + 3
     end,
     height = function(_, vh)
       return math.ceil(vh * 0.65)
