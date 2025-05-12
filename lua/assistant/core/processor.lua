@@ -181,6 +181,7 @@ function Processor.run_testcases(testcase_IDS)
   local panel_window = state.get_local_key 'assistant-panel-window'
   local panel_canvas = state.get_local_key 'assistant-panel-canvas'
   local command = utils.get_source_config()
+  local status = state.get_local_key 'status'
 
   scheduler:schedule(get_process(command.compile, nil, function(build_code, build_signal, build_logs)
     vim.schedule(function()
@@ -195,6 +196,9 @@ function Processor.run_testcases(testcase_IDS)
     local build_status = get_process_status(build_code, build_signal)
 
     if build_status ~= 'OK' then
+      status.panel = string.format('Compilation(%s) - FA', state.get_local_key 'filename')
+      status.dialog = 'Build Error!'
+
       vim.schedule(function()
         dialog:display(build_logs.stderr or build_logs.stdout, { prompt = ' Dialog - Build Error ' })
       end)
@@ -220,6 +224,8 @@ function Processor.run_testcases(testcase_IDS)
             testcase.status = exec_status
           end
 
+          status.panel = string.format('Execution(testcase #%d) - %s', testcase_ID, testcase.status)
+
           vim.schedule(function()
             panel_canvas:set(panel_window.bufnr, testcases)
           end)
@@ -228,11 +234,14 @@ function Processor.run_testcases(testcase_IDS)
 
       testcases[testcase_ID].status = 'RN'
 
+      status.panel = string.format('Execution(testcase #%d) - RN', testcase_ID)
       vim.schedule(function()
         panel_canvas:set(panel_window.bufnr, testcases)
       end)
     end
   end))
+
+  status.panel = string.format('Compilation(%s) - RN', state.get_local_key 'filename')
 
   vim.schedule(function()
     utils.set_win_config(panel_window.winid, {

@@ -1,3 +1,4 @@
+local state = require 'assistant.state'
 local M = {}
 
 ---@param opts Assistant.Config
@@ -8,6 +9,11 @@ function M.setup(opts)
   vim.api.nvim_create_user_command('Assistant', function()
     require('assistant.builtins.__wizard').standard()
   end, { nargs = 0 })
+end
+
+---@return table
+function M.status()
+  return state.get_local_key 'status' or {}
 end
 
 return M

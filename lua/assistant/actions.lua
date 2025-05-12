@@ -179,6 +179,8 @@ function actions.patch_testcase()
 
     local testcases = state.get_global_key 'tests'
 
+    state.get_local_key('status').patcher = string.format('Patching(%s)', choice)
+
     require('assistant.builtins.__patcher').standard:update(
       testcases[testcase_ID][choice] or '',
       { prompt = choice },
@@ -187,6 +189,8 @@ function actions.patch_testcase()
       end
     )
   end)
+
+  state.get_local_key('status').picker = 'Picking(field)'
 end
 
 function actions.which_key()
@@ -218,6 +222,8 @@ function actions.which_key()
     end
     text:nl(2)
   end
+
+  state.get_local_key('status').dialog = 'Which Key'
 
   require('assistant.builtins.__dialog').standard:display(text, { prompt = 'Which Key ?' })
 end
