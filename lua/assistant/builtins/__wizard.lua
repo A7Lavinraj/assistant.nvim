@@ -101,11 +101,13 @@ wizard.standard = Wizard.new {
           text:append('Stdout', 'AssistantHeading'):nl(2)
 
           if require('assistant.config').values.ui.diff_mode then
-            for _, line in ipairs(require('assistant.algos.diff').get_higlighted_text(testcase.output, testcase.stdout)) do
-              if vim.tbl_isempty(line or {}) then
+            for _, hl_line in
+              ipairs(require('assistant.algos.diff').get_higlighted_text(testcase.output, testcase.stdout))
+            do
+              if vim.tbl_isempty(hl_line or {}) then
                 text:nl()
               else
-                text:append(line.str, line.hl)
+                text:append(hl_line.str, hl_line.hl)
               end
             end
           else
