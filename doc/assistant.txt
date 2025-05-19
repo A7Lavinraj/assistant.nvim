@@ -1,4 +1,15 @@
 ================================================================================
+CONTENTS                                                    *assistant.contents*
+
+1. Introduction                                                 |assistant.nvim|
+2. Configuration                                              |assistant.config|
+3. TCP Server                                                    |assistant.tcp|
+4. Wizard                                                     |assistant.wizard|
+5. Panel                                                       |assistant.panel|
+6. Previewer                                               |assistant.previewer|
+7. Canvas                                                     |assistant.canvas|
+
+================================================================================
 INTRODUCTION                                                    *assistant.nvim*
 
 Assistant.nvim is a modern neovim plugin for automating testing workflow for
