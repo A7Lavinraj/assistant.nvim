@@ -188,7 +188,7 @@ function Processor.run_testcases(testcase_IDS)
       utils.set_win_config(panel_window.winid, {
         title = {
           { ' Panel', 'AssistantTitle' },
-          { string.format(' (%s) ', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
+          { string.format(' | %s ', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
         },
       })
     end)
@@ -247,7 +247,7 @@ function Processor.run_testcases(testcase_IDS)
     utils.set_win_config(panel_window.winid, {
       title = {
         { ' Panel', 'AssistantTitle' },
-        { string.format(' (%s)', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
+        { string.format(' | %s |', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
         { ' COMPILING ', 'AssistantWarning' },
       },
     })

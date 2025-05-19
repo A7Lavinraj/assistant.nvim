@@ -98,14 +98,21 @@ function Wizard:show()
   utils.set_win_config(self.panel_window.winid, {
     title = {
       { ' Panel', 'AssistantTitle' },
-      { string.format(' (%s) ', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
+      {
+        string.format(
+          ' | %s ',
+          (state.get_local_key 'filename' and #state.get_local_key 'filename' ~= 0) and state.get_local_key 'filename'
+            or '?'
+        ),
+        'AssistantParagraph',
+      },
     },
   })
   utils.set_win_config(self.previewer_window.winid, {
     title = {
       { ' Previewer', 'AssistantTitle' },
       {
-        string.format(' (%s) ', require('assistant.config').values.ui.diff_mode and 'DIFF MODE ON' or 'DIFF MODE OFF'),
+        string.format(' | %s ', require('assistant.config').values.ui.diff_mode and 'DIFF MODE ON' or 'DIFF MODE OFF'),
         require('assistant.config').values.ui.diff_mode and 'AssistantSuccess' or 'AssistantFailure',
       },
     },

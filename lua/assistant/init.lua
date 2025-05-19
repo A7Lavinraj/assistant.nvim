@@ -7,7 +7,7 @@ function M.setup(opts)
   require('assistant.core.tcp').bind_server()
 
   vim.api.nvim_create_user_command('Assistant', function()
-    require('assistant.builtins.__wizard').standard()
+    require('assistant.builtins.__wizard').standard:show()
   end, { nargs = 0 })
 end
 

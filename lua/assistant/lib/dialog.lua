@@ -1,4 +1,5 @@
 local Window = require 'assistant.lib.window'
+local constants = require 'assistant.constants'
 local state = require 'assistant.state'
 local utils = require 'assistant.utils'
 
@@ -41,16 +42,16 @@ function Dialog:display(content, options)
     enter = true,
     zindex = 2,
     width = function(vw, _)
-      return math.ceil(vw * 0.85) + 3
+      return math.ceil(vw * constants.global_width) + 2
     end,
     height = function(_, vh)
-      return math.ceil(vh * 0.65)
+      return math.ceil(vh * constants.global_height)
     end,
     col = function(vw, _)
-      return math.floor((1 - 0.85) * 0.5 * vw) - 1
+      return math.floor((1 - constants.global_width) * 0.5 * vw) - 1
     end,
     row = function(_, vh)
-      return math.floor((1 - 0.65) * 0.5 * vh)
+      return math.floor((1 - constants.global_height) * 0.5 * vh)
     end,
   }
 
