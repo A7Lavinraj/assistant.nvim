@@ -7,9 +7,9 @@ local state = require 'assistant.state'
 local utils = require 'assistant.utils'
 
 local highlights = {
-  AssistantNormal = { default = true, link = 'Normal' },
-  AssistantBorder = { default = true, link = 'Conceal' },
-  AssistantTitle = { default = true, link = 'Directory' },
+  AssistantNormal = { default = true, link = 'NormalFloat' },
+  AssistantBorder = { default = true, link = 'FloatBorder' },
+  AssistantTitle = { default = true, link = 'FloatTitle' },
   AssistantSuccess = { default = true, link = 'String' },
   AssistantFailure = { default = true, link = 'Error' },
   AssistantWarning = { default = true, link = 'Constant' },

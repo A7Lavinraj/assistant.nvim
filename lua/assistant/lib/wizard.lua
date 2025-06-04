@@ -1,4 +1,5 @@
 local Window = require 'assistant.lib.window'
+local config = require 'assistant.config'
 local fs = require 'assistant.core.fs'
 local state = require 'assistant.state'
 local utils = require 'assistant.utils'
@@ -100,7 +101,8 @@ function Wizard:show()
       { ' Panel', 'AssistantTitle' },
       {
         string.format(
-          ' | %s ',
+          ' %s %s ',
+          config.values.ui.title_components_separator,
           (state.get_local_key 'filename' and #state.get_local_key 'filename' ~= 0) and state.get_local_key 'filename'
             or '?'
         ),
@@ -112,7 +114,11 @@ function Wizard:show()
     title = {
       { ' Previewer', 'AssistantTitle' },
       {
-        string.format(' | %s ', require('assistant.config').values.ui.diff_mode and 'DIFF MODE ON' or 'DIFF MODE OFF'),
+        string.format(
+          ' %s %s ',
+          config.values.ui.title_components_separator,
+          require('assistant.config').values.ui.diff_mode and 'DIFF MODE ON' or 'DIFF MODE OFF'
+        ),
         require('assistant.config').values.ui.diff_mode and 'AssistantSuccess' or 'AssistantFailure',
       },
     },

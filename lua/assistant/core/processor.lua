@@ -1,5 +1,6 @@
 local Process = require 'assistant.lib.process'
 local Scheduler = require 'assistant.algos.scheduler'
+local config = require 'assistant.config'
 local utils = require 'assistant.utils'
 local luv = vim.uv or vim.loop
 local scheduler = Scheduler.new()
@@ -188,7 +189,14 @@ function Processor.run_testcases(testcase_IDS)
       utils.set_win_config(panel_window.winid, {
         title = {
           { ' Panel', 'AssistantTitle' },
-          { string.format(' | %s ', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
+          {
+            string.format(
+              ' %s %s ',
+              config.values.ui.title_components_separator,
+              state.get_local_key 'filename' or '?'
+            ),
+            'AssistantParagraph',
+          },
         },
       })
     end)
@@ -247,7 +255,15 @@ function Processor.run_testcases(testcase_IDS)
     utils.set_win_config(panel_window.winid, {
       title = {
         { ' Panel', 'AssistantTitle' },
-        { string.format(' | %s |', state.get_local_key 'filename' or '?'), 'AssistantParagraph' },
+        {
+          string.format(
+            ' %s %s %s',
+            config.values.ui.title_components_separator,
+            state.get_local_key 'filename' or '?',
+            config.values.ui.title_components_separator
+          ),
+          'AssistantParagraph',
+        },
         { ' COMPILING ', 'AssistantWarning' },
       },
     })

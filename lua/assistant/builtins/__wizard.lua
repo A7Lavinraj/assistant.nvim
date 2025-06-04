@@ -36,7 +36,7 @@ wizard.standard = Wizard.new {
 
           text:append(string.rep(' ', gap), 'AssistantParagraph')
           if testcase.time_taken then
-            text:append(string.format('%.3f', testcase.time_taken or 0), 'AssistantParagraph')
+            text:append(string.format('%.3fs', testcase.time_taken or 0), 'AssistantParagraph')
           end
 
           if i < #testcases then

@@ -105,6 +105,7 @@
     ui = {
         border = 'single',
         diff_mode = false,
+        title_components_separator = '',
     },
     core = {
         process_budget = 5000,

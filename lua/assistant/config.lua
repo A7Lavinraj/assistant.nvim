@@ -38,8 +38,9 @@ local defaults = {
     },
   },
   ui = {
-    diff_mode = false,
     border = 'rounded',
+    diff_mode = false,
+    title_components_separator = '',
   },
   core = {
     process_budget = 5000,
